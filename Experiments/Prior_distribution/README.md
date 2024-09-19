@@ -9,3 +9,27 @@ The following plots show the network output as function of the input with centra
 <div style="text-align: center;">
   <img src="gloriot_normal.png" alt="description" width="70%">
 </div>
+
+
+
+## Plot of the functional prior with NNPDF-like network
+These plots have been obtained with the following settings:
+
+| Seed | Activation function | Output function | Weight initialisation | Bias initialisation |
+| - | - | - | - | - |
+| 32152315 | Tanh | Linear | `GloriotNormal` | `Zeros` |
+
+### Priors with one dimensional outputs
+Plots with one-dimensional input $(x)$.
+
+<div style="text-align: center;">
+  <img src="nnpdf_gloriot_normal.png" alt="description" width="70%">
+</div>
+
+### Priors including $\log (x)$ in the input
+
+Plots with two-dimensional inputs $(x, \log(x))$.
+
+<div style="text-align: center;">
+  <img src="nnpdf_log_gloriot_normal.png" alt="description" width="70%">
+</div>
