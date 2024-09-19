@@ -54,6 +54,7 @@ $$
   F^{(k)} (f,\dots) \,,
 $$
 where $F$ is a generic function of the network outputs and $F^{(k)}$ is the function computed with the $k$-th neural network replica. For example
+
 $$\mathbb{E}\left[
   f_{\alpha_1}
   f_{\alpha_2}
@@ -66,6 +67,7 @@ $$\mathbb{E}\left[
   f_{\alpha_2}^{(k)}
   f_{\alpha_3}^{(k)}
   f_{\alpha_4}^{(k)} \,.$$
+  
 Here the output of the neural network is assumed to be one-dimensional, but an additional neural index is possible for each neural output.
 
 
