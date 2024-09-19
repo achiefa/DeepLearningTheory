@@ -6,6 +6,13 @@ The weights in each layer are initialised using `GlorotNormal`, while the biases
 
 ## Plot as function of the architecture
 The following plots show the network output as function of the input with central value (thick line) and uncertainty bands corresponding to the 1-$\sigma$ interval (shaded area) and the 68% confidence level (dashed line).
+
+These plots have been obtained with the following settings:
+
+| Seed | Activation function | Output function | Weight initialisation | Bias initialisation | Number of points |
+| - | - | - | - | - | - |
+| 32152315 | Tanh | Linear | `GloriotNormal` | `Zeros` | 1000 |
+
 <div style="text-align: center;">
   <img src="gloriot_normal.png" alt="description" width="70%">
 </div>
@@ -15,9 +22,9 @@ The following plots show the network output as function of the input with centra
 ## Plot of the functional prior with NNPDF-like network
 These plots have been obtained with the following settings:
 
-| Seed | Activation function | Output function | Weight initialisation | Bias initialisation |
-| - | - | - | - | - |
-| 32152315 | Tanh | Linear | `GloriotNormal` | `Zeros` |
+| Seed | Activation function | Output function | Weight initialisation | Bias initialisation | Number of points |
+| - | - | - | - | - | - |
+| 32152315 | Tanh | Linear | `GloriotNormal` | `Zeros` | 1000 |
 
 ### Priors with one dimensional outputs
 Plots with one-dimensional input $(x)$.
