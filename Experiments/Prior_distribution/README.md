@@ -6,4 +6,6 @@ The weights in each layer are initialised using `GlorotNormal`, while the biases
 
 ## Plot as function of the architecture
 The following plots show the network output as function of the input with central value (thick line) and uncertainty bands corresponding to the 1-$\sigma$ interval (coloured area) and the 68% confidence level (dashed line).
-![3_plots](gloriot_normal.png)
+<div style="text-align: center;">
+  <img src="gloriot_normal.png" alt="description" width="70%">
+</div>
