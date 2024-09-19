@@ -54,8 +54,7 @@ $$
   F^{(k)} (f,\dots) \,,
 $$
 where $F$ is a generic function of the network outputs and $F^{(k)}$ is the function computed with the $k$-th neural network replica. For example
-$$
-\mathbb{E}\left[
+$$\mathbb{E}\left[
   f_{\alpha_1}
   f_{\alpha_2}
   f_{\alpha_3}
@@ -66,24 +65,34 @@ $$
   f_{\alpha_1}^{(k)}
   f_{\alpha_2}^{(k)}
   f_{\alpha_3}^{(k)}
-  f_{\alpha_4}^{(k)} \,.
-$$
+  f_{\alpha_4}^{(k)} \,.$$
 Here the output of the neural network is assumed to be one-dimensional, but an additional neural index is possible for each neural output.
 
 
 ## List of experiments
 The following list contains the experiment that have been carried out, together with the results.
 
-### Experiments 19th Sep
+### Experiments 19^th^ Sep
 These experiments use the following settings
-| Seed | Weight initialisation | Bias initialisation | Activation function | Output function
-|-|-|-|-|-|
-|1244235632| `GlorotNormal` | `Zeros | Tanh | Linear |
+| Seed | Weight initialisation | Bias initialisation | Activation function | Output function | Number of points |
+|-|-|-|-|-| - |
+|32152315| `GlorotNormal` | `Zeros` | Tanh | Linear | 150 |
 
 + Using the NNPDF architecture [1,25,20,8]:
     | | Output 1 | Output 2 | Output 3 | Output 4 | Output 5 | Output 6 | Output 7 | Output 8
     |-|-|-|-|-|-|-|-|-|
-    sup($k4$) | 0.0 | 0.006 | 0.005 | 0.004 | 0.003 | 0.0 | 0.0 | 0.0
+    sup($k4$) | -3 $\times$  | 0.006 | 0.005 | 0.004 | 0.003 | 0.0 | 0.0 | 0.0
     min($k4$) | -0.0003 | 0.0 | 0.0 | 0.0 |  0.0 | -0.006 | -0.003 | -0.003
 
++ Using NNPDF with $(x, log(x))$ [2, 25, 20, 8]
+    | | Output 1 | Output 2 | Output 3 | Output 4 | Output 5 | Output 6 | Output 7 | Output 8
+    |-|-|-|-|-|-|-|-|-|
+    sup($k4$) |  |  |  |  |  |  |  |  |
+    min($k4$) |  |  |  |  |  |  |  |  |
+
 + Using a large network [1,100,100,1]
+    | | Output 1 | 
+    |-| -------- |
+    | sup($k4$) | $6.75 \times 10^{-24}$ |
+    | min($k4$) | $- 6 \times 10^{-4}$ |
+
