@@ -13,8 +13,8 @@ The jupyter notebook `cumulants.ipynb` computes the fourth empirical cumulant of
 + All generators are seeded, meaning that experiments are reproducible (at least with the same machine).
 
 + The fourth cumulant $k_4$ is  a four-rank tensor, defined as follows
-$$
-k_{4, \alpha_1 \alpha_2 \alpha_3 \alpha_4} =
+
+$$k_{4, \alpha_1 \alpha_2 \alpha_3 \alpha_4} =
 \mathbb{E} \left[
   f_{\alpha_1}
   f_{\alpha_2}
@@ -44,15 +44,15 @@ k_{4, \alpha_1 \alpha_2 \alpha_3 \alpha_4} =
   \mathbb{E} \left[
   f_{\alpha_2}
   f_{\alpha_3}
-  \right] \,,
-$$
+  \right] \,,$$
+
 where $f$ indicates the output of the neural network and $f_{\alpha} \equiv f(x_{\alpha})$ with $\alpha = 1,\dots, N_{\textrm{dat}}$. The expectation values are computed empirically, namely computing the empirical statistics out of the ensemble of networks
-$$
-\mathbb{E}\left[ F (f,\dots) \right] \approx
+
+$$\mathbb{E}\left[ F (f,\dots) \right] \approx
 \frac{1}{N_{\textrm{rep}}}
 \sum_{k=0}^{N_{\textrm{rep}}}
-  F^{(k)} (f,\dots) \,,
-$$
+  F^{(k)} (f,\dots) \,,$$
+
 where $F$ is a generic function of the network outputs and $F^{(k)}$ is the function computed with the $k$-th neural network replica. For example
 
 $$\mathbb{E}\left[
@@ -67,7 +67,7 @@ $$\mathbb{E}\left[
   f_{\alpha_2}^{(k)}
   f_{\alpha_3}^{(k)}
   f_{\alpha_4}^{(k)} \,.$$
-  
+
 Here the output of the neural network is assumed to be one-dimensional, but an additional neural index is possible for each neural output.
 
 
