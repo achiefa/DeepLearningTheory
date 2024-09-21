@@ -40,3 +40,27 @@ Plots with two-dimensional inputs $(x, \log(x))$.
 <div style="text-align: center;">
   <img src="nnpdf_log_gloriot_normal.png" alt="description" width="70%">
 </div>
+
+# NNPDF prior
+## Imposing sum rules and pre-processing
+
+<div style="text-align: center;">
+  <img src="nnpdf_prior.png" alt="description" width="70%">
+</div>
+
+## Imposing sum rules solely
+<div style="text-align: center;">
+  <img src="nnpdf_prior_no_sumrule.png" alt="description" width="70%">
+</div>
+
+## Imposing pre-processing solely
+
+<div style="text-align: center;">
+  <img src="nnpdf_prior_no_pre_proc.png" alt="description" width="70%">
+</div>
+
+## Relaxing pre-processing and sum rules
+
+<div style="text-align: center;">
+  <img src="nnpdf_prior_no_sumrule_no_pre_proc.png" alt="description" width="70%">
+</div>
