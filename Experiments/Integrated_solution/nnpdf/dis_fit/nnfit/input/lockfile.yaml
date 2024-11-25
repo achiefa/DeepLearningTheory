@@ -1,0 +1,182 @@
+description: NNLO baseline fit w/o ATLAS low mass DY 2D 8 TeV
+dataset_inputs:
+- dataset: NMC_NC_NOTFIXED_P_EM-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: SLAC_NC_NOTFIXED_P_DW_EM-F2
+  frac: 0.75
+  variant: legacy
+- dataset: SLAC_NC_NOTFIXED_D_DW_EM-F2
+  frac: 0.75
+  variant: legacy
+- dataset: BCDMS_NC_NOTFIXED_P_DW_EM-F2
+  frac: 0.75
+  variant: legacy
+- dataset: BCDMS_NC_NOTFIXED_D_DW_EM-F2
+  frac: 0.75
+  variant: legacy
+- dataset: CHORUS_CC_NOTFIXED_PB_DW_NU-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: CHORUS_CC_NOTFIXED_PB_DW_NB-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: NUTEV_CC_NOTFIXED_FE_DW_NU-SIGMARED
+  cfac:
+  - MAS
+  frac: 0.75
+  variant: legacy
+- dataset: NUTEV_CC_NOTFIXED_FE_DW_NB-SIGMARED
+  cfac:
+  - MAS
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_NC_318GEV_EM-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_NC_225GEV_EP-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_NC_251GEV_EP-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_NC_300GEV_EP-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_NC_318GEV_EP-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_CC_318GEV_EM-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_CC_318GEV_EP-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_NC_318GEV_EAVG_CHARM-SIGMARED
+  frac: 0.75
+  variant: legacy
+- dataset: HERA_NC_318GEV_EAVG_BOTTOM-SIGMARED
+  frac: 0.75
+  variant: legacy
+datacuts:
+  t0pdfset: 240701-02-rs-nnpdf40-baseline
+  q2min: 3.49
+  w2min: 12.5
+theory:
+  theoryid: 40000000
+trvlseed: 591866982
+nnseed: 945709987
+mcseed: 519562661
+genrep: true
+parameters:
+  nodes_per_layer:
+  - 25
+  - 20
+  - 8
+  activation_per_layer:
+  - tanh
+  - tanh
+  - linear
+  initializer: glorot_normal
+  optimizer:
+    clipnorm: 6.073e-06
+    learning_rate: 0.002621
+    optimizer_name: Nadam
+  epochs: 17000
+  positivity:
+    initial: 184.8
+    multiplier:
+  integrability:
+    initial: 10
+    multiplier:
+  stopping_patience: 0.1
+  layer_type: dense
+  dropout: 0.0
+  threshold_chi2: 3.5
+fitting:
+  fitbasis: EVOL
+  savepseudodata: true
+  basis:
+  - fl: sng
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+  - fl: g
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+  - fl: v
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+  - fl: v3
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+  - fl: v8
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+  - fl: t3
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+  - fl: t8
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+  - fl: t15
+    trainable: false
+    smallx:
+    - 0.0
+    - 0.0
+    largex:
+    - 0.0
+    - 0.0
+positivity:
+  posdatasets: []
+added_filter_rules: []
+integrability:
+  integdatasets: []
+debug: false
+maxcores: 8
+use_cuts: internal
+use_t0: true
+actions_:
+- datacuts::theory::fitting performfit
+- datacuts::theory::fitting training_pseudodata
+- datacuts::theory::fitting validation_pseudodata
+fiatlux:
+positivity_bound:
+use_thcovmat_in_fitting: false
+use_thcovmat_in_sampling: false
+data_grouping_recorded_spec_:
+  standard_report: experiment
