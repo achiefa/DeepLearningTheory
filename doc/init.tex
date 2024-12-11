@@ -1,0 +1,164 @@
+%\pagestyle{headings}
+
+\textwidth=440pt
+\hoffset=-0.6truein
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{authblk}
+\usepackage{dsfont}
+\usepackage{pifont}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{siunitx}
+%\usepackage{bbold}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{epsfig}
+%\usepackage{bibunits}
+%\usepackage{theorem}
+%\usepackage[framed]{ntheorem}
+\usepackage{framed}
+%\usepackage{showlabels}
+\usepackage{makeidx}
+\usepackage{simplewick}
+%\usepackage{tikz-feynman}
+\usepackage{hyperref}
+\usepackage{placeins}
+\usepackage{bbold}
+\usepackage[font=small,labelfont=bf]{caption}
+%\tikzfeynmanset{compat=1.0.0}
+\usepackage{tikz}
+\usetikzlibrary{positioning}% To get more advances positioning options
+\usetikzlibrary{arrows}
+\usetikzlibrary{colorbrewer}
+
+% barn deprecated by siunitx
+\DeclareSIUnit{\barn}{b}
+
+% General global commands
+%\newcommand{\cov}{C}
+\newcommand{\posterior}[1]{\tilde{#1}}
+\newcommand{\real}{\mathbb{R}}
+\renewcommand{\textin}{\text{in}} 
+
+% General inverse Problems
+% map operators
+\newcommand{\fwdmapop}{G}
+\newcommand{\obsop}{O}
+\newcommand{\fwdobsop}{\mathcal{\fwdmapop}}
+% model space
+\newcommand{\nmodel}{N_{\rm model}}
+\newcommand{\modelspace}{X}
+\newcommand{\modelvec}{u}
+\newcommand{\modelpriorcent}{\modelvec_0}
+\newcommand{\modelpriorcov}{\cov_X}
+\newcommand{\modelpostcent}{\posterior{\modelvec}}
+\newcommand{\modelpostcov}{\posterior{\cov}_X}
+% observable space
+\newcommand{\ndata}{N_{\rm data}}
+\newcommand{\obs}{y}
+\newcommand{\obspriorcent}{\obs_0}
+\newcommand{\obspriorcov}{\cov_{Y}}
+\newcommand{\obsnoise}{\eta}
+\newcommand{\obspostcent}{\posterior{\obs}}
+\newcommand{\obspostcov}{\posterior{\cov}_Y}
+% linear map
+\newcommand{\linmap}{\fwdobsop}
+\newcommand{\vander}{\mathcal{X}}
+\newcommand{\nlaw}{N_{\rm law}}
+
+% NNPDF data/model
+\newcommand{\law}{f}
+\newcommand{\pseudodat}{\mu}
+\newcommand{\noise}{\epsilon}
+\newcommand{\repind}{(k)}
+\newcommand{\modelvecrep}{\modelvec_*^{\repind}}
+% likelihood
+\newcommand{\likelihood}{\mathcal{L}}
+\newcommand{\repchis}{{\chi^2}^{\repind}}
+
+% closure fitting
+\newcommand{\lawmodel}{w}
+\newcommand{\utrue}{u_\mathrm{true}}
+\newcommand{\uest}{u_\mathrm{est}}
+
+% closure estimators
+\newcommand{\testset}[1]{ {{#1}^{\prime}} }
+\newcommand{\emodel}[1]{ \mathbf{E}_{\{ \modelvec_* \}} \left[ #1 \right] }
+\newcommand{\eout}{\mathcal{E}^{\rm out}}
+
+\newcommand{\nfits}{N_{\rm fits}}
+\newcommand{\nreps}{N_{\rm replicas}}
+
+\newcommand{\bias}{{\rm bias}}
+\newcommand{\var}{{\rm variance}}
+\newcommand{\covrep}{\testset{\cov}^{(\rm replica)}}
+\newcommand{\covcent}{\testset{\cov}^{(\rm central)}}
+\newcommand{\biasvarratio}{\mathcal{R}_{bv}}
+
+% quantile estimators
+\newcommand{\xisigdat}[1]{\xi^{(\rm data)}_{#1 \testset{\sigma}}}
+\newcommand{\xisigdati}[1]{\xi^{(\rm data)}_{#1 {\testset{\sigma}_i}}}
+\newcommand{\modelstd}{\hat{\sigma}}
+\newcommand{\erf}{{\rm erf}}
+
+% abbreviations
+\newcommand{\ie}{{\it i.e.}}
+\newcommand{\eg}{{\it e.g.}}
+\newcommand{\viz}{{\it viz.}}
+
+% delta chi2 appendix
+\newcommand{\ein}{\mathcal{E}^{\rm in}}
+\newcommand{\deltachi}{\Delta_{\chi^2}}
+\newcommand{\noisecross}{{\rm noise \, cross \, term}}
+
+% -------------------%
+% deprecated commands
+% -------------------%
+\newcommand{\vv}[1]{\mathbf{#1}}
+
+\newcommand{\vecdiffreptwo}{\left( \vv{\model}^{\repind} - \vv{\levtwo}^{\repind}  \right)}
+\newcommand{\vecdiffcentone}{\left( \erep{\vv{\model}} - \vv{\levone} \right)}
+
+\newcommand{\coveig}{\sigma^{2}}
+\newcommand{\diag}[1]{\hat{#1}}
+
+\newcommand{\levelonediff}{\Delta}
+\newcommand{\underlyingdiff}{u}
+\newcommand{\repdiff}{v}
+
+\newcommand{\shiftcross}{{\rm shift \, cross \, term}}
+\newcommand{\deltaeps}{\Delta_{\epsilon}}
+\newcommand{\kldiv}{D_{KL}}
+
+\newcommand{\diffreptwo}{\left( \model^{\repind} - \levtwo^{\repind} \right)}
+\newcommand{\diffcentone}{\left( \erep{\model} - \levone \right)}
+\newcommand{\diffcentunder}{\left( \erep{\model} - \law \right)}
+\newcommand{\diffcentrep}{\left( \erep{\model} - \model^{\repind}\right)}
+
+\newcommand{\invcov}[1]{\cov^{-1}_{#1}}
+\newcommand{\erep}[1]{\mathbf{E}_{\noise}\left[ #1 \right]}
+\newcommand{\eshift}[1]{\mathbf{E}_{\shift}\left[ #1 \right]}
+
+\newcommand{\model}{\fwdobsop}
+\newcommand{\shift}{\obsnoise}
+\newcommand{\invcovprime}{C_D^{\prime -1}}
+\newcommand{\levone}{z}
+\newcommand{\levtwo}{y}
+
+\newcommand{\npoints}{N_{\rm points}}
+\newcommand{\nfit}{\texttt{n3fit}}
+
+\newcommand{\ndat}{N_{\mathrm{dat}}}
+\newcommand{\ngrid}{N_{\mathrm{grid}}}
+%\newcommand{\nmodel}{N_{\mathrm{model}}}
+\newcommand{\cov}{\mathrm{Cov}}
+\newcommand{\FKtab}{(\mathrm{FK})}
+\newcommand{\FKtabT}{(\mathrm{FK})^T}
+\newcommand{\GP}{\mathcal{GP}}
+\newcommand{\lat}{{\mathrm{lat}}}
+\newcommand{\lin}{{\mathrm{lin}}}
+
+\graphicspath{{./figures/}}

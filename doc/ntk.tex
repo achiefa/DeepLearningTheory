@@ -1,0 +1,532 @@
+\documentclass[11pt]{article}
+
+\include{init}
+
+\title{Notes on Neural Tangent Kernels}
+\author[b]{Luigi Del Debbio} 
+\affil[b]{Higgs Centre for Theoretical Physics, School of Physics and Astronomy,
+Peter~Guthrie~Tait~Road, Edinburgh EH9 3 FD, United Kingdom.}
+
+\date{\today}
+\makeindex
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    Summary of results for NTKs. These notes follow the notation 
+    introduced in Ref.~\cite{DBLP:journals/corr/abs-1806-07572}.
+\end{abstract}
+
+\section{Definitions}
+\label{sec:defs}
+
+\subsection{Neural Networks}
+\label{sec:NNDef}
+
+We consider the case of neural networks (NNs) with $L+1$ layers, labelled by the
+index $\ell=0,\ldots,L$. The number of neurons in layer $\ell$ is denoted by
+$n_{\ell}$. The $\ell=0$ and $\ell=L$ layers are the input and output layers
+respectively, so that a NN parametrizes an element of 
+\begin{align}
+    \label{eq:SetF}
+    \mathcal{F} = \left\{ 
+        f: \mathbb{R}^{n_0} \to \mathbb{R}^{n_L}
+    \right\}\, .
+\end{align}
+The space of inputs in this case is $\mathcal{X}=\mathbb{R}^{n_0}$, while the
+space of outputs is $\mathcal{Y}=\mathbb{R}^{n_L}$. The number of parameters
+used in the parametrization is the total number of weights and biases,
+\begin{align}
+    \label{eq:NumOfPars}
+    P = \sum_{\ell=0}^{L-1} (n_\ell + 1) n_{\ell+1}\, .
+\end{align}
+The weights connecting the layer $\ell$ to the layer $\ell+1$ are denoted
+$W^{(\ell+1)}$ and the biases in layer $\ell+1$ are denoted $b^{(\ell+1)}$. 
+With this convention
+\begin{align}
+    W^{(\ell+1)} \in \mathbb{R}^{n_{\ell+1}\times n_{\ell}}\, ,
+    \quad 
+    b^{(\ell+1)} \in \mathbb{R}^{\ell+1}\, .
+\end{align}
+When referring to the whole set of parameters, we use the symbol 
+\begin{align}
+    \theta = \left\{
+        W^{(\ell)}, b^{(\ell)}; \; \ell=0, \ldots, L-1
+    \right\}\, , 
+\end{align}
+while individual parameters are denoted $\theta_\mu$, with $\mu=1, \ldots, P$.
+
+The input space is
+$\mathcal{X}=\mathbb{R}^{n_0}$ and we consider a probability distribution
+$p^{\textin}$ over $\mathcal{X}$, which induces a scalar product in
+$\mathcal{F}$,
+\begin{align}
+    \label{eq:ScalProdX}
+    \langle f, g\rangle_{\textin} &= 
+        \mathbb{E}_{x\sim p^{\textin}} \left[f(x)^T g(x)\right] \\
+        &= \int dx\, p^{\textin}(x) f_i(x) g_i(x)\, .
+\end{align}
+For a discrete set of datapoints $\mathcal{D}$, 
+\begin{align}
+    p^{\textin}(x) = \frac{1}{|\mathcal{D}|} \sum_{\alpha\in\mathcal{D}} 
+        \delta(x-x_{\alpha})\, ,
+\end{align}
+where the index $\alpha$ labels the elements of the dataset. For a given set of
+parameters, the function parametrized by the NN, which we denote $f_{\theta}$, is given by the
+preactivation function of the output layer $L$,
+\begin{align}
+    f(x;\theta) = \phi^{(L)}(x)\, .
+\end{align}
+The preactivations $\phi^{(\ell)}$ and the activations $\rho^{(\ell)}$ are
+defined recursively as
+\begin{align}
+    \rho^{(0)}_i(x) 
+        &= x_i\, , \\
+    \phi^{(\ell+1)}_i(x)
+        &= \sum_{j=1}^{n_\ell} W^{(\ell+1)}_{ij} \rho^{(\ell)}_j(x) + b^{(\ell+1)}_i\, , \\
+    \rho^{(\ell)}_i(x)
+        &= \rho\bigl(\phi^{\ell}_i(x)\bigr)\, ,
+\end{align}
+where $\rho$ is the activation function. The function 
+\begin{align}
+    F^{(L)} 
+        :\quad & \mathbb{R}^P \to \mathcal{F} \\
+        & \theta \mapsto F^{(L)}(\theta) = f_{\theta}
+\end{align}
+is called the NN realization function. We also introduce the (dual) space of
+linear functionals acting on $\mathcal{F }$,
+\begin{align}
+    \label{eq:FdualDef}
+    \mathcal{F}^* = 
+        \left\{
+            \mu: \mathcal{F} \to \mathbb{R}\,; \; 
+                \mu = \langle d, \cdot\rangle_{\textin}, \; d \in \mathcal{F}
+        \right\}\, ,
+\end{align}
+and a loss function 
+\begin{align}
+    \label{eq:LossDef}
+    \mathcal{L}\, : \mathcal{F}\times \mathcal{Z} \to \mathbb{R}\, .
+\end{align}
+Here $\mathcal{Z}$ denotes the space of datapoints, which we can identify for
+now with $\mathcal{X}\times\mathcal{Y}$. 
+
+% The cost function for a set of
+% datapoints $\mathcal{D}$ is defined as 
+% \begin{align}
+%     \label{eq:CostDef}
+%     C_{\mathcal{D}}(f) = \frac{1}{|\mathcal{D}|} \sum_{\alpha\in\mathcal{D}}
+%     \mathcal{L}(f,z_{\alpha})\, .
+% \end{align}
+
+\subsection{Kernel Gradient}
+\label{sec:KernGradDef}
+
+A kernel $K$ is defined as a symmetric function 
+\begin{align}
+    \label{eq:KernDef}
+    K: \mathbb{R}^{n_0} \times \mathbb{R}^{n_0} \to 
+    \mathbb{R}^{n_L\times n_L}\, ,
+\end{align}
+such that $K(x,x')=K(x',x)^T$. Using the kernel, a bilinear map is defined 
+on $\mathcal{F}$
+\begin{align}
+    \label{eq:KMap}
+    \langle f,g\rangle_K = \mathbb{E}_{x,x'\sim p^{\textin}}
+    \left[
+        f(x)^T K(x,x') g(x')
+    \right]\, .
+\end{align}
+The kernel is positive definite if
+\begin{align}
+    ||f||_{p^{\textin}} > 0 
+    \quad \Longrightarrow \quad
+    ||f||_K > 0\, .
+\end{align}
+Given a kernel $K$, we define a map
+\begin{align}
+    \label{eq:PhiKMap}
+    \Phi_K: \mathcal{F}^* &\to \mathcal{F} \\
+            \mu &\mapsto f_{\mu}\, ,
+\end{align}
+such that 
+\begin{align}
+    f_{\mu,i}(x) 
+        &= \langle d, K_{i\cdot}(x,\cdot) \rangle_{p^{\textin}} \\
+        &= \sum_{j=1}^{n_L} \int dx'\, p^{\textin}(x')\, d_j(x')
+            K_{ij}(x,x')\, ,
+\end{align}
+where $d\in\mathcal{F}$, and $\mu=\langle d, \cdot\rangle_{p^{\textin}}$.
+
+The cost function for a given dataset depends on the values of the function 
+$f$ at the datapoints $x_{\alpha}$, so that we can write
+\begin{align}
+    C_{\mathcal{D}}(f) = \widehat{C}(\mathbf{f})\, ,
+\end{align}
+where $\mathbf{f}$ is the finite-dimensional vector made of the 
+values $f_{\alpha}=f(x_{\alpha})$ for $\alpha=1, \ldots, |\mathcal{D}|$.
+The variation of the cost function at a point $f_0 \in \mathcal{F}$ is
+\begin{align}
+    \left. \delta C_{\mathcal{D}} \right|_{f_0} 
+        &= C_{\mathcal{D}}(f_0+\delta f) - C_{\mathcal{D}}(f_0) \\
+        &= \sum_{\alpha\in\mathcal{D}} 
+            \left. \frac{\partial \widehat{C}}{\partial f_\alpha} \right|_{f_0} 
+            \delta f_{\alpha} \\
+        &= \left. \partial^{\textin}_{f} C \right|_{f_0} \delta f \\
+        &= \langle \left. d\right|_{f_0}, \delta f\rangle_{p^{\textin}}\, ,
+\end{align}
+where $\delta f \in \mathcal{F}$, $\delta f_{\alpha}=\delta f(x_{\alpha})$ and 
+$\displaystyle \left. \partial^{\textin}_{f} C \right|_{f_0} \in \mathcal{F}^*$.
+
+Using the kernel $K$, the {\em kernel gradient} $\left.\nabla_K C\right|_{f_0}$
+is defined as 
+$\displaystyle \Phi_K\left(\left. \partial^{\textin}_{f} C \right|_{f_0}
+\right)$, \ie 
+\begin{align}
+    \label{eq:KernGradC}
+    \left.\nabla_K C\right|_{f_0}(x)
+        &= \frac{1}{|\mathcal{D}|} \sum_{\alpha\in\mathcal{D}} 
+            K(x,x_{\alpha}) \left. 
+            \frac{\partial \widehat{C}}{\partial f_\alpha}\right|_{f_0}\, .
+\end{align}
+A function $f(t)$ follows the kernel gradient descent if 
+\begin{align}
+    \partial_{t} f(t) = -\left.\nabla_{K} C\right|_{f(t)}\,.
+\end{align}
+During the kernel descent, the cost function variation is given by
+\begin{align}
+    \partial_{t} \left. C\right|_{f(t)}
+        &= - \langle \left. d \right|_{f(t)}, \left.\nabla_{K} C\right|_{f(t)} \rangle_{p^{\textin}} = 
+        -|| \left. d \right|_{f(t)} ||^2_{K}\, .
+\end{align}
+More generally, for a function $\widehat{O}$ that depends on 
+the values of $f$ on the points in the dataset, 
+\begin{align}
+    \partial_{t} \left. \widehat{O}\right|_{f(t)}
+        &= - \left\langle 
+            \frac{\partial \widehat{O}}{\partial f}, 
+            \frac{\partial \widehat{C}}{\partial f} 
+            \right\rangle_K\, .
+\end{align}
+
+\section{Gradient Descent for NNPDF}
+\label{sec:GradDescNNPDF}
+
+We work in a basis where the data covariance $C_Y$ is diagonal. Such a choice has two main advantages:
+\begin{enumerate}
+    \item The data points in this basis are statistically independent, so that when the data is split, 
+    e.g. between training and validation sets, the points in each subset are not correlated. 
+    \item Working in a basis where the data covariance is diagonal, requires to compute the eigenvectors
+    and eigenvalues of $C_Y$, thereby automatically checking for a potentially large condition number. 
+\end{enumerate}
+Note that, in case we need to apply kinematic cuts, these can be applied before rotating to the diagonal basis. The diagonal basis is then defined by determining the eigensystem of the reduced covariance matrix, i.e. the matrix obtained by removing the lines and columns that correspond to data points that do not pass the kinematic cuts.  
+
+The loss function is defined to be the Mean Square Error (MSE),
+\begin{align}
+    \label{eq:MSELoss}
+    \mathcal{L} &= \frac12 \left(y - T\right)^T C_Y^{-1} \left(y - T\right)\, , \\
+        &= \frac12 ||y-T||^2_{C_Y}\, ,
+\end{align}
+where 
+\begin{align}
+    \label{eq:DataAndTheory}
+    y = 
+        \begin{pmatrix}
+            y_1 \\
+            \vdots \\
+            y_I \\
+            \vdots \\
+            y_{\ndat}
+        \end{pmatrix}\, , 
+    \quad \mathrm{and} \quad 
+    T = 
+        \begin{pmatrix}
+            T_1 \\
+            \vdots \\
+            T_I \\
+            \vdots \\
+            T_{\ndat}
+        \end{pmatrix}\, 
+\end{align}
+are vectors containing the data points $y_I$ and their respective theoretical predictions $T_I$, where $I=1, \dots, \ndat$. The loss function can be written using explicit indices, 
+\begin{align}
+    \label{eq:MSELossWithIndices}
+    \mathcal{L} = \frac12 \sum_I \frac{1}{\sigma_I^2} \left(y_I - T_I\right)^2\, .
+\end{align}
+However, here and in what follows, we try to minimize the usage of explicit indices.
+
+Denoting by $t$ the training time, and by $\theta_\mu$, with $\mu=1, \dots, P$, the parameters used to specify 
+the functional form of $f$, gradient descent is defined by the flow equation, 
+\begin{align}
+    \label{eq:GradD}
+    \frac{d}{dt} \theta_{\mu,t} = - \sum_{\nu} \lambda_{\mu\nu} \nabla_\nu \mathcal{L}_t\, , 
+\end{align}
+where we added a suffix $\mathcal{L}_t$ to emphasise that the loss function is evaluated using the function $f_t$ at training time $t$. 
+We introduced the tensor $\lambda_{\mu\nu}$ to take into account the case of a non-trivial metric in the space of parameters. We will use $\lambda_{\mu\nu} = \lambda_{\mu} \delta_{\mu\nu}$, 
+unless explicitly stated.
+The gradient on the RHS of Eq.~\ref{eq:GradD} above is
+\begin{align}
+    \label{eq:GradStepOne}
+    \nabla_\mu \mathcal{L}_t = 
+        - \left(\nabla_\mu f_t\right)^T \left(\frac{\partial T}{\partial f}\right)_t^T 
+        C_Y^{-1} \epsilon_t\, ,
+\end{align}
+where we introduced $\epsilon_t=y-T_t$, to denote the difference between the data and the theoretical prediction obtained from $f_t$. 
+The quantities that depend on the training time have an explicit suffix $t$. Using the chain rule yields
+\begin{align}
+    \frac{d}{dt} f_t 
+        \label{eq:NtkOne}
+        &=  \sum_{\mu}\, \left(\nabla_{\mu} f_t\right) \, \frac{d}{dt} \theta_{\mu,t} \\
+        \label{eq:NtkTwo}
+        &=  \left[\sum_{\mu,\nu}\, \lambda_{\mu\nu} \left(\nabla_\mu f_t\right)\, 
+                    \left(\nabla_\nu f_t\right)^T\right]\,  
+                \left(\frac{\partial T}{\partial f}\right)_t^T C_Y^{-1} \epsilon_t\, .
+\end{align}
+Introducing the Neural Tangent Kernel (NTK), 
+\begin{align}
+    \label{eq:NTKDefNoIndices}
+    \Theta_t = \sum_{\mu,\nu}\, \lambda_{\mu\nu} \left(\nabla_\mu f_t\right)\, 
+        \left(\nabla_\nu f_t\right)^T\, ,
+\end{align}
+or equivalently using explicit indices for once,
+\begin{align}
+    \label{eq:NTKDef}
+    \Theta_{\delta_1\delta_2,t} = \sum_{\mu\nu} \lambda_{\mu\nu} \nabla_\mu f_{\delta_1,t}\, \nabla_\nu f_{\delta_2,t}\, .
+\end{align}
+Note that the NTK is a tensor in the space of the grid points on which the function $f$ is evaluated, \ie \
+$f_{\delta} = f(x_\delta)$.
+
+The flow equation becomes
+\begin{align}
+    \label{eq:FlowWithNTKNoIndices}
+    \frac{d}{dt} f_t = 
+        \Theta_t \left(\frac{\partial T}{\partial f}\right)_t^T C_Y^{-1} \epsilon_t\, .
+\end{align}
+This flow equation is completely general, for any parametrization and any dependence of the theoretical predictions on the function f.
+
+Let us now focus on the case where the theoretical prediction is linear in $f$, 
+\begin{align}
+    \label{eq:LinearDataFK}
+    T_I = \FKtab_{I\alpha} f_\alpha\, ,
+\end{align}
+so that 
+\begin{align}
+    \label{eq:LinearNabla}
+    \left(\frac{\partial T_I}{\partial f_\alpha}\right) = \FKtab_{I\alpha}\, ,
+\end{align}
+is actually independent of $t$. Note in passing that $\FKtab$ is not a square matrix, and hence not invertible. 
+
+The loss function is a quadratic form in $f$,
+\begin{align}
+    \label{eq:QuadraticLossInf}
+    2 \mathcal{L} = f^T M f - f^T \FKtabT C_Y^{-1} y - y^T C_Y^{-1} \FKtab f + y^T C_Y^{-1} y \, .
+\end{align}
+We can restrict $f$ to the subspace orthogonal to $\ker\FKtab$; the components in $\ker\FKtab$ do not 
+enter the loss function and therefore are unconstrained. In this subspace, the matrix 
+\begin{align}
+    \label{eq:MmatrixForLoss}
+    M = \FKtabT C_Y^{-1} \FKtab
+\end{align}
+is symmetric and positive definite, and hence invertible. Rewriting 
+\begin{align}
+    \label{eq:CompleteTheSquare}
+    f = \chi + M^{-1} \FKtabT C_Y^{-1} y\, ,
+\end{align}
+yields
+\begin{align}
+    \label{eq:LossFunctionOfChi}
+    2 \mathcal{L} = \chi^T M \chi +
+        y^T C_Y^{-1} \left[
+            1 - \FKtab M^{-1} \FKtabT C_Y^{-1}
+        \right] y\, .
+\end{align}
+Therefore the absolute minimum is obtained for 
+\begin{align}
+    \label{eq:MinimumLossInf}
+    f^* = M^{-1} \FKtabT C_Y^{-1} y \quad \Longrightarrow \quad 
+        \mathcal{L}^* = \frac12   y^T C_Y^{-1} \left[
+            1 - \FKtab M^{-1} \FKtabT C_Y^{-1}
+        \right] y\, .  
+\end{align}
+Note that the minimum of the loss function is {\em not}\ zero. However, in a level-0 closure test, $y = \FKtab f^{\mathrm{in}}$, and then 
+$f^* = f^{\mathrm{in}}$ and $\mathcal{L}^*=0$. The absolute minimum of the loss yields the correct input function and a vanishing loss 
+function. This is something we always stress in NNPDF. If we push the training for long enough in L0, we can get a vanishing loss. 
+
+The flow equation for linear data becomes
+\begin{align}
+    \label{eq:FlowLinearDataNTK}
+    \frac{d}{dt} f_t = 
+        \Theta_t\, \FKtab^T C_Y^{-1} \epsilon_t\, .
+\end{align}
+
+\paragraph{Evolution for $\epsilon_t$.}
+We can rewrite Eq.~\ref{eq:FlowLinearDataNTK} as 
+\begin{align}
+    \label{eq:FlowLinearDataNTKEpsilon}
+    \frac{d}{dt} \epsilon_t &= - \FKtab \frac{d}{dt} f_t \nonumber \\
+        &= - \FKtab \Theta \FKtabT C_Y^{-1} \epsilon_t \nonumber \\
+        &= - \FKtab \Theta \FKtabT R D R^T \epsilon_t\, ,
+\end{align}
+where we used the eigendecomposition $C_Y^{-1} = R D R^T$, where $R$ is an orthogonal matrix. 
+One can readily check that 
+\begin{align}
+     \frac{d}{dt} \left(D^{1/2} R^T \epsilon_t\right) = 
+        - H \left(D^{1/2} R^T \epsilon_t\right)\, ,
+\end{align}
+where 
+\begin{align}
+    \label{eq:HSymmetricDef}
+    H = D^{1/2} R^T \FKtab \Theta \FKtabT R D^{1/2}
+\end{align}
+is a symmetric, positive definite, matrix, and therefore
+\begin{align}
+    \label{eq:SolutionForEpsilon}
+    \epsilon_t = R D^{-1/2} e^{-H t} D^{1/2} R^T \epsilon_0\, ,
+\end{align}
+or equivalently
+\begin{align}
+    \label{eq:SolutionForFKf}
+    \FKtab f_t = 
+        \left( 1 - R D^{-1/2} e^{-Ht} D^{1/2} R^T\right) y + 
+            R D^{-1/2} e^{H t} D^{1/2} R^T \FKtab f_0\, .
+\end{align}
+
+The problem with this solution is that when we take the limit $t\to\infty$, we find
+\begin{align}
+    \label{eq:EpsilonFlowed} 
+    \epsilon^* = \lim_{t\to\infty} \epsilon_t = 0\, ,   
+\end{align}
+which is inconsistent with the minimum we found above... 
+
+% Given these expressions, we can solve for $f_t$ using the pseudoinverse of $\FKtab$. However, before we look for the 
+% solution for $f_t$ we should check that Eq.~\ref{eq:SolutionForFKf} describes what we obtain by running the 
+% usual gradient descent. Note that the matrix $H$ is symmetric and positive definite, so that
+% \begin{align}
+%     \label{eq:ExpHt}
+%     e^{H t} = \sum_i e^{- H_i t} |v_i\rangle \langle v_i|\, .
+% \end{align}
+
+
+\paragraph{Evolution of $f_t$.}
+A different way of solving the equation could be the following. We start by finding the eigenvectors and eigenvalues of $\Theta$,
+\begin{align}
+    \label{eq:ThetaEigensystem}
+    \Theta v_i = \lambda_i v_i\, .
+\end{align}
+We make a nice plot with the eigenvalues. 
+
+We rewrite the flow equation~\ref{eq:FlowLinearDataNTK} as
+\begin{align}
+    \frac{d}{dt} f_t = b - \Theta M f_t\, , 
+\end{align}
+where 
+\begin{align}
+    \label{eq:Defb}
+    b = \Theta \FKtabT C_Y^{-1} y\, ,
+\end{align}
+while $M$ and its eigendecomposition have been introduced above. We define 
+\begin{align}
+    \label{eq:RotatedF}
+    \tilde{f}_t = D^{1/2} R^T f_t\, , \quad \tilde{b} = D^{1/2} R^T b\, ,
+\end{align}
+so that 
+\begin{align}
+    \label{eq:EvolutionRotatedF}
+    \frac{d}{dt} \tilde{f}_t &= \tilde{b} - D^{1/2} R^T \Theta R D^{1/2} \tilde{f}_t \\
+        &= \tilde{b} - \tilde{H} \tilde{f}_t\, .
+\end{align}
+The solution, assuming that $\tilde{H}$ is independent of the flow time, is
+\begin{align}
+    \label{eq:FlowSolutionInFtilde}
+    \tilde{f}_t = e^{-\tilde{H}t} + \left(1 - e^{-\tilde{H}t}\right) \tilde{H}^{-1}
+\end{align}
+Taking the limit $t\to\infty$, we find
+\begin{align}
+    \label{eq:InfiniteTrainingF}
+    f_\infty = M^{-1} \FKtabT C_Y^{-1} y = f^*\, .
+\end{align}
+This is consistent with the absolute minimum we found above. So I don't understand 
+what we find for $\epsilon_\infty$. 
+
+As before, in a L0 test, 
+\begin{align}
+    f_\infty = M^{-1} \FKtabT C_Y^[-1] \FKtab f^{\mathrm{in}} = f^{\mathrm{in}}\, .
+\end{align}
+
+\subsection*{Obsolete Material -- to be deleted, later}
+
+We then project the flow equation for $f_t$, Eq.~\ref{eq:FlowLinearDataNTK}, in this basis
+\begin{align}
+    \label{eq:FlowEigenbasisNTK}
+    \frac{d}{dt} f_{i,t} = b_i - \lambda_i M_{ij} f_{j,t}\, ,
+\end{align} 
+where
+\begin{align}
+    f_{i,t} &= (v_i, f_t)\, , \\
+    b_i &= (v_i, \Theta \FKtabT C_Y^{-1} y)\, \\
+    M_{ij} &= (v_i, \FKtabT C_Y^{-1} \FKtab v_j)\, .
+\end{align}
+Note that $M$ is symmetric and positive definite. We can write $M = R D^{1/2} D^{1/2} R^T$ and repeat the 
+derivation we did for the $\epsilon$.
+
+To be continued... 
+
+At order $O(1)$ in an expansion in $1/n$, where $n$ is the width of the NN, $\Theta$ is constant during training, and the flow equation can be integrated analytically, 
+\begin{align}
+    \label{eq:IntegrateFlowAtLeadingOrder}
+    f_t = M^{-1}\, \FKtabT\, \left[
+        \left(1 - e^{-\hat{\Theta}_Yt}\right) y +
+        e^{-\hat{\Theta}_Y t} \FKtab f_0
+    \right]\, .
+\end{align}
+where 
+\begin{align}
+    \label{eq:DefineThetaM}
+    \Theta_Y &= \FKtabT \Theta\, \FKtab\, , \\
+    \hat{\Theta}_Y &= \Theta_Y C_Y^{-1}\, , \\    
+    M &=  \FKtabT \FKtab\, .
+\end{align}
+Note that, if $\FKtab$ were invertible, then for $t\to\infty$
+\begin{align}
+    \FKtab f_\infty = \FKtab M^{-1} \FKtabT y = y\, ,
+\end{align}
+and the theoretical predictions go exactly through the points. However this is not true in the real life scenario where $\FKtab$ is {\em not}\ invertible. It is therefore interesting to compute the matrix (in data space)
+\begin{align}
+    \FKtab M^{-1} \FKtabT \, ,    
+\end{align}
+in order to understand how close the training can get to the training points. 
+
+For points $f^*$ that do not enter in the computation of the theory prediction, the flow 
+equation is
+\begin{align}
+    \label{eq:FlowStarLinearDataNTK}
+    \frac{d}{dt} f^*_t = 
+        \Theta^*_t\, \FKtab^T C_Y^{-1} \epsilon_t\, ,
+\end{align}
+where 
+\begin{align}
+    \label{eq:NTKStarDef}
+    \Theta^*_t = \sum_{\mu,\nu}\, \lambda_{\mu\nu} \left(\nabla_\mu f^*_t\right)\, 
+    \left(\nabla_\nu f_t\right)^T\, .
+\end{align}
+The solution to this flow equation is
+\begin{align}
+    \label{eq:IntegrateFlowAtLeadingOrderStar}
+    f^*_t = \Theta^*\, \Theta^{-1}\, f_t \, . 
+\end{align}
+Need to check the constant term so that the boundary condition at $t=0$ is correct. 
+
+
+\bibliographystyle{plain}
+\bibliography{biblio}
+
+\appendix
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

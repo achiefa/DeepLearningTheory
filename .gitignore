@@ -163,12 +163,12 @@ cython_debug/
 .DS_Store
 
 # Latex
-.pdf
-.aux
-.bbl
-.blg
-.idx
-.log
-.out
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.idx
+*.log
+*.out
 pdfs
 output
