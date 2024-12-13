@@ -353,7 +353,6 @@ Therefore the absolute minimum is obtained for
 Note that the minimum of the loss function is {\em not}\ zero. However, in a level-0 closure test, $y = \FKtab f^{\mathrm{in}}$, and then 
 $f^* = f^{\mathrm{in}}$ and $\mathcal{L}^*=0$. The absolute minimum of the loss yields the correct input function and a vanishing loss 
 function. This is something we always stress in NNPDF. If we push the training for long enough in L0, we can get a vanishing loss. 
-
 The flow equation for linear data becomes
 \begin{align}
     \label{eq:FlowLinearDataNTK}
@@ -361,63 +360,14 @@ The flow equation for linear data becomes
         \Theta_t\, \FKtab^T C_Y^{-1} \epsilon_t\, .
 \end{align}
 
-\paragraph{Evolution for $\epsilon_t$.}
-We can rewrite Eq.~\ref{eq:FlowLinearDataNTK} as 
-\begin{align}
-    \label{eq:FlowLinearDataNTKEpsilon}
-    \frac{d}{dt} \epsilon_t &= - \FKtab \frac{d}{dt} f_t \nonumber \\
-        &= - \FKtab \Theta \FKtabT C_Y^{-1} \epsilon_t \nonumber \\
-        &= - \FKtab \Theta \FKtabT R D R^T \epsilon_t\, ,
-\end{align}
-where we used the eigendecomposition $C_Y^{-1} = R D R^T$, where $R$ is an orthogonal matrix. 
-One can readily check that 
-\begin{align}
-     \frac{d}{dt} \left(D^{1/2} R^T \epsilon_t\right) = 
-        - H \left(D^{1/2} R^T \epsilon_t\right)\, ,
-\end{align}
-where 
-\begin{align}
-    \label{eq:HSymmetricDef}
-    H = D^{1/2} R^T \FKtab \Theta \FKtabT R D^{1/2}
-\end{align}
-is a symmetric, positive definite, matrix, and therefore
-\begin{align}
-    \label{eq:SolutionForEpsilon}
-    \epsilon_t = R D^{-1/2} e^{-H t} D^{1/2} R^T \epsilon_0\, ,
-\end{align}
-or equivalently
-\begin{align}
-    \label{eq:SolutionForFKf}
-    \FKtab f_t = 
-        \left( 1 - R D^{-1/2} e^{-Ht} D^{1/2} R^T\right) y + 
-            R D^{-1/2} e^{H t} D^{1/2} R^T \FKtab f_0\, .
-\end{align}
-
-The problem with this solution is that when we take the limit $t\to\infty$, we find
-\begin{align}
-    \label{eq:EpsilonFlowed} 
-    \epsilon^* = \lim_{t\to\infty} \epsilon_t = 0\, ,   
-\end{align}
-which is inconsistent with the minimum we found above... 
-
-% Given these expressions, we can solve for $f_t$ using the pseudoinverse of $\FKtab$. However, before we look for the 
-% solution for $f_t$ we should check that Eq.~\ref{eq:SolutionForFKf} describes what we obtain by running the 
-% usual gradient descent. Note that the matrix $H$ is symmetric and positive definite, so that
-% \begin{align}
-%     \label{eq:ExpHt}
-%     e^{H t} = \sum_i e^{- H_i t} |v_i\rangle \langle v_i|\, .
-% \end{align}
-
-
 \paragraph{Evolution of $f_t$.}
-A different way of solving the equation could be the following. We start by finding the eigenvectors and eigenvalues of $\Theta$,
+In order to solve for the evolution of $f_t$, we start by finding the eigenvectors and eigenvalues of $\Theta$,
 \begin{align}
     \label{eq:ThetaEigensystem}
     \Theta v_i = \lambda_i v_i\, .
 \end{align}
-We make a nice plot with the eigenvalues. 
-
-We rewrite the flow equation~\ref{eq:FlowLinearDataNTK} as
+We make a nice plot with the eigenvalues. We rewrite the flow equation,
+Eq.~\ref{eq:FlowLinearDataNTK}, as
 \begin{align}
     \frac{d}{dt} f_t = b - \Theta M f_t\, , 
 \end{align}
@@ -426,7 +376,8 @@ where
     \label{eq:Defb}
     b = \Theta \FKtabT C_Y^{-1} y\, ,
 \end{align}
-while $M$ and its eigendecomposition have been introduced above. We define 
+while the matrix $M$ has been introduced above.  Using the eigendecomposition $C_Y^{-1} = R D R^T$, 
+where $R$ is an orthogonal matrix, we introduce 
 \begin{align}
     \label{eq:RotatedF}
     \tilde{f}_t = D^{1/2} R^T f_t\, , \quad \tilde{b} = D^{1/2} R^T b\, ,
@@ -440,20 +391,50 @@ so that
 The solution, assuming that $\tilde{H}$ is independent of the flow time, is
 \begin{align}
     \label{eq:FlowSolutionInFtilde}
-    \tilde{f}_t = e^{-\tilde{H}t} + \left(1 - e^{-\tilde{H}t}\right) \tilde{H}^{-1}
+    \tilde{f}_t = e^{-\tilde{H}t} \tilde{f}_0 + 
+        \left(1 - e^{-\tilde{H}t}\right) \tilde{H}^{-1} \tilde{b}\, .
 \end{align}
 Taking the limit $t\to\infty$, we find
 \begin{align}
     \label{eq:InfiniteTrainingF}
     f_\infty = M^{-1} \FKtabT C_Y^{-1} y = f^*\, .
 \end{align}
-This is consistent with the absolute minimum we found above. So I don't understand 
-what we find for $\epsilon_\infty$. 
-
+This is consistent with the absolute minimum we found above. 
 As before, in a L0 test, 
 \begin{align}
-    f_\infty = M^{-1} \FKtabT C_Y^[-1] \FKtab f^{\mathrm{in}} = f^{\mathrm{in}}\, .
+    f_\infty = M^{-1} \FKtabT C_Y^{-1} \FKtab f^{\mathrm{in}} = f^{\mathrm{in}}\, .
 \end{align}
+
+\paragraph{Evolution for $\epsilon_t$.}
+We can rewrite Eq.~\ref{eq:FlowLinearDataNTK} as 
+\begin{align}
+    \label{eq:FlowLinearDataNTKEpsilon}
+    \frac{d}{dt} \epsilon_t &= - \FKtab \frac{d}{dt} f_t \nonumber \\
+        &= - \FKtab \Theta \FKtabT C_Y^{-1} \epsilon_t \nonumber \\
+        &= - \FKtab \Theta \FKtabT R D R^T \epsilon_t\, .
+\end{align}
+Following the derivation for $f_t$, we define
+\begin{align}
+    \tilde{\epsilon}_t = D^{1/2} R^T \epsilon_t\, , 
+\end{align}
+one can readily check that 
+\begin{align}
+     \frac{d}{dt} \tilde{\epsilon}_t = 
+        - \tilde{H}_\epsilon \tilde{\epsilon_t}\, ,
+\end{align}
+where 
+\begin{align}
+    \label{eq:HSymmetricDef}
+    \tilde{H}_\epsilon  = D^{1/2} R^T \FKtab \Theta \FKtabT R D^{1/2}
+\end{align}
+is a symmetric, positive definite, matrix, and therefore
+\begin{align}
+    \label{eq:SolutionForEpsilon}
+    \epsilon_t = R D^{-1/2} e^{-\tilde{H}_\epsilon t} D^{1/2} R^T \epsilon_0\, .
+\end{align}
+This result is consistent with the result above for the evolution of $f_t$. Now we need to 
+check them numerically! 
+
 
 \subsection*{Obsolete Material -- to be deleted, later}
 
