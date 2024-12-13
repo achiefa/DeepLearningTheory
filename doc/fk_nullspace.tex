@@ -2,25 +2,38 @@
 The FK tables can be regarded as a linear map from the space of PDFs to the space of 
 data:
 \begin{align}
-  \FKtab : \mathbb{R}^{\textrm{PDF}} \rightarrow \mathbb{R}^{\textrm{data}} \,.
+  \FKtab : \mathbb{R}^{\PDF} \rightarrow \mathbb{R}^{\ndat} \,.
 \end{align}
 Note that the matrix corresponding to this linear map is not square, and hence $\FKtab 
 \neq \FKtabT$. We can define the null space of the FK tables
 \begin{equation}
   \ker \FKtab \equiv K_{\FKtab} = 
   \left\{
-    \pmb{u}_K \in \mathbb{R}^{\PDF} \; : \; \FKtab \, \pmb{u}_K = 0
-  \right\} \,,
+    f \in \mathbb{R}^{\PDF} \; : \; \FKtab \, f = 0
+  \right\} \, ,
   \label{eq:ker_FK}
 \end{equation}
 together with its orthogonal space
 \begin{equation}
   R_{\FKtab} \equiv K_{\FKtab}^{\bot} = 
   \left\{
-    \pmb{u}_{\bot} \in \mathbb{R}^{\PDF} \; : \; \pmb{u}_{\bot} \cdot \pmb{u}_K = 0,
-    \hspace{2mm} \forall \pmb{u}_K \in K_{\FKtab}
+    f \in \mathbb{R}^{\PDF} \; : \; f \cdot f_K = 0,
+    \hspace{2mm} \forall f_K \in K_{\FKtab}
   \right\}\,.
 \end{equation}
+Note that 
+\begin{align}
+  \label{eq:KerFK->KerM}
+  \FKtab f = 0 \Longrightarrow M f = 0\, .
+\end{align}
+The converse is also true, 
+\begin{align}
+  M f = 0 &\Longrightarrow (f, Mf) = 0 \\
+    &\Longrightarrow (\FKtab f, C_Y^{-1} \FKtab f) = 0 \\
+    &\Longrightarrow \FKtab f = 0\, ,
+\end{align}
+where the last inequality follows from the fact that $C_Y>0$.
+
 For each of these two subspaces we can define a basis
 \begin{align}
   & \B_{K} = \left\{ \pmb{u}^{(i)}_{K}\,, \hspace{2mm}  i=1,\dots, \dim K_{\FKtab} \right\} \,,\\
