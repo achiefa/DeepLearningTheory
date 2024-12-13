@@ -411,11 +411,12 @@ We can rewrite Eq.~\ref{eq:FlowLinearDataNTK} as
     \label{eq:FlowLinearDataNTKEpsilon}
     \frac{d}{dt} \epsilon_t &= - \FKtab \frac{d}{dt} f_t \nonumber \\
         &= - \FKtab \Theta \FKtabT C_Y^{-1} \epsilon_t \nonumber \\
-        &= - \FKtab \Theta \FKtabT R D R^T \epsilon_t\, .
+        &= - \FKtab \Theta \FKtabT R_Y D_Y R_Y^T \epsilon_t\, ,
 \end{align}
+where we decompose $C_Y^{-1}=R_Y D_Y R_Y^T$.
 Following the derivation for $f_t$, we define
 \begin{align}
-    \tilde{\epsilon}_t = D^{1/2} R^T \epsilon_t\, , 
+    \tilde{\epsilon}_t = D_Y^{1/2} R_Y^T \epsilon_t\, , 
 \end{align}
 one can readily check that 
 \begin{align}
@@ -425,12 +426,12 @@ one can readily check that
 where 
 \begin{align}
     \label{eq:HSymmetricDef}
-    \tilde{H}_\epsilon  = D^{1/2} R^T \FKtab \Theta \FKtabT R D^{1/2}
+    \tilde{H}_\epsilon  = D_Y^{1/2} R_Y^T \FKtab \Theta \FKtabT R_Y D_Y^{1/2}
 \end{align}
 is a symmetric, positive definite, matrix, and therefore
 \begin{align}
     \label{eq:SolutionForEpsilon}
-    \epsilon_t = R D^{-1/2} e^{-\tilde{H}_\epsilon t} D^{1/2} R^T \epsilon_0\, .
+    \epsilon_t = R_Y D_Y^{-1/2} e^{-\tilde{H}_\epsilon t} D_Y^{1/2} R_Y^T \epsilon_0\, .
 \end{align}
 This result is consistent with the result above for the evolution of $f_t$. Now we need to 
 check them numerically! 
