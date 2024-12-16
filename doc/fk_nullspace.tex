@@ -68,10 +68,11 @@ With the two bases in eqs.~\eqref{eq:FK_basis}, we can decompose the $\FKtab$ as
 where
 \begin{align}
   \FKtab_{B_1 B_2} = \sum_{i=1}^{\dim\B_1} \sum_{j=1}^{\dim\B_2}
-  \bra{u_{\B_1}^{(i)}} M \ket{u_{\B_2}^{(j)}} \;
+  \bra{u_{\B_1}^{(i)}} \FKtab \ket{u_{\B_2}^{(j)}} \;
   \pmb{u}_{\B_1}^{(i)} \pmb{u}_{\B_2}^{(j)}\,,
   \hspace{5mm}
   \B_1, \B_2 = K_{\FKtab}, R_{\FKtab}\,.
+  \label{eq:fk->B1B2}
 \end{align}
 By definition of the kernel, we also have
 \begin{align}
@@ -99,5 +100,37 @@ The product with a vector $\pmb{f} \in \RPDF$ becomes
     \epmat
     = \biggl(\FKtab_{K\bot} + \FKtab_{\bot\bot}\biggr) f_{\bot} \,.
 \end{equation}
-
-What are the implications for the matrix $M$? ...
+The matrix $M$, eq.~\eqref{eq:MmatrixForLoss}, can also be decomposed as in Eq.~\eqref{eq:fk->B1B2}. However, now
+$M=M^T$ and thus only one component is non-zero:
+\begin{align}
+  M =
+  \bpmat
+    0 & 0 \\[3pt]
+    0 & M_{\bot\bot}
+  \epmat \,.
+  \label{eq:fk_projection_basis}
+\end{align}
+We can decompose the other elements in eq.~\eqref{eq:ft_b_ThetaMft} in a similar vein:
+\begin{align}
+  b = \bpmat b_{K} \\[3pt] b_{\bot} \epmat \,,
+  \hspace{5mm}
+  \Theta = \bpmat
+    \Theta_{KK} & \Theta{K\bot} \\[3pt]
+    \Theta_{\bot K} & \Theta{\bot\bot}
+  \epmat \,,
+\end{align}
+where $\Theta \in \RRPDF$ and can thus be projected in $\mathcal{B}$. Owing to this decomposition,
+we can now split eq.~\eqref{eq:ft_b_ThetaMft} into the two components of $f_t$, so that we are
+left with two coupled linear differential equations:
+\begin{equation}
+  \label{eq:SysDiffEqsFt}
+  \begin{cases}
+    \ddt f_{\bot} = b_{\bot} - \Theta_{\bot\bot} M_{\bot\bot} f_{\bot} \,,\\[5pt]
+    \ddt f_{K} = b_{K} - \Theta_{K\bot} M_{\bot\bot} f_{\bot} \,,\\
+  \end{cases}
+\end{equation}
+where the dependence on the training time $t$ is left implicit. From eq.~\eqref{eq:SysDiffEqsFt}
+we see that $f_{K}$ does \textit{not} evolve linearly, but depends on the evolution of $f_{\bot}$.
+Moreover, the differential equation for $f_{\bot}$ is diagonal, and can be solved as shown in the
+main text, namely diagonalising $M_{\bot \bot}$. Note that, in the orthogonal subspace, $M_{\bot \bot}$
+is positive-definite as we have projected out the null eigenvalues.
