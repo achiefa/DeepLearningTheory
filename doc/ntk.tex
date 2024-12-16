@@ -364,10 +364,20 @@ The flow equation for linear data becomes
 In order to solve for the evolution of $f_t$, we start by finding the eigenvectors and eigenvalues of $\Theta$,
 \begin{align}
     \label{eq:ThetaEigensystem}
-    \Theta v_i = \lambda_i v_i\, .
+    \Theta v_i = \lambda_i v_i\,.
 \end{align}
-We make a nice plot with the eigenvalues. We rewrite the flow equation,
-Eq.~\ref{eq:FlowLinearDataNTK}, as
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.48\textwidth]{ntk_eigvals.pdf}
+  \includegraphics[width=0.48\textwidth]{m_eigvals.pdf}
+  \caption{Eigenvalues of the NTK (left) and of the matrix $M$ (right) in 
+    logarithmic scale.}
+  \label{fig:NTKEigVals}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+The eigenvalues of the NTK, together with those of the matrix $M$, are displayed in
+Fig.~\ref{fig:NTKEigVals}. We rewrite the flow equation, Eq.~\ref{eq:FlowLinearDataNTK}, as
 \begin{align}
     \label{eq:ft_b_ThetaMft}
     \frac{d}{dt} f_t = b - \Theta M f_t\, , 
