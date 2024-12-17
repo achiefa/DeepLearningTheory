@@ -369,10 +369,9 @@ In order to solve for the evolution of $f_t$, we start by finding the eigenvecto
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[!t]
   \centering
-  \includegraphics[width=0.32\textwidth]{ntk_eigvals.pdf}
-  \includegraphics[width=0.32\textwidth]{m_eigvals.pdf}
-  \includegraphics[width=0.32\textwidth]{Htilde_eigvals.pdf}
-  \caption{Eigenvalues of the NTK (left), of $\tilde{H}$ (centre), 
+  \includegraphics[width=0.4\textwidth]{ntk_eigvals.pdf}
+  \includegraphics[width=0.4\textwidth]{m_eigvals.pdf}
+  \caption{Eigenvalues of the NTK (left)
     and of the matrix $M$ (right) in logarithmic scale.}
   \label{fig:NTKEigVals}
 \end{figure}
@@ -400,6 +399,16 @@ so that
     \frac{d}{dt} \tilde{f}_t &= \tilde{b} - D^{1/2} R^T \Theta R D^{1/2} \tilde{f}_t \\
         &= \tilde{b} - \tilde{H} \tilde{f}_t\, .
 \end{align}
+The eigenvalues of the matrix $\tilde{H}$ are shown in Fig.~\ref{fig:Hevals}.
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Htilde_eigvals.pdf}
+    \caption{Eigenvalues of $\tilde{H}$  
+      in logarithmic scale.}
+    \label{fig:Hevals}
+  \end{figure}
+
+\noindent
 The solution, assuming that $\tilde{H}$ is independent of the flow time, is
 \begin{align}
     \label{eq:FlowSolutionInFtilde}
@@ -409,10 +418,20 @@ The solution, assuming that $\tilde{H}$ is independent of the flow time, is
 Taking the limit $t\to\infty$, we find
 \begin{align}
     \label{eq:InfiniteTrainingF}
-    f_\infty = M^{-1} \FKtabT C_Y^{-1} y = f^*\, .
+    f_\infty = M^{-1} \FKtabT C_Y^{-1} y = f^*\, ,
 \end{align}
-This is consistent with the absolute minimum we found above. 
-As before, in a L0 test, 
+and thus
+\begin{align}
+    \label{eq:epsinfty}
+    \epsilon_\infty = \left[
+        1 - \FKtab M^{-1} \FKtabT C_Y^{-1} 
+    \right] y\, .
+\end{align}
+A few lines of algebra yield
+\begin{align}
+    \frac12 ||\epsilon_\infty||_{C_Y}^2 = \mathcal{L}^*\, ,
+\end{align}
+in agreement with Eq.~\ref{eq:MinimumLossInf}. As before, if we consider a L0 test, 
 \begin{align}
     f_\infty = M^{-1} \FKtabT C_Y^{-1} \FKtab f^{\mathrm{in}} = f^{\mathrm{in}}\, .
 \end{align}
@@ -445,6 +464,21 @@ is a symmetric, positive definite, matrix, and therefore
     \label{eq:SolutionForEpsilon}
     \epsilon_t = R_Y D_Y^{-1/2} e^{-\tilde{H}_\epsilon t} D_Y^{1/2} R_Y^T \epsilon_0\, .
 \end{align}
+
+Note that 
+\begin{align}
+    & \tilde{H}_\epsilon \tilde{\epsilon}_\infty = 
+        D_Y^{1/2} R_Y^T \FKtab \Theta 
+        \underbrace{\FKtabT C_Y^{-1}
+        \left[
+            1 - \FKtab M^{-1} \FKtabT C_Y^{-1}
+        \right]}_{(*)} y\, , \nonumber \\
+    & (*) = \FKtabT C_Y^{-1} - \underbrace{\FKtabT C_Y^{-1} \FKtab M^{-1}}_{= 1!} 
+        \FKtabT C_Y^{-1} = 0\, ,
+\end{align}
+and therefore the evolution operator for $\tilde{\epsilon}$, $\tilde{H}_\epsilon$, has a zero mode, which is 
+not driven to zero by the gradient flow. The zero mode is exactly $\epsilon_\infty$, \ie the residual error 
+at the end of the gradient flow. All other components of $\epsilon_t$ vanish exponentially with $t$.
 This result is consistent with the result above for the evolution of $f_t$. Now we need to 
 check them numerically! 
 
