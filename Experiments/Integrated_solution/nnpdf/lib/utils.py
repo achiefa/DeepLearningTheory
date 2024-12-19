@@ -16,6 +16,17 @@ XGRID = np.array([2.00000000e-07, 3.03430477e-07, 4.60350147e-07, 6.98420853e-07
        9.30944081e-01, 1.00000000e+00])
 
 
+def round_float(value, ref_value, tol_magnitude=1.e-6):
+  """
+  Utility function used to round to zero according to a reference value.
+  """
+  ratio = abs(value) / abs(ref_value)
+  if ratio < tol_magnitude:
+    return 0.0
+  else:
+    return value
+
+
 def extract_independent_columns(matrix, DEBUG=False, **kwargs):
     """
     Extract a subset of linearly independent columns from the matrix, 
