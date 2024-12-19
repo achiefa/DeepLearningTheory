@@ -158,11 +158,14 @@ class PDFmodel:
   def __call__(self, inputs):
     return self.call(inputs)
   
-  def predict(self):
+  def predict(self, squeeze=False):
     """
     Similar to call, give PDF predictions using the attribute input.
     """
-    return self.model(self.inputs)
+    if squeeze:
+      return tf.squeeze(self.call(self.inputs))
+    else:
+      return self.call(self.inputs)
   
   def compute_predictions(self, FK_dict: Dict):
     """

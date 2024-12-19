@@ -53,6 +53,55 @@ def extract_independent_columns(matrix, DEBUG=False, **kwargs):
     return matrix[:, independent_columns], independent_columns
 
 
+def build_fk_matrix(fk_dict):
+   """
+   Construct the FK table matrix.
+
+   Description
+   -----------
+   Each experiment is provided with an FK table. By construction, and
+   for the present work, FK tables are padded with zeros such that
+   the number of points in the x-grid is the same (i.e. 50). Thus,
+   each FK table has shape (Ndat, 50, 9). First, the last two dimensions
+   (which are equal for all FK tables) are flattened, thus leaving 
+   the shape (Ndat, 450). Then, all FK tables are stacked together,
+   yielding a matrix (tot_Ndat, 450), where `tot_Ndata` is the sum
+   off all experimental point. In this way, each row of this matrix
+   represents an experimental point and contains the information to
+   compute its relative theoretical prediction.
+
+   Parameters
+   ----------
+   fk_dict: dict
+    Dictionary of FK tables.
+   """
+   ndata = 0
+   for fk in fk_dict.values():
+      ndata += fk.shape[0]
+
+   FK = np.vstack([fk.numpy().reshape((fk.shape[0], fk.shape[1] * fk.shape[2])) for fk in fk_dict.values()])
+
+   # Check that this FK is what we expect
+   try:
+     test_matrix = np.random.rand(FK.shape[0], FK.shape[0]) # Random matrix
+     mat_prod = FK.T @ test_matrix  # Matrix product
+ 
+     # Tensor product
+     result = np.zeros((fk.shape[1], fk.shape[2], FK.shape[0]))
+     I = 0
+     for fk in fk_dict.values():
+       ndata = fk.shape[0]
+       result += np.einsum('Iia, IJ -> iaJ',fk, test_matrix[I : I + ndata, :])
+       I += ndata
+     
+     result_flatten = result.reshape((result.shape[0] * result.shape[1], result.shape[2]))
+     assert(np.allclose(result_flatten, mat_prod))
+     assert(np.allclose(result, mat_prod.reshape((result.shape[0], result.shape[1], result.shape[2]))))
+   except AssertionError:
+     print('The FK matrix does not match with the FK dict.')
+   else:
+      return FK
+
 
 from n3fit.layers import FlavourToEvolution, FkRotation
 
@@ -108,3 +157,59 @@ def produce_R_ev_9_to_flav_8():
   RR_T = R_flav_8_to_ev_9 @ R_flav_8_to_ev_9.T
   RR_inv = np.linalg.inv(RR_T)
   return RR_inv @ R_flav_8_to_ev_9
+
+
+def regularize_matrix(M):
+   """
+   Regularization of a matrix wither with svd or evd depending
+   on whether the matrix is symmetric or not.
+
+   Description
+   -----------
+   When dealing with numerical precision issues in matrices (e.g. symmetric 
+   matrices with eigenvalues spanning a very large range) regularization turns
+   out to be essential. If the matrix is symmetric, the regularization is applied
+   to the eigenvalues; if the matrix is not symmetric, the regularization is
+   applied to the singular values. The tolerance, which defines the smallest
+   distinguishable difference, is eps * max(s) where eps is the machine epsilon
+   (~2.2e-16 for float64) and max(s) is the highest eigenvalue or the highest
+   singular value.
+
+   Parameters
+   ----------
+   M: np.ndarray
+    The matrix that needs to be regularized. The matrix must be squared.
+
+   Returns
+   -------
+   If the matrix is symmetric, it returns the regularized matrix and a tuple
+   containing the regularized eigenvalues in first position and the respective
+   eigenvectors in second position. If the matrix is not symmetric, it returns
+   the regularized matrix, and a tuple (U, S_reg, Vh).
+   """
+   try:
+      assert(M.shape[0] == M.shape[1])
+   except AssertionError:
+      print('The matrix must be squared.')
+   rcond = np.finfo(M.dtype).eps
+   is_symmetric = np.allclose(M, M.T)
+
+   if is_symmetric:
+      eigvals, eigvecs = np.linalg.eigh(M)
+      tol = np.amax(eigvals, initial=0.) * rcond
+      regularized_eigenvalues = np.where(eigvals > tol, eigvals, 0.0)
+      M_reg = eigvecs @ np.diag(regularized_eigenvalues) @ eigvecs.T
+
+      # Sort eigenvalues and eigenvectors
+      if regularized_eigenvalues[-1] > regularized_eigenvalues[0]:
+        regularized_eigenvalues = regularized_eigenvalues[::-1]
+        eigvecs = eigvecs[:,::-1]
+      return M_reg, (regularized_eigenvalues, eigvecs)
+   
+   else:
+      U, S, Vh = np.linalg.svd(M, full_matrices=True)
+      tol = np.amax(S, initial=0.) * rcond
+      regularized_singular_values = np.where(S > tol, S, 0.0)
+      M_reg = U @ np.diag(regularized_singular_values) @ Vh
+      
+      return M_reg, (U, S, Vh)
