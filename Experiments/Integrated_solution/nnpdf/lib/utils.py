@@ -159,7 +159,7 @@ def produce_R_ev_9_to_flav_8():
   return RR_inv @ R_flav_8_to_ev_9
 
 
-def regularize_matrix(M):
+def regularize_matrix(M, tol: float = None):
    """
    Regularization of a matrix wither with svd or evd depending
    on whether the matrix is symmetric or not.
@@ -179,6 +179,9 @@ def regularize_matrix(M):
    ----------
    M: np.ndarray
     The matrix that needs to be regularized. The matrix must be squared.
+   tol: float
+    The tolerance that defines the smallest distinguishable value. Default is None,
+    and the tolerance is defined as eps * max(s).
 
    Returns
    -------
@@ -187,16 +190,15 @@ def regularize_matrix(M):
    eigenvectors in second position. If the matrix is not symmetric, it returns
    the regularized matrix, and a tuple (U, S_reg, Vh).
    """
-   try:
-      assert(M.shape[0] == M.shape[1])
-   except AssertionError:
-      print('The matrix must be squared.')
-   rcond = np.finfo(M.dtype).eps
-   is_symmetric = np.allclose(M, M.T)
+   is_symmetric = False
+   is_squared = (M.shape[0] == M.shape[1])
+   if is_squared:
+      is_symmetric = np.allclose(M, M.T)
 
-   if is_symmetric:
+   if is_symmetric and is_squared:
       eigvals, eigvecs = np.linalg.eigh(M)
-      tol = np.amax(eigvals, initial=0.) * rcond
+      if tol is None:
+        tol = np.amax(eigvals, initial=0.) * np.finfo(M.dtype).eps
       regularized_eigenvalues = np.where(eigvals > tol, eigvals, 0.0)
       M_reg = eigvecs @ np.diag(regularized_eigenvalues) @ eigvecs.T
 
@@ -207,9 +209,10 @@ def regularize_matrix(M):
       return M_reg, (regularized_eigenvalues, eigvecs)
    
    else:
-      U, S, Vh = np.linalg.svd(M, full_matrices=True)
-      tol = np.amax(S, initial=0.) * rcond
+      U, S, Vh = np.linalg.svd(M, full_matrices=False)
+      if tol is None:
+        tol = np.amax(S, initial=0.) * np.finfo(M.dtype).eps
       regularized_singular_values = np.where(S > tol, S, 0.0)
-      M_reg = U @ np.diag(regularized_singular_values) @ Vh
+      M_reg = np.dot(U * regularized_singular_values, Vh)
       
-      return M_reg, (U, S, Vh)
+      return M_reg, (S, Vh)

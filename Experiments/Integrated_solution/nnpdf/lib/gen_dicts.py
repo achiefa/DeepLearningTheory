@@ -2,6 +2,7 @@ from validphys.pineparser import pineappl_reader
 from n3fit.layers.observable import compute_float_mask
 from n3fit.backends import operations as op
 from n3fit.layers import DIS
+import tensorflow as tf
 
 from collections import defaultdict, namedtuple
 import numpy as np
@@ -19,9 +20,9 @@ def generate_dicts(groups_data):
                              'xgrid_mask'))
 
   # Initialise the dictionaries
-  fk_table_dict = defaultdict(list)
+  fk_table_dict = {}
   central_data_dict = {}
-  padded_fk_dict = defaultdict(list)
+  padded_fk_dict = {}
   xgrid_masks_dict = defaultdict(list)
 
   total_ndata_wc = 0
@@ -66,7 +67,7 @@ def generate_dicts(groups_data):
       
       # OLD
       # Pad the fk table so that (N, x, 9) -> (N, x, 14)
-      mask = dis.masks[0]
+      mask = tf.cast(dis.masks[0], dtype=tf.float64)
       padded_fk_table = dis.fktables[0]#dis.pad_fk(dis.fktables[0], mask)
       padded_fk_dict[dataset_name] = dis.pad_fk(dis.fktables[0], mask)
 
@@ -75,7 +76,7 @@ def generate_dicts(groups_data):
       offset = XGRID.size - xgrid.size
       for i in range(xgrid.size):
         xgrid_mask[offset + i] = True
-      xgrid_mask = compute_float_mask(xgrid_mask)
+      xgrid_mask = tf.cast(compute_float_mask(xgrid_mask), dtype=tf.float64)
       paddedx_fk_table = op.einsum('Xx, nFx -> nXF', xgrid_mask, padded_fk_table)
       xgrid_masks_dict[dataset_name] = xgrid_mask
       # Check the mask in x is applied correctly
