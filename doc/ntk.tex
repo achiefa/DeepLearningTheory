@@ -431,7 +431,7 @@ A few lines of algebra yield
 \begin{align}
     \frac12 ||\epsilon_\infty||_{C_Y}^2 = \mathcal{L}^*\, ,
 \end{align}
-in agreement with Eq.~\ref{eq:MinimumLossInf}. As before, if we consider a L0 test, 
+in agreement with Eq.~\ref{eq:MinimumLossInf}. As before, if we consider a level-0 test, 
 \begin{align}
     f_\infty = M^{-1} \FKtabT C_Y^{-1} \FKtab f^{\mathrm{in}} = f^{\mathrm{in}}\, .
 \end{align}
@@ -447,9 +447,10 @@ We can rewrite Eq.~\ref{eq:FlowLinearDataNTK} as
 where we decompose $C_Y^{-1}=R_Y D_Y R_Y^T$.
 Following the derivation for $f_t$, we define
 \begin{align}
+    \label{eq:RotatedEps}
     \tilde{\epsilon}_t = D_Y^{1/2} R_Y^T \epsilon_t\, , 
 \end{align}
-one can readily check that 
+so that 
 \begin{align}
      \frac{d}{dt} \tilde{\epsilon}_t = 
         - \tilde{H}_\epsilon \tilde{\epsilon_t}\, ,
@@ -476,10 +477,60 @@ Note that
         \FKtabT C_Y^{-1} = 0\, ,
 \end{align}
 and therefore the evolution operator for $\tilde{\epsilon}$, $\tilde{H}_\epsilon$, has a zero mode, which is 
-not driven to zero by the gradient flow. The zero mode is exactly $\epsilon_\infty$, \ie the residual error 
+not driven to zero by the gradient flow. The zero mode is exactly $\epsilon_\infty$, \ie\ the residual error 
 at the end of the gradient flow. All other components of $\epsilon_t$ vanish exponentially with $t$.
 This result is consistent with the result above for the evolution of $f_t$. Now we need to 
 check them numerically! 
+
+\paragraph{Consistency of the two evolutions.}
+As a cross check of our calculation, we verify that the evolution of 
+$\epsilon_t$ is consistent with the evolution of $f_t$. Starting from Eq.~\ref{eq:RotatedEps}, 
+\begin{align}
+    \label{eq:RotEpsRotF}
+    \tilde\epsilon_t = D_Y^{1/2} R_Y^T 
+        \left(y - \FKtab R D^{-1/2} \tilde{f}_t\right)\, . 
+\end{align}
+We compute separately the time-independent and the time-dependent contributions to $\tilde\epsilon_t$. 
+Starting from the time-independent terms, we get
+\begin{align}
+    y &- \FKtab R D^{-1/2} \tilde{H}^{-1} \tilde{b} = \nonumber \\ 
+    &= y - \FKtab \underbrace{R D^{-1/2} \left[D^{-1/2} R^T\right.}_{=M^{-1}} \left. \Theta^{-1} \right. \underbrace{\left.R D^{-1/2}\right] 
+        \left[D^{1/2} R^T\right.}_{=1} \left. \Theta \FKtabT C_Y^{-1} y\right] \nonumber \\
+    \label{eq:TimeIndepEpsCheck}
+    &= \epsilon_\infty\, ,
+\end{align}
+and therefore the time-independent component yields $\tilde{\epsilon}_\infty$. 
+The time-dependent terms in $\FKtab R D^{-1/2} \tilde{f}_t$ are
+\begin{align}
+    \FKtab R D^{-1/2} e^{-\tilde{H}t} \left(\tilde{H}^{-1} \tilde{b} - \tilde{f}_0\right)\, .
+\end{align}
+Focussing on the first term above, 
+\begin{align}
+    \FKtab &R D^{-1/2} e^{-\tilde{H}t} \tilde{H}^{-1} \tilde{b} = \nonumber \\
+    & = \sum_k \FKtab R D^{-1/2} \frac{(-t)^k}{k!} \left(
+        D^{1/2} R^T \Theta R D^{1/2}
+    \right)^{k-1} D^{1/2} R^T b \nonumber \\
+    & = \sum_k \frac{(-t)^k}{k!} \underbrace{\FKtab \left(\Theta M\right)^{k-1}}_{(*)} b\, .
+\end{align}
+Note that 
+\begin{align}
+    (*) &= \FKtab \underbrace{\left[\Theta \FKtabT C_Y^{-1} \FKtab\right] \left[\Theta \FKtabT C_Y^{-1} \FKtab\right] \ldots }_{k-1\ \mathrm{factors}} \\
+    &= \underbrace{ \left[\FKtab \Theta \FKtabT C_Y^{-1}\right] \left[\FKtab\Theta \FKtabT C_Y^{-1}\right] \ldots }_{k-1\ \mathrm{factors}}  \FKtab\\
+    &= \left[\FKtab \Theta \FKtabT C_Y^{-1}\right]^{k-1} \FKtab\, ,
+\end{align}
+and therefore 
+\begin{align}
+    \FKtab R D^{-1/2} e^{-\tilde{H}t} \tilde{H}^{-1} \tilde{b} = 
+        \sum_k \frac{(-t)^k}{k!} \left[\FKtab \Theta \FKtabT C_Y^{-1}\right]^k y\, .
+\end{align}
+Hence the contribution to $\tilde{\epsilon}_t$ from this term
+\begin{align}
+    \sum_k & \frac{(-t)^k}{k!} D_Y^{1/2} R_Y^T \left[\FKtab \Theta \FKtabT R_Y D_Y^{1/2} D_Y^{1/2} R_Y^T\right]^k y = \nonumber \\
+        &= \sum_k \frac{(-t)^k}{k!} \left[D_Y^{1/2} R_Y^T \FKtab \Theta \FKtabT R_Y D_Y^{1/2} \right]^k D_Y^{1/2} R_Y^T y \nonumber \\
+        &= e^{-\tilde{H}_\epsilon t} \tilde{y}\, .
+\end{align}
+
+
 
 
 \subsection*{Obsolete Material -- to be deleted, later}
