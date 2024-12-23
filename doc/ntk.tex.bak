@@ -491,7 +491,7 @@ $\epsilon_t$ is consistent with the evolution of $f_t$. Starting from Eq.~\ref{e
         \left(y - \FKtab R D^{-1/2} \tilde{f}_t\right)\, . 
 \end{align}
 We compute separately the time-independent and the time-dependent contributions to $\tilde\epsilon_t$. 
-Starting from the time-independent terms, we have
+Starting from the time-independent terms, we get
 \begin{align}
     y &- \FKtab R D^{-1/2} \tilde{H}^{-1} \tilde{b} = \nonumber \\ 
     &= y - \FKtab \underbrace{R D^{-1/2} \left[D^{-1/2} R^T\right.}_{=M^{-1}} \left. \Theta^{-1} \right. \underbrace{\left.R D^{-1/2}\right] 
@@ -499,16 +499,9 @@ Starting from the time-independent terms, we have
     \label{eq:TimeIndepEpsCheck}
     &= \epsilon_\infty\, ,
 \end{align}
-and therefore
-\begin{align}
-    D_Y^{1/2} R_Y^T \left(
-        y - \FKtab R D^{-1/2} \tilde{H}^{-1} \tilde{b}
-    \right) = \tilde{\epsilon}_\infty\, .
-\end{align}
-The time-independent component of $\tilde{\epsilon}_t$ yields $\tilde{\epsilon}_\infty$, as expected. 
+and therefore the time-independent component yields $\tilde{\epsilon}_\infty$. 
 The time-dependent terms in $\FKtab R D^{-1/2} \tilde{f}_t$ are
 \begin{align}
-    \label{eq:TimeDependentContribEpsTilde}
     \FKtab R D^{-1/2} e^{-\tilde{H}t} \left(\tilde{H}^{-1} \tilde{b} - \tilde{f}_0\right)\, .
 \end{align}
 Focussing on the first term above, 
@@ -536,17 +529,7 @@ Hence the contribution to $\tilde{\epsilon}_t$ from this term
         &= \sum_k \frac{(-t)^k}{k!} \left[D_Y^{1/2} R_Y^T \FKtab \Theta \FKtabT R_Y D_Y^{1/2} \right]^k D_Y^{1/2} R_Y^T y \nonumber \\
         &= e^{-\tilde{H}_\epsilon t} \tilde{y}\, .
 \end{align}
-The second term in Eq.~\ref{eq:TimeDependentContribEpsTilde} reads
-\begin{align}
-    \FKtab R D^{-1/2} e^{-\tilde{H}t} \tilde{f}_0 
-        &= \FKtab R D^{-1/2} e^{-\tilde{H}t} D^{1/2} R^T f_0 \\
-        &=  \sum_k \frac{(-t)^k}{k!} \FKtab \left(\Theta M\right)^k f_0 \\
-        &= \sum_k \frac{(-t)^k}{k!} \left[\FKtab \Theta \FKtabT C_Y^{-1}\right]^k \FKtab f_0 \, ,
-\end{align}
-and hence the contribution to $\tilde{\epsilon}_t$
-\begin{align}
-    D_Y^{1/2} R_Y^T R_Y D^{-1/2} e^{-\tilde{H}_\epsilon t} D_Y^{1/2} R_Y^T \FKtab f_0\, .
-\end{align}
+
 
 
 
