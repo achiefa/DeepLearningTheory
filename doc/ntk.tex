@@ -490,7 +490,8 @@ $\epsilon_t$ is consistent with the evolution of $f_t$. Starting from Eq.~\ref{e
     \tilde\epsilon_t = D_Y^{1/2} R_Y^T 
         \left(y - \FKtab R D^{-1/2} \tilde{f}_t\right)\, . 
 \end{align}
-We compute separately the time-independent and the time-dependent contributions to $\tilde\epsilon_t$. 
+We compute separately the time-independent and the time-dependent contributions to $\tilde\epsilon_t$ 
+in the RHS of Eq.~\ref{eq:RotEpsRotF}. 
 Starting from the time-independent terms, we have
 \begin{align}
     y &- \FKtab R D^{-1/2} \tilde{H}^{-1} \tilde{b} = \nonumber \\ 
@@ -514,10 +515,10 @@ The time-dependent terms in $\FKtab R D^{-1/2} \tilde{f}_t$ are
 Focussing on the first term above, 
 \begin{align}
     \FKtab &R D^{-1/2} e^{-\tilde{H}t} \tilde{H}^{-1} \tilde{b} = \nonumber \\
-    & = \sum_k \FKtab R D^{-1/2} \frac{(-t)^k}{k!} \left(
+    & = \FKtab R D^{-1/2} \tilde{H}^{-1} \tilde{b} + \sum_{k>0} \FKtab R D^{-1/2} \frac{(-t)^k}{k!} \left(
         D^{1/2} R^T \Theta R D^{1/2}
     \right)^{k-1} D^{1/2} R^T b \nonumber \\
-    & = \sum_k \frac{(-t)^k}{k!} \underbrace{\FKtab \left(\Theta M\right)^{k-1}}_{(*)} b\, .
+    & = \FKtab R D^{-1/2} \tilde{H}^{-1} \tilde{b} + \sum_{k>0} \frac{(-t)^k}{k!} \underbrace{\FKtab \left(\Theta M\right)^{k-1}}_{(*)} b\, .
 \end{align}
 Note that 
 \begin{align}
@@ -528,13 +529,14 @@ Note that
 and therefore 
 \begin{align}
     \FKtab R D^{-1/2} e^{-\tilde{H}t} \tilde{H}^{-1} \tilde{b} = 
-        \sum_k \frac{(-t)^k}{k!} \left[\FKtab \Theta \FKtabT C_Y^{-1}\right]^k y\, .
+        \sum_k \frac{(-t)^k}{k!} \left[\FKtab \Theta \FKtabT C_Y^{-1}\right]^k y - \epsilon_\infty\, .
 \end{align}
 Hence the contribution to $\tilde{\epsilon}_t$ from this term
 \begin{align}
     \sum_k & \frac{(-t)^k}{k!} D_Y^{1/2} R_Y^T \left[\FKtab \Theta \FKtabT R_Y D_Y^{1/2} D_Y^{1/2} R_Y^T\right]^k y = \nonumber \\
         &= \sum_k \frac{(-t)^k}{k!} \left[D_Y^{1/2} R_Y^T \FKtab \Theta \FKtabT R_Y D_Y^{1/2} \right]^k D_Y^{1/2} R_Y^T y \nonumber \\
-        &= e^{-\tilde{H}_\epsilon t} \tilde{y}\, .
+        \label{eq:FirstTerm}
+        &= e^{-\tilde{H}_\epsilon t} \left(\tilde{y} - \tilde{\epsilon}_\infty\right)\, .
 \end{align}
 The second term in Eq.~\ref{eq:TimeDependentContribEpsTilde} reads
 \begin{align}
@@ -545,9 +547,22 @@ The second term in Eq.~\ref{eq:TimeDependentContribEpsTilde} reads
 \end{align}
 and hence the contribution to $\tilde{\epsilon}_t$
 \begin{align}
-    D_Y^{1/2} R_Y^T R_Y D^{-1/2} e^{-\tilde{H}_\epsilon t} D_Y^{1/2} R_Y^T \FKtab f_0\, .
+    \label{eq:SecondTerm}
+    D_Y^{1/2} R_Y^T R_Y D_Y^{-1/2} e^{-\tilde{H}_\epsilon t} D_Y^{1/2} R_Y^T \FKtab f_0
+        = e^{-\tilde{H}_\epsilon t} D_Y^{1/2} R_Y^T \left(\FKtab f_0\right)\, .
 \end{align}
-
+Combining Eqs.~\ref{eq:FirstTerm} and~\ref{eq:SecondTerm} yields
+\begin{align}
+    \label{eq:TimeDepEpsCheck}
+    e^{-\tilde{H}_\epsilon t} D_Y^{1/2} R_Y^T \left(y - \FKtab f_0\right) - \tilde{\epsilon}_\infty = 
+    e^{-\tilde{H}_\epsilon t} \tilde{\epsilon}_0 - \tilde{\epsilon}_\infty\, .
+\end{align}
+And finally, adding Eqs.~\ref{eq:TimeIndepEpsCheck} and~\ref{eq:TimeDepEpsCheck}, we obtain
+\begin{align}
+    \label{eq:FinalResultEvolutionCheck}   
+    \tilde{\epsilon}_t =  e^{-\tilde{H}_\epsilon t} \tilde{\epsilon}_0 \, ,
+\end{align}
+as expected.
 
 
 \subsection*{Obsolete Material -- to be deleted, later}
