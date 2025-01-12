@@ -12,7 +12,7 @@ import copy
 
 from typing import Dict, Callable
 
-from layers import MyDense, Observable_layer
+from layers import MyDense
 
 supported_kernel_initializers = {
   'RandomNormal': (Kinit.RandomNormal, {'mean': 0.0, 'stddev': 1, 'seed': 0}),
