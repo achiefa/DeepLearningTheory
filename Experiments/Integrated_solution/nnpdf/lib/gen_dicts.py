@@ -26,8 +26,8 @@ def generate_dicts(groups_data):
   xgrid_masks_dict = defaultdict(list)
 
   total_ndata_wc = 0
-  for idx_proc, group_proc in enumerate(groups_data):
-    for idx_exp, exp_set in enumerate(group_proc.datasets):
+  for group_proc in groups_data:
+    for exp_set in group_proc.datasets:
     
       dataset_name = exp_set.name
       dataset_size = exp_set.load_commondata().ndata
@@ -65,8 +65,12 @@ def generate_dicts(groups_data):
         name=f"dat_{dataset_name}"
       )
       
-      # OLD
+
       # Pad the fk table so that (N, x, 9) -> (N, x, 14)
+      # This cast is needed if we want float64 fk tables. The reason being
+      # that this mask is then applied to the padded fk tables, which are
+      # float64. However, if we kept the mask float32, then the final padded
+      # fk tables would be converted to float32 as well.
       mask = tf.cast(dis.masks[0], dtype=tf.float64)
       padded_fk_table = dis.fktables[0]#dis.pad_fk(dis.fktables[0], mask)
       padded_fk_dict[dataset_name] = dis.pad_fk(dis.fktables[0], mask)
@@ -76,7 +80,13 @@ def generate_dicts(groups_data):
       offset = XGRID.size - xgrid.size
       for i in range(xgrid.size):
         xgrid_mask[offset + i] = True
-      xgrid_mask = tf.cast(compute_float_mask(xgrid_mask), dtype=tf.float64)
+      # This cast is needed if we want float64 fk tables. The reason being
+      # that this mask is then applied to the padded fk tables, which are
+      # float64. However, if we kept the mask float32, then the final padded
+      # fk tables would be converted to float32 as well.
+      # `tf.convert_to_tensor` became required after `compute_float_mask` adopted
+      # `op.tensor_to_numpy_or_python` instead of `np.array`.
+      xgrid_mask = tf.cast(compute_float_mask(tf.convert_to_tensor(xgrid_mask, dtype=tf.bool)), dtype=tf.float64)
       paddedx_fk_table = op.einsum('Xx, nFx -> nXF', xgrid_mask, padded_fk_table)
       xgrid_masks_dict[dataset_name] = xgrid_mask
       # Check the mask in x is applied correctly
