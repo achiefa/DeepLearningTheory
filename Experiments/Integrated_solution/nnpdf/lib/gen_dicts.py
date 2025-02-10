@@ -28,7 +28,6 @@ def generate_dicts(groups_data):
   total_ndata_wc = 0
   for group_proc in groups_data:
     for exp_set in group_proc.datasets:
-    
       dataset_name = exp_set.name
       dataset_size = exp_set.load_commondata().ndata
       total_ndata_wc += dataset_size
@@ -44,8 +43,7 @@ def generate_dicts(groups_data):
       # xgrid for this dataset
       xgrid = fk_data.xgrid
 
-      # Check that XGRID is just a small-x extension
-      # of xgrid
+      # Check that XGRID is just a small-x extension of XGRID
       res = True
       for i, x in enumerate(xgrid):
         offset = 50 - xgrid.size
@@ -65,14 +63,18 @@ def generate_dicts(groups_data):
         name=f"dat_{dataset_name}"
       )
       
-
-      # Pad the fk table so that (N, x, 9) -> (N, x, 14)
       # This cast is needed if we want float64 fk tables. The reason being
       # that this mask is then applied to the padded fk tables, which are
       # float64. However, if we kept the mask float32, then the final padded
       # fk tables would be converted to float32 as well.
       mask = tf.cast(dis.masks[0], dtype=tf.float64)
-      padded_fk_table = dis.fktables[0]#dis.pad_fk(dis.fktables[0], mask)
+      #fk_table = dis.fktables[0]
+      #if not np.allclose(fk_table, fk_table):
+      #  print(f'Problem in the fk table for {dataset_name}')
+      
+      # Pad the fk table so that (N, x, 9) -> (N, x, 14)
+      # Combine an fk table and a mask into an fk table padded with zeroes 
+      # for the inactive flavours, to be contracted with the full PDF.
       padded_fk_dict[dataset_name] = dis.pad_fk(dis.fktables[0], mask)
 
       # Extend xgrid to low-x (N, x, 14) -> (N, 50, 14)
@@ -80,6 +82,7 @@ def generate_dicts(groups_data):
       offset = XGRID.size - xgrid.size
       for i in range(xgrid.size):
         xgrid_mask[offset + i] = True
+
       # This cast is needed if we want float64 fk tables. The reason being
       # that this mask is then applied to the padded fk tables, which are
       # float64. However, if we kept the mask float32, then the final padded
@@ -87,20 +90,21 @@ def generate_dicts(groups_data):
       # `tf.convert_to_tensor` became required after `compute_float_mask` adopted
       # `op.tensor_to_numpy_or_python` instead of `np.array`.
       xgrid_mask = tf.cast(compute_float_mask(tf.convert_to_tensor(xgrid_mask, dtype=tf.bool)), dtype=tf.float64)
-      paddedx_fk_table = op.einsum('Xx, nFx -> nXF', xgrid_mask, padded_fk_table)
+      paddedx_fk_table = op.einsum('Xx, nFx -> nXF', xgrid_mask, fk_table)
       xgrid_masks_dict[dataset_name] = xgrid_mask
+
       # Check the mask in x is applied correctly
-      #for i in range(XGRID.size):
-      if i >= offset:
-        try:
-          assert(np.allclose(paddedx_fk_table[:,i,:], padded_fk_table[:,:,i - offset]))
-        except AssertionError:
-          print(f'Problem in the unchanged values for {dataset_name}')
-      else:
-        try:
-          assert(np.allclose(paddedx_fk_table[:,i,:], np.zeros_like(paddedx_fk_table[:,i,:])))
-        except AssertionError:
-          print(f'Problem in the extension for {dataset_name}')
+      for i in range(XGRID.size):
+        if i >= offset:
+          try:
+            assert(np.allclose(paddedx_fk_table[:,i,:], fk_table[:,:,i - offset]))
+          except AssertionError:
+            print(f'Problem in the unchanged values for {dataset_name}')
+        else:
+          try:
+            assert(np.allclose(paddedx_fk_table[:,i,:], np.zeros_like(paddedx_fk_table[:,i,:])))
+          except AssertionError:
+            print(f'Problem in the extension for {dataset_name}')
 
       # Save to dict
       fk_table_dict[dataset_name] = paddedx_fk_table
