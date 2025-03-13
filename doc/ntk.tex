@@ -3,8 +3,9 @@
 \include{init}
 
 \title{Notes on Neural Tangent Kernels}
-\author[b]{Luigi Del Debbio} 
-\affil[b]{Higgs Centre for Theoretical Physics, School of Physics and Astronomy,
+\author{Luigi Del Debbio}
+\author{Amedeo Chiefa}
+\affil{Higgs Centre for Theoretical Physics, School of Physics and Astronomy,
 Peter~Guthrie~Tait~Road, Edinburgh EH9 3 FD, United Kingdom.}
 
 \date{\today}
@@ -565,7 +566,160 @@ And finally, adding Eqs.~\ref{eq:TimeIndepEpsCheck} and~\ref{eq:TimeDepEpsCheck}
 \end{align}
 as expected.
 
+% ------------------ Paragraph ----------------------
+\subsection{Evolution of $f_t$ revisited.}
+We start again from the eigenvectors and eigenvalues of $\Theta$
+\begin{equation}
+  \Theta \pmb{e}^{(k)} = \lambda_k \pmb{e}^{(k)}\,,
+\end{equation}
+to which we apply the same analysis carried out in Appendix~\ref{app:zero_mode}.
+In this section, we use a feed-forward neural network with architecture
+$[1,28,20,9]$. The activation function used in both the two deep layers is
+\texttt{tanh}, while the output function is linear. The weights, rescaled by the
+square root of the size of the previous layer, are initialised using a normal
+distribution. The biases are initialised to zero. The input data are the points
+of the grid in $x$-space taken from the FK tables.
 
+We start by looking at the NTK matrix, displayed in the left panel of
+Fig.~\ref{fig:NTKDecomposition}. Upon inspecting the figure, we see that the NTK
+is uniform across flavours and bins in $x$. This is indeed expected, as the NTK
+does not bring any physical information and it does not favour any particular
+flavour to start with. In other words, the left plot in Fig.~\ref{fig:NTKDecomposition} 
+shows the amount of information per flavour that we can ever reach given 
+the network architecture and the choice of the grid in $x$.
+
+The right panel of Fig.~\ref{fig:NTKDecomposition} shows the decomposition of
+the NTK matrix in terms of the singular values and in terms of the eigenvalues.
+The relative machine precision for double precision floating numbers ($\epsilon
+\sim 2.2 \times 10^{-16}$) is also shown. We see that the singular values and
+eigenvalues start to diverge when machine precision is reached. This is a
+symptom of noise in the decomposition, and values below this threshold are set
+to zero. Above threshold, the singular values and eigenvalues are consistent
+and they show the usual hierarchy of the NTK extensively discussed in the
+literature.
+% Figure ----------------------
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.4\textwidth]{ntk_matrix.png}
+  \hspace{0.05\textwidth}
+  \includegraphics[width=0.4\textwidth, height=5cm]{ntk_decomposition.png}
+  \caption{\small (Left) Representation of the NTK matrix in logarithmic scale. 
+          (Right) Decomposition of the NTK matrix in terms of the eigenvalues and of the
+          singular values of the matrix $M$, and the subsequent regularisation (see main text).}
+  \label{fig:NTKDecomposition}
+\end{figure}
+% Figure ----------------------
+
+The physical information is brought in by the FK tables, which combine with NTK
+in the flow equation, reported below for convenience
+\begin{equation}
+  \frac{d}{dt}\pmb{f}_t = \pmb{b} - \Theta M \pmb{f}_t \,.
+  \label{eq:FlowEquation}
+\end{equation}
+In a standard ML application of neural networks, the evolution kernel in
+eq.~\ref{eq:FlowEquation} would be the NTK solely. On the other hand, in the
+context of PDF fitting, we are interested in solving the inverse problem that
+arise from the factorization theorem, and that is encoded in the matrix M. This
+introduces additional complications, as the inverse problem is generally
+ill-posed and the matrix M is not well-defined (see
+Appendix~\ref{app:zero_mode}). Moreover, the product taking place in the second
+term on the rhs of the equation above mixes the NTK and the FK spaces, making it
+harder to disentangle the information brought in by the NTK and the FK tables
+separately. 
+
+The resulting evolution kernel is shown in Fig.~\ref{fig:EvKernel}.
+Compared to the left panel of Fig.~\eqref{fig:NTKDecomposition}, the kernel
+preserves the same underlying structure, yet modified by the action of the FK
+tables. We also see that the overall architecture (network and FK tables) is not
+sensitive to the low-$x$ region, while the mid- and large-$x$ region is more
+sensitive.
+
+Unfortunately, the evolution kernel is singular and cannot be inverted as it is,
+preventing any attempt to integrate the flow equation eq.~\eqref{eq:FlowEquation}.
+In order to proceed, we need to decompose the kernel in its various components and
+discard the zero modes. This is the subject of the next section.
+
+% Figure ----------------------
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.8\textwidth]{evolution_kernel.png}
+  \caption{\small}
+  \label{fig:EvKernel}
+\end{figure}
+% Figure ----------------------
+
+\subsubsection*{Projection of the flow equation}
+The evolution kernel cannot be inverted directly, due to the presence of many zero
+modes. We then resort to working in a subspace of the kernel, where it can be inverted.
+In doing so, we will also try to disentangle the effects of the NTK and of the FK tables.
+
+We start by projecting the flow equation in the eigenspace of the NTK, so that
+we have
+\begin{equation}
+  \frac{d}{dt}f_{k,t}' = b_k' - \lambda_k (\pmb{e}^{(k)}, M \pmb{f}_t).
+  \label{eq:FlowEqNTKProjection}
+\end{equation}
+Here the prime denotes the $k$-th component of the vector in the eigenspace of
+the NTK, and $(\pmb{e}^{(k)}, M f_t)$ is the ordinary scalar product. The equation above
+requires two observations. The first one is that some eigenvalues of the NTK are
+actually zero, so that the second term on the rhs of
+eq.~\eqref{eq:FlowEqNTKProjection} is zero. Furthermore, for the first term on
+the rhs we have
+\begin{equation}
+  b_k' = (\pmb{e}^{(k)}, \pmb{b}) = (\pmb{e}^{(k)}, \Theta (FK)^T C_Y^{-1} \pmb{Y}) = 0 \hspace{5mm} \forall \pmb{e}^{(k)} \in Ker(\Theta) .
+\end{equation}
+Thus, for zero eigenvalues of the NTK, we have
+\begin{equation}
+  \frac{d}{dt} f_{k,t}' = 0 \hspace{5mm} \Rightarrow f_{k,t}' = f_{k,0}' ,
+\end{equation}
+abd this result holds regardless of the FK tables.
+
+The second observation involves the matrix $M$. In particular, we can decompose
+$M$ as follows
+\begin{equation}
+  M = LL^T = (RD^{1/2})(D^{1/2}R^T),
+\end{equation}
+where $D$ is the diagonal matrix of the eigenvalues (or singular values) of $M$
+and $R$ is the matrix of the eigenvectors. Using the completness relation of the
+vectors $\pmb{e}^{(k)}$, we can write
+\begin{equation}
+  M_{k_1 k_2}' = (e^{(k_1)}, L e^{(k)})(e^{(k)}, L^T e^{(k_2)}) = L_{k_1k}' (L^T)_{kk_2}' = L_{k_1k}' L_{k_2k}'.
+  \label{eq:MProjNTK}
+\end{equation}
+A close-up inspection of $L'$ reveals that
+\begin{equation}
+  \begin{split}
+    L_{k_1k_2}' & \equiv \left( \pmb{e}^{(k)}, RD^{1/2} \pmb{e}^{(k)} \right) \\
+    & = e^{(k_1)}_{i_1} R_{i_1 i_2} \mu_{i_2} e_{i_2}^{(k_2)} \\
+    & = e^{(k_1)}_{i_1} v^{(i_2)}_{i_1} \mu_{i_2} e_{i_2}^{(k_2)} \\
+    & = \mu_{i_2} e_{i_2}^{(k_2)} (\pmb{e}^{(k_1)}, \pmb{v}^{(i_2)}),
+  \end{split}
+\end{equation}
+which means that the intersection between the NTK and the FK tables takes place in the
+scalar product of the last equality above.
+
+By means of eq.~\eqref{eq:MProjNTK}, we can rewrite the flow equation as follows
+\begin{equation}
+  \frac{d}{dt}f_{k_1,t}' = b_{k_1}' - \lambda_{k_1} L_{k_1 k_2}' L_{k_3 k_2}' f_{k_3,t}' \,.
+\end{equation}
+Finally, in order to obtain a symmetric kernel, we can multiply both sides by $(L')^T$ so that we have
+\begin{equation}
+  \frac{d}{dt} \tilde{f}_{k_1,t}' = \tilde{b}_{k_1}' - \tilde{K}_{k_1 k_2} \tilde{f}_{k_2,t}'
+\end{equation}
+where $\tilde{f}_{k_1,t}'$ and $\tilde{b}_{k_1}'$ are the components rotated by the action of of
+$L'$, and $\tilde{K}_{k_1 k_2}$ is the symmetric kernel defined as
+\begin{equation}
+  \tilde{K}_{k_1 k_2} = L'_{kk_1} \lambda_{k} L_{kk_2}' \,.
+\end{equation}
+In the next section we will analyse the properties of the symmetric kernel $\tilde{K}$.
+
+\subsubsection*{Properties of the symmetric kernel}
+The kernel $\tilde{K}$ ...
+
+% ------------------ End Paragraph ----------------------
+
+
+\newpage
 \subsection*{Obsolete Material -- to be deleted, later}
 
 We then project the flow equation for $f_t$, Eq.~\ref{eq:FlowLinearDataNTK}, in this basis
