@@ -660,7 +660,15 @@ we have
   \label{eq:FlowEqNTKProjection}
 \end{equation}
 Here the prime denotes the $k$-th component of the vector in the eigenspace of
-the NTK, and $(\pmb{e}^{(k)}, M f_t)$ is the ordinary scalar product. The equation above
+the NTK, and $(\pmb{e}^{(k)}, M f_t)$ is the ordinary scalar product. Eq.~\eqref{eq:FlowEqNTKProjection}
+can also be recast into matrix form. Writing $\Theta = U_{\Theta} \Sigma_{\Theta} U_{\Theta}^T$, then
+we have
+\begin{equation}
+  \frac{d}{dt}\pmb{f}_{t}' = \pmb{b}' - \Sigma_{\Theta} U_{\Theta}^T M U_{\Theta} \pmb{f}'
+  = \pmb{b}' - \Sigma_{\Theta} M' \pmb{f}'.
+  \label{eq:FlowEqNTKProjectionMatrix}
+\end{equation}
+The equation above
 requires two observations. The first one is that some eigenvalues of the NTK are
 actually zero, so that the second term on the rhs of
 eq.~\eqref{eq:FlowEqNTKProjection} is zero. Furthermore, for the first term on
@@ -683,9 +691,16 @@ where $D$ is the diagonal matrix of the eigenvalues (or singular values) of $M$
 and $R$ is the matrix of the eigenvectors. Using the completness relation of the
 vectors $\pmb{e}^{(k)}$, we can write
 \begin{equation}
-  M_{k_1 k_2}' = (e^{(k_1)}, L e^{(k)})(e^{(k)}, L^T e^{(k_2)}) = L_{k_1k}' (L^T)_{kk_2}' = L_{k_1k}' L_{k_2k}'.
+  M_{k_1 k_2}' = (e^{(k_1)}, L e^{(k)})(e^{(k)}, L^T e^{(k_2)}) = L_{k_1k}' (L^T)_{kk_2}' = L_{k_1k}' L_{k_2k}',
   \label{eq:MProjNTK}
 \end{equation}
+or, in matrix form,
+\begin{equation}
+  M' = U_{\Theta}^T M U_{\Theta} = U_{\Theta}^T L U_{\Theta} U_{\Theta}^T L^T U_{\Theta} = L' (L')^T ,
+  \label{eq:MProjNTKMatrix}
+\end{equation}
+where in the second equality we have used the completeness relation of the eigenvectors.
+
 A close-up inspection of $L'$ reveals that
 \begin{equation}
   \begin{split}
@@ -705,15 +720,166 @@ By means of eq.~\eqref{eq:MProjNTK}, we can rewrite the flow equation as follows
 Finally, in order to obtain a symmetric kernel, we can multiply both sides by $(L')^T$ so that we have
 \begin{equation}
   \frac{d}{dt} \tilde{f}_{k_1,t}' = \tilde{b}_{k_1}' - \tilde{K}_{k_1 k_2} \tilde{f}_{k_2,t}'
+  \label{eq:FlowEqSymmetricKernel}
 \end{equation}
 where $\tilde{f}_{k_1,t}'$ and $\tilde{b}_{k_1}'$ are the components rotated by the action of of
 $L'$, and $\tilde{K}_{k_1 k_2}$ is the symmetric kernel defined as
 \begin{equation}
-  \tilde{K} = (L')^T \pmb{\lambda} L' ,
+  \tilde{K} = (L')^T \Sigma_{\Theta} L' .
+  \label{eq:SymmetricKernel}
 \end{equation}
-where $\pmb{\lambda}$ is the diagonal matrix of the eigenvalues of the NTK.
 
-In the next section we will analyse the properties of the symmetric kernel $\tilde{K}$.
+\subsubsection*{Removing zero modes of the NTK}
+In obtaining Eq.~\eqref{eq:FlowEqSymmetricKernel}, we have kept all the zero modes of the NTK.
+However, we can filter them out and write an expression that contains zero modes of the FK tables
+solely. To do so, we restart from eq.~\eqref{eq:FlowEqNTKProjectionMatrix}, and we recall that the
+rotations applied to the vectors are
+\begin{equation}
+  \pmb{b}' = U_{\Theta}^T \pmb{b} \quad \text{and} \quad \pmb{f}_t' = U_{\Theta}^T \pmb{f}_t\,.
+\end{equation}
+In order to separate that zero modes, we can split the
+vector $\pmb{f_t'}$ into a part that is orthogonal to the kernel of the NTK, and another
+which lives in the kernel and hence is constant
+\begin{equation}
+  \frac{d}{dt} 
+  \left(
+    \begin{matrix}
+      \pmb{f}_{\perp,t}' \\
+      \pmb{f}_{\parallel,t}'
+    \end{matrix}
+  \right)
+  =
+  \left(
+    \begin{matrix}
+      \pmb{b}_{\perp}' \\
+      \pmb{b}_{\parallel}'
+    \end{matrix}
+  \right)
+  -
+  \left(
+    \begin{matrix}
+      \Sigma_{\Theta} & 0 \\
+      0 & 0
+    \end{matrix}
+  \right)
+  \left(
+    \begin{matrix}
+      M_{\bot\bot}' & M_{\bot \parallel}' \\
+      M_{\parallel\bot}' & M_{\parallel \parallel}' \\
+    \end{matrix}
+  \right)
+  \left(
+    \begin{matrix}
+      \pmb{f}_{\perp,t}' \\
+      \pmb{f}_{\parallel,t}'
+    \end{matrix}
+  \right)
+\end{equation}
+where the subscripts $\perp$ and $\parallel$ denote the components orthogonal
+and parallel to the kernel of the NTK, respectively. The equation above unravels
+as follows
+\begin{align}
+  & \frac{d}{dt} \pmb{f}_{\perp,t}' = \pmb{b}_{\perp}' - 
+    \Sigma_{\Theta} \left( M_{\perp \perp}' \pmb{f}_{\perp,t}' + 
+    M_{\perp \parallel}' \pmb{f}_{\parallel,t}' \right),\\[5pt]
+  & \frac{d}{dt} \pmb{f}_{\parallel,t}' = \pmb{0} ,
+\end{align}
+where the second equation is a consequence of the fact that the kernel of the
+NTK is a zero mode for the learning flow. Note that the parallel component
+$\pmb{f}_{\parallel,t}'$ appears in the flow equation of $\pmb{f}_{\perp,t}'$,
+but it does not evolve in time. Hence, it can be reabsorbed in the constant
+factor $\pmb{b}_{\perp}'$, giving
+\begin{equation}
+  \frac{d}{dt} \pmb{f}_{\perp,t}' = \pmb{B}_{\perp}' - 
+  \Sigma_{\Theta} M_{\perp \perp}' \pmb{f}_{\perp,t}',
+  \label{eq:FlowEqNTKPerp}
+\end{equation}
+where
+\begin{equation}
+  \pmb{B}_{\perp}' = \pmb{b}_{\perp}' - \Sigma_{\Theta} M_{\perp \parallel}' \pmb{f}_{\parallel,t}'.
+\end{equation}
+Eq.~\eqref{eq:FlowEqNTKPerp} restricts the evolution of the vector $\pmb{f}_t'$
+to the components orthogonal to the kernel of the NTK. The only flat directions
+left are those encoded in the FK tables.
+
+\subsubsection*{Flat directions of the FK tables}
+Following the same reasoning that led to eq.~\eqref{eq:FlowEqSymmetricKernel}, we can
+rewrite eq.~\eqref{eq:FlowEqNTKPerp} as follows
+\begin{equation}
+  \frac{d}{dt} \tilde{\pmb{f}}_{\perp,t}' = \tilde{\pmb{B}}_{\perp}' - \tilde{K}_{\perp} \tilde{\pmb{f}}_{\perp,t}',
+  \label{eq:FlowEqSymmetricKernelPerp}
+\end{equation}
+where
+\begin{equation}
+  M_{\perp \perp}' = L_{\perp}' (L_{\perp}')^T, \quad
+  \tilde{\pmb{f}}_{\perp,t}' = (L_{\perp}')^T \pmb{f}_{\perp,t}', \quad
+  \text{and} \quad
+  \tilde{K}_{\perp} = (L_{\perp}')^T \Sigma_{\Theta} L_{\perp}'.
+\end{equation}
+
+The entries of the symmetric kernel $\tilde{K}_{\perp}$ and its decomposition are shown
+in the left and right panel of Fig.~... As previously done for then NTK, we can rewrite
+this kernel as follows
+\begin{equation}
+  \tilde{K}_{\perp} = U_{K} \Sigma_K U_{K}^T,
+  \label{eq:SymmetricKernelDecomposition}
+\end{equation}
+and rotate equation eq.~\eqref{eq:FlowEqSymmetricKernelPerp} to the eigenbasis of the kernel
+\begin{equation}
+  \frac{d}{dt} \hat{\pmb{f}}_{\perp} = \hat{\pmb{B}}_{\perp} - \Sigma_K \hat{\pmb{f}}_{\perp, t},
+\end{equation}
+where
+\begin{equation}
+  \hat{\pmb{f}}_{\perp} = U_{K}^T \tilde{\pmb{f}}'_{\perp}, \quad
+  \text{and} \quad
+  \hat{\pmb{B}}_{\perp} = U_{K}^T \tilde{\pmb{B}}'_{\perp}.
+\end{equation}
+As displayed in Fig.~..., the kernel contains many flat directions due to the FK tables. We can
+then decompose the vectors as follows
+\begin{equation}
+  \frac{d}{dt} 
+  \left(
+    \begin{matrix}
+      \hat{\pmb{f}}_{\perp \perp,t} \\
+      \hat{\pmb{f}}_{\perp \parallel,t}
+    \end{matrix}
+  \right)
+  =
+  \left(
+    \begin{matrix}
+      \hat{\pmb{B}}_{\perp \perp} \\
+      \hat{\pmb{B}}_{\perp \parallel}
+    \end{matrix}
+  \right)
+  -
+  \left(
+    \begin{matrix}
+      \Sigma_{K} & 0 \\
+      0 & 0
+    \end{matrix}
+  \right)
+  \left(
+    \begin{matrix}
+      \hat{\pmb{f}}_{\perp \perp,t} \\
+      \hat{\pmb{f}}_{\perp \parallel,t}
+    \end{matrix}
+  \right)
+\end{equation}
+yielding the two independent equations
+\begin{align}
+  & \frac{d}{dt}\hat{\pmb{f}}_{\perp \perp,t} = 
+  \hat{\pmb{B}}_{\perp \perp} - \Sigma_K \hat{\pmb{f}}_{\perp \perp,t} \\[5pt]
+  & \frac{d}{dt}\hat{\pmb{f}}_{\perp \parallel,t} = 0.
+\end{align}
+Once inverted, the first equation provides the evolution of the components of the vector
+orthogonal to the null space of both NTK and FK tables. To retrieve the original vector
+in flavour basis, we need to apply to the solution for $\hat{\pmb{f}}_{\perp \perp,t}$
+the inverse rotations applied so far. This gives
+\begin{equation}
+  \pmb{f}_t = \left[ U_{\Theta} \right]_{\perp} L_{\perp}' U_K \hat{\pmb{f}}_{\perp \perp,t},
+\end{equation}
+where $\left[ U_{\Theta} \right]_{\perp}$ is the subspace of the eigenvectors of the NTK that
+is orthogonal to its kernel.
 
 \subsubsection*{Properties of the symmetric kernel}
 The kernel $\tilde{K}$ ...
