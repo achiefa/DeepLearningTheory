@@ -1,6 +1,6 @@
 import numpy as np
 
-# The largest xgrid used NNPDF
+# The largest xgrid used in NNPDF
 XGRID = np.array([2.00000000e-07, 3.03430477e-07, 4.60350147e-07, 6.98420853e-07,
        1.05960950e-06, 1.60758550e-06, 2.43894329e-06, 3.70022721e-06,
        5.61375772e-06, 8.51680668e-06, 1.29210157e-05, 1.96025050e-05,
@@ -79,7 +79,7 @@ def build_fk_matrix(fk_dict):
    for fk in fk_dict.values():
       ndata += fk.shape[0]
 
-   FK = np.vstack([fk.numpy().reshape((fk.shape[0], fk.shape[1] * fk.shape[2])) for fk in fk_dict.values()])
+   FK = np.vstack([fk.reshape((fk.shape[0], fk.shape[1] * fk.shape[2])) for fk in fk_dict.values()])
 
    # Check that this FK is what we expect
    try:

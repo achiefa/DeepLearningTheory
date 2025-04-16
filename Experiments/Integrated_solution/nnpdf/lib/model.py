@@ -4,20 +4,32 @@
     Inspiration from n3fit: https://github.com/NNPDF/nnpdf/tree/master/n3fit
 """
 
+import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
 import keras.initializers as Kinit
-from functools import partial
-import copy
 
+from functools import partial
 from typing import Dict, Callable
+import logging
+import json
 
 from layers import MyDense
+
+h5py_logger = logging.getLogger('h5py')
+h5py_logger.setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
+
 
 supported_kernel_initializers = {
   'RandomNormal': (Kinit.RandomNormal, {'mean': 0.0, 'stddev': 1, 'seed': 0}),
   'HeNormal': (Kinit.HeNormal, {'seed': 0}),
   'GlorotNormal': (Kinit.GlorotNormal, {'seed': 0}),
+}
+
+supported_optmizer = {
+  'SGD': tf.optimizers.SGD,
+  'Adam': tf.optimizers.Adam,
 }
 
 def mse_loss(Cinv, y_true, y_pred, dtype='float32'):
@@ -78,7 +90,10 @@ class PDFmodel:
                kernel_initializer='GlorotNormal',
                user_ki_args: Dict=None,
                seed=0,
-               dtype='float32'):
+               dtype='float32',
+               dense_layer="MyLayer",):
+    
+    logger.info('Initializing PDFmodel...')
     # Check that the length of architecture and activations
     # is the same
     if len(architecture) != len(activations):
@@ -94,6 +109,12 @@ class PDFmodel:
     self.activations = activations
     self.outputs = outputs
 
+    if dense_layer == "MyLayer":
+      self.dense_layer = MyDense
+    else:
+      self.dense_layer = tf.keras.layers.Dense
+    logger.debug(f"Using {self.dense_layer} as dense layer.")
+    
     # Check if kernel initializer is supported
     try:
         ki_tuple = supported_kernel_initializers[kernel_initializer]
@@ -112,8 +133,19 @@ class PDFmodel:
       for key, value in user_ki_args.items():
         if key in ki_args.keys() and value is not None:
           ki_args[key] = value
+    logger.debug(f"Using {kernel_initializer} as kernel initializer.")
+    logger.debug(f"Initialization parameters: {ki_args}")
 
     self.model = self.__generate_model(ki_function, ki_args)
+    self.config = {
+        'dense_layer': 'Dense',
+        'input': str(input),
+        "architecture": self.architecture,
+        "activations": self.activations,
+        "outputs": self.outputs,
+        "seed": self.seed,
+        "dtype": self.float_type,
+    }
 
 
   def __generate_model(self, ki_function, ki_args):
@@ -122,26 +154,30 @@ class PDFmodel:
     function and its arguments. This function is meant to be used
     internally and it is not part of the API.
     """
+    logger.info('Generating model...')
     # Initialize keras sequential model
     model = keras.models.Sequential()
 
     # Add input layer
     model.add(keras.Input(shape=self.inputs.shape, dtype=self.float_type, name='xgrid'))
-
+    #np.random.seed(ki_args['seed'])
+    #ki_args['seed'] = np.random.randint()
+    
     # Loop over architecture and add layers
     for l_idx, layer in enumerate(self.architecture):
-      ki_args['seed'] += l_idx
-      model.add(MyDense(layer,
+      model.add(self.dense_layer(layer,
                         activation=self.activations[l_idx],
                         kernel_initializer=ki_function(**ki_args),
-                        dtype=self.float_type))
+                        dtype=self.float_type,
+                        name='deep_layer_' + str(l_idx)))
     
     # Add last layer
-    ki_args['seed'] += 1
-    model.add(MyDense(self.outputs,
+    ki_args['seed'] = np.random.randint(l_idx + 2)
+    model.add(self.dense_layer(self.outputs,
                       activation='linear',
                       kernel_initializer=ki_function(**ki_args),
-                      dtype=self.float_type))
+                      dtype=self.float_type,
+                      name='output_layer'))
     
     return model
   
@@ -186,7 +222,10 @@ class PDFmodel:
     pdf_preds = tf.squeeze(self.predict())
     g = {}
     for exp, fk  in FK_dict.items():
-      g[exp] = tf.einsum('Iia, ia -> I ', fk, pdf_preds)
+      if len(fk.shape) == 3:
+        g[exp] = tf.einsum('Iia, ia -> I ', fk, pdf_preds)
+      else:
+        g[exp] = tf.einsum('Ii, i -> I ', fk, pdf_preds)
     return g
 
   def train_network_gd(self,
@@ -197,10 +236,13 @@ class PDFmodel:
                        tol=1.e-8,
                        logging=False,
                        callback=True,
-                       cb_time_range=100):
+                       log_fr=100,
+                       max_epochs: int = 1e5,
+                       savedir=None,
+                       optimizer='SGD'):
     """
     Train the model using SGD. If allowed, this method stores relevant
-    objects (e.g. ntk) at each step of the training process.
+    objects (e.g. ntk) at each epoch of the training process.
 
     Parameters
     ----------
@@ -215,49 +257,72 @@ class PDFmodel:
       the value of the loss.
 
     """
-    X = self.inputs
-    optimizer = tf.optimizers.SGD(learning_rate=learning_rate)
+    optimizer = supported_optmizer[optimizer](learning_rate=learning_rate)
+    logger.info(f'Using {optimizer} as optimizer.')
+
     ndata= tf.experimental.numpy.sum([i.size for i in data.values()])
-    step = 0
+    epoch = 0
 
-    if callback:
-      model_in_time = []
-      saved_steps = []
+    # TODO callback function handler should be implemented
+    if callback and savedir is not None:
+      logger.debug(f'Saving model config in {savedir}')
+      config = self.config
+      with open(savedir / "config.json", "w") as f:
+        json.dump(config, f)
+      
+      # TODO only BCDMS data are saved
+      np.save(savedir / "data", data['BCDMS']) 
+      
+      logger.debug(f'Weights of the model saved in {savedir}')
+      self.model.save_weights(savedir / f"epoch_{epoch}.weights.h5")
 
-    while True:
-      with tf.GradientTape(persistent=False) as tape:
-        # Forward pass: Compute predictions
-        preds = self.compute_predictions(FK_dict)
+    try:
+      while True:
+        with tf.GradientTape(persistent=False) as tape:
+          # Forward pass: Compute predictions
+          preds = self.compute_predictions(FK_dict)
 
-        # Compute loss
-        loss = loss_func(y_true=data, y_pred=preds, dtype=self.float_type)
+          # Compute loss
+          #f = self.predict()
+          #loss =  tf.add(loss_func(y_true=data, y_pred=preds, dtype=self.float_type), tf.multiply(tf.multiply(tf.norm(f), tf.norm(f)), 0.5**2)) 
+          loss = loss_func(y_true=data, y_pred=preds, dtype=self.float_type)
 
-        # Save model and steps
-        if step % cb_time_range == 0:
-          model_in_time.append(copy.deepcopy(self))
-          saved_steps.append(step)
-    
-        if step == 0:
-          loss_pre = loss
-          rel_loss = 0.0
-        else: 
-          rel_loss = abs(loss - loss_pre)/loss_pre
-          if rel_loss > tol and step != 0:
+      
+          if epoch == 0:
             loss_pre = loss
-          elif rel_loss < tol:
-            break
+            rel_loss = 0.0
+          else: 
+            rel_loss = abs(loss - loss_pre)/loss_pre
+            if rel_loss > tol and epoch != 0:
+              loss_pre = loss
+            elif rel_loss < tol:
+              self.model.save_weights(savedir / f"epoch_{epoch}.weights.h5")
+              logger.warning(f'Convergence reached at epoch {epoch}.')
+              break
+          
+          gradients = tape.gradient(loss, self.model.trainable_variables)
+          optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
 
-        gradients = tape.gradient(loss, self.model.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, self.model.trainable_variables))
+        if logging:
+          if epoch % log_fr == 0:
+            total_str = f"Epoch {epoch}/{max_epochs}:\n   Loss: {loss.numpy()}, Loss/Ndat: {loss.numpy()/ndata}, Rel. loss: {rel_loss}"
+            logger.info(total_str)
+        epoch += 1
 
-      if logging:
-        if step % 100 == 0:
-          print('------------------------')
-          print(f"Step {step}, Loss: {loss.numpy()}, Loss/Ndat: {loss.numpy()/ndata}, Rel. loss: {rel_loss}")
-      step += 1
-    
-    if callback:
-      return (model_in_time, saved_steps)
+        if epoch > max_epochs:
+          print('Maximum number of iterations reached.')
+          if callback and savedir is not None:
+            self.model.save_weights(savedir / f"epoch_{epoch}.weights.h5")
+          break
+        
+        # Save model and epochs
+        if epoch % log_fr == 0 and callback and savedir is not None:
+          self.model.save_weights(savedir / f"epoch_{epoch}.weights.h5")
+    except KeyboardInterrupt:
+      logger.warning('Training interrupted by user with Ctrl+C.')
+      if callback and savedir is not None:
+        self.model.save_weights(savedir / f"epoch_{epoch}.weights.h5")
+        logger.info(f'Model saved in {savedir} at epoch {epoch}.')
 
   def copmute_jacobian(self):
     """
@@ -270,7 +335,7 @@ class PDFmodel:
       jacobian = tape.jacobian(predictions, self.model.trainable_variables)
     return jacobian
 
-  def compute_ntk(self, only_diagonal=False):
+  def compute_ntk(self, only_diagonal=False, learning_tensor=False):
     """
     Compute the Neural Tanget Kernel (NTK) of the Sequential model.
 
@@ -286,15 +351,23 @@ class PDFmodel:
 
     # Initialize the ntk
     input_size = self.inputs.shape[0]
-    ntk = tf.zeros((input_size, self.outputs, input_size, self.outputs), dtype=self.float_type)
+    if self.outputs == 1:
+      ntk = tf.zeros((input_size, input_size), dtype=self.float_type)
+    else:
+      ntk = tf.zeros((input_size, self.outputs, input_size, self.outputs), dtype=self.float_type)
+      raise Warning('TODO: The implementation for multiple outputs needs to be checked.')
     for jac in jacobian:
-      jac = tf.squeeze(jac)
-      dot_axes = [-1,-2] if len(jac.shape) == 4 else [-1]
-      jac_contracted = tf.tensordot(jac, jac, axes=(dot_axes, dot_axes))
+      jac = tf.squeeze(jac, axis=[1,2])
+      if len(jac.shape) == 3:
+        jac_contracted = tf.tensordot(jac, jac, axes=([-1, -2], [-1, -2]))
+        if learning_tensor:
+          jac_contracted /= jac.shape[1]
+      elif len(jac.shape) == 2:
+        jac_contracted = tf.tensordot(jac, jac, axes=([-1], [-1]))
       ntk += jac_contracted
 
     try:
-      transposed_ntk = tf.transpose(ntk, perm=[2, 3, 0, 1])
+      transposed_ntk = tf.transpose(ntk, perm=[2, 3, 0, 1] if len(ntk.shape) == 4 else [1, 0])
       assert(tf.experimental.numpy.allclose(ntk, transposed_ntk))
     except AssertionError:
       raise RuntimeError('The NTK is not symmetric. Check the implementation.')
@@ -306,3 +379,19 @@ class PDFmodel:
       ntk = ntk_diaogonal
     
     return ntk
+  
+  @classmethod
+  def load_model(self, config_path, weights_path):
+    """
+    Load the model from a json file and the weights from a h5 file.
+    """
+    with open(config_path, 'r') as f:
+      config = json.load(f)
+    
+    # Create the model
+    config['input'] = np.fromstring(config['input'].strip("[]"), sep=" ")
+    model = PDFmodel(**config)
+    # Load the weights
+    model.model.load_weights(weights_path)
+    
+    return model

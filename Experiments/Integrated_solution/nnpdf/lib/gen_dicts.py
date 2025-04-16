@@ -25,6 +25,18 @@ def generate_dicts(groups_data):
   padded_fk_dict = {}
   xgrid_masks_dict = defaultdict(list)
 
+  large_xgrid = np.array([])
+
+  # Find the largest grid
+  for group_proc in groups_data:
+    for exp_set in group_proc.datasets:
+      fkspecs = exp_set.fkspecs
+      cuts = exp_set.cuts
+      fk_data = pineappl_reader(fkspecs[0]).with_cuts(cuts)
+      xgrid = fk_data.xgrid
+      if xgrid.size > large_xgrid.size:
+        large_xgrid = xgrid
+
   total_ndata_wc = 0
   for group_proc in groups_data:
     for exp_set in group_proc.datasets:
@@ -39,18 +51,19 @@ def generate_dicts(groups_data):
       # Read FKData and FK table in numpy version
       fk_data = pineappl_reader(fkspecs[0]).with_cuts(cuts)
       fk_table = fk_data.get_np_fktable()
+      print(fk_table.shape)
 
       # xgrid for this dataset
       xgrid = fk_data.xgrid
 
-      # Check that XGRID is just a small-x extension of XGRID
+      # Check that `large_xgrid` is just a small-x extension of xgrid
       res = True
       for i, x in enumerate(xgrid):
-        offset = 50 - xgrid.size
+        offset = large_xgrid.size - xgrid.size
         try:
-          assert(np.isclose(x, XGRID[offset+i]))
+          assert(np.isclose(x, large_xgrid[offset+i]))
         except AssertionError:
-          print(f"XGRID is not an extension for {dataset_name}.")
+          print(f"`large_xgrid` is not an extension for {dataset_name}.")
 
       # Load DIS object for padding the FK table
       dis = DIS(
@@ -78,8 +91,8 @@ def generate_dicts(groups_data):
       padded_fk_dict[dataset_name] = dis.pad_fk(dis.fktables[0], mask)
 
       # Extend xgrid to low-x (N, x, 14) -> (N, 50, 14)
-      xgrid_mask = np.zeros(XGRID.size, dtype=bool)
-      offset = XGRID.size - xgrid.size
+      xgrid_mask = np.zeros(large_xgrid.size, dtype=bool)
+      offset = large_xgrid.size - xgrid.size
       for i in range(xgrid.size):
         xgrid_mask[offset + i] = True
 
@@ -94,7 +107,7 @@ def generate_dicts(groups_data):
       xgrid_masks_dict[dataset_name] = xgrid_mask
 
       # Check the mask in x is applied correctly
-      for i in range(XGRID.size):
+      for i in range(large_xgrid.size):
         if i >= offset:
           try:
             assert(np.allclose(paddedx_fk_table[:,i,:], fk_table[:,:,i - offset]))
