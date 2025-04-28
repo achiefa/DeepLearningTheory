@@ -566,6 +566,35 @@ And finally, adding Eqs.~\ref{eq:TimeIndepEpsCheck} and~\ref{eq:TimeDepEpsCheck}
 \end{align}
 as expected.
 
+% -------- clean version of the t evolution ----------
+
+\subsection{Evolution reloaded}
+\label{sec:EvolReload}
+
+We are going to use two bases in the $\ngrid$-dimensional space of vectors $f_t \in \mathbb{R}^{\ngrid}$. 
+The first basis, $\displaystyle \left\{z^{(k)}; k = 1, \ldots, \ngrid\right\}$, is made of eigenvectors of $\Theta$, 
+\begin{equation}
+  \label{eq:ThetaEigenVect}
+  \Theta z^{(k)} = \lambda^{(k)} z^{(k)}\, .
+\end{equation}
+Since $\Theta$ is symmetric and positive semi-definite, we know that $\lambda^{(k)}\geq 0$ and that 
+the eigenvectors are a complete set of orthonormal vectors. It is useful to introduce the following 
+notation: 
+\begin{equation}
+  \label{eq:KernelIndices}
+  k \in \mathcal{I}_{\Theta\perp}\, , ~\text{if}~\lambda^{(k)} \neq 0\, , 
+  \quad k \in \mathcal{I}_{\Theta\parallel}\, , ~\text{if}~\lambda^{(k)} = 0\, .
+\end{equation}
+The dimension of the kernel of $\Theta$ is $|\mathcal{I}_{\Theta\parallel}|$, the dimension of its orthogonal 
+complement is $|\mathcal{I}_{\Theta\perp}|$, and $|\mathcal{I}_{\Theta\parallel}|+|\mathcal{I}_{\Theta\perp}| = \ngrid$.
+
+The other basis, $\displaystyle \left\{v^{(m)}; m = 1, \ldots, \ngrid\right\}$, is made of eigenvectors of $M$, 
+\begin{equation}
+  \label{eq:MmatEigenVect}
+  M v^{(m)} = \sigma^{(m)} v^{(m)}\, .
+\end{equation}
+
+
 % ------------------ Paragraph ----------------------
 \subsection{Evolution of $f_t$ revisited.}
 We start again from the eigenvectors and eigenvalues of $\Theta$
