@@ -571,8 +571,8 @@ as expected.
 \subsection{Evolution reloaded}
 \label{sec:EvolReload}
 
-We are going to use two bases in the $\ngrid$-dimensional space of vectors $f_t \in \mathbb{R}^{\ngrid}$. 
-The first basis, $\displaystyle \left\{z^{(k)}; k = 1, \ldots, \ngrid\right\}$, is made of eigenvectors of $\Theta$, 
+A basis in the $\ngrid$-dimensional space of vectors $f_t \in \mathbb{R}^{\ngrid}$,
+$\displaystyle \left\{z^{(k)}; k = 1, \ldots, \ngrid\right\}$, can be constructed from the eigenvectors of $\Theta$, 
 \begin{equation}
   \label{eq:ThetaEigenVect}
   \Theta z^{(k)} = \lambda^{(k)} z^{(k)}\, .
@@ -585,14 +585,54 @@ notation:
   k \in \mathcal{I}_{\Theta\perp}\, , ~\text{if}~\lambda^{(k)} \neq 0\, , 
   \quad k \in \mathcal{I}_{\Theta\parallel}\, , ~\text{if}~\lambda^{(k)} = 0\, .
 \end{equation}
-The dimension of the kernel of $\Theta$ is $|\mathcal{I}_{\Theta\parallel}|$, the dimension of its orthogonal 
-complement is $|\mathcal{I}_{\Theta\perp}|$, and $|\mathcal{I}_{\Theta\parallel}|+|\mathcal{I}_{\Theta\perp}| = \ngrid$.
+The dimension of the kernel of $\Theta$ is $\NThetaPar = |\mathcal{I}_{\Theta\parallel}|$, the dimension of its orthogonal 
+complement is $\NThetaPerp=|\mathcal{I}_{\Theta\perp}|$, and $\NThetaPar + \NThetaPerp = \ngrid$.
+
+Projecting the flow equation onto the basis vectors $z^{(k)}$ yields
+\begin{align}
+  \label{eq:EvolutionPar}
+  \ddt f_{t,k} &= 0\, , \quad \text{for}\ k \in \mathcal{I}_{\Theta\parallel}\, , \\
+  \label{eq:EvolutionPerp}
+  \ddt f_{t,k} &= - \lambda^{(k)} \left(z^{(k)}, M f_t\right) 
+    + \lambda^{(k)} \left(z^{(k)}, \FKtabT C_Y^{-1} y\right)\, , \quad \text{for}\ k \in \mathcal{I}_{\Theta\perp}\, ,
+\end{align}
+where $f_{t,k} = \left(z^{(k)}, f_t\right)$. Using the completeness of the basis, 
+\begin{align}
+  \left(z^{(k)}, M f_t\right) 
+    &= \sum_{k'} \left(z^{(k)}, M z^{(k')}\right) f_{t,k'} \\
+    &= \sum_{k'\in \mathcal{I}_{\Theta\perp}} \left(z^{(k)}, M z^{(k')}\right) f_{t,k'} 
+      + \sum_{k'\in \mathcal{I}_{\Theta\parallel}} \left(z^{(k)}, M z^{(k')}\right) f_{0,k'}\, .
+\end{align}
+Finally, we can rewrite Eq.~\eqref{eq:EvolutionPerp} as
+\begin{equation}
+  \label{eq:EvolutionPerpTwo}
+  \ddt f_{t,k} = - \sum_{k'\in \mathcal{I}_{\Theta\perp}} 
+     H^{\perp}_{kk'} f_{t,k'} + B_{k}\,  ,
+\end{equation}
+where
+\begin{equation}
+  \label{eq:HmatDef}
+  H^{\perp}_{kk'} = \lambda^{(k)} \left(z^{(k)}, M z^{(k')}\right)\,, 
+\end{equation}
+is a $\NThetaPerp \times \NThetaPerp$ matrix, and 
+\begin{equation}
+  \label{eq:BkDef}
+  B_{k} = -\sum_{k'\in \mathcal{I}_{\Theta\parallel}} \lambda^{(k)} \left(z^{(k)}, M z^{(k')}\right) f_{0,k'} + 
+  \lambda^{(k)} \left(z^{(k)}, \FKtabT C_Y^{-1} y\right)\, ,
+\end{equation}
+is a $\NThetaPerp$-dimensional vector, with $k \in \mathcal{I}_{\Theta\perp}$.
+
 
 The other basis, $\displaystyle \left\{v^{(m)}; m = 1, \ldots, \ngrid\right\}$, is made of eigenvectors of $M$, 
 \begin{equation}
   \label{eq:MmatEigenVect}
   M v^{(m)} = \sigma^{(m)} v^{(m)}\, .
 \end{equation}
+Similarly to the convention introduced above, the eigenvectors in the kernel of $M$ are denoted by indices in 
+$\mathcal{I}_{M\parallel}$, while the eigenvectors in the orthgonal complement are labelled by indices in 
+$\mathcal{I}_{M\perp}$. 
+
+
 
 
 % ------------------ Paragraph ----------------------
