@@ -227,7 +227,7 @@ theory to any given order in $1/n_\ell$, see \eg\ Ref.~\cite{Roberts:2021fes} fo
 presentation of these ideas. While the actual calculations become rapidly cumbersome, the 
 conceptual framework is straightforward. 
 
-At leading order the second and fourth cumulant are respectively
+At leading order, the second and fourth cumulant are respectively
 \begin{align}
     &\langle \phi^{(\ell)}_{i_1,\alpha_1} \phi^{(\ell)}_{i_2,\alpha_2}\rangle
       = \delta_{i_1 i_2} K^{(\ell)}_{\alpha_1\alpha_2} + O(1/n_{\ell-1})\, , \\
@@ -330,34 +330,41 @@ get something interesting...
 The parameter-space/function-space duality described in Sec.~\ref{sec:Init} yields intersting insight
 on the training process. Our main concern in this paper is understanding the dynamics driving the 
 training process, therefore we work in a simplified setting where we consider standard gradient descent 
-and data that depend linearly on the unknwon PDFs, as shown in Eq.~\eqref{eq:TheoryPred}. The results
+and data that depend linearly on the unknwon PDFs, as shown in Eq.~\eqref{eq:TheoryPred}. The generalization
+to other minimizers and non-linear data is left to future investigations, but is expected to yield 
+qualitatively similar results. The results
 in this subsection apply to any generic parametrization of the unknown function, they are {\em not}\ 
 specific to the case of using NN for the parametrization. 
 
 Gradient descent is described as a continuous flow of the parameters $\theta$ in training time $t$ 
 along the negative gradient of the loss function $\mathcal{L}$. The parameters and the fields during
-training are denoted by adding an index $t$, so that \eg\ $\theta_{t\mu}$ identifies the parameter
+training are labelled by adding an index $t$, so that \eg\ $\theta_{t,\mu}$ identifies the parameter
 $\theta_\mu$ at time $t$. 
 The gradient flow is given by 
 \begin{align}
     \label{eq:GradientFlowDef}
-    \ddt &\theta_{t\mu} = -\nabla_\mu \mathcal{L}\, .
+    \ddt &\theta_{t,\mu} = -\nabla_\mu \mathcal{L}_t\, .
 \end{align}
 We focus here on quadratic loss functions that are obtained as the negative logarithm of Gaussian 
 data distributions around their theoretical predictions, 
 \begin{align}
     \label{eq:QuadLoss}
-    \mathcal{L} = \frac12 \left(Y - T[f_t]\right)^T C_Y^{-1} \left(Y - T[f_t]\right)\, ,
+    \mathcal{L}_t = \frac12 \left(Y - T[f_t]\right)^T C_Y^{-1} \left(Y - T[f_t]\right)\, ,
 \end{align}
 where $C_Y$ is the covariance of the data, which includes statistical and systematic errors given by 
 the experiments and also any theoretical error, like \eg\ missing higher orders in the theoretical 
-predictions. Indices that are summed over are suppressed for improving clarity of the equations. 
+predictions. Indices that are summed over are suppressed to improve the clarity of the equations. 
 Note that the loss function at training time $t$ is computed using the theoretical prediction $T[f_t]$,
 \ie\ the result of Eq.~\eqref{eq:TheoryPred} computed using the fields at training time $t$. For a quadratic 
 loss, the gradient is
 \begin{align}
-    \nabla_\mu \mathcal{L} = - \left(\nabla_\mu f_t\right)^T \left(\frac{\partial T}{\partial f}\right)_t
-      C_Y^{-1} \epsilon_t\, , \quad \epsilon_t = \left(y - T[f_t]\right)\, .
+    \nabla_\mu \mathcal{L}_t = - \left(\nabla_\mu f_t\right)^T \left(\frac{\partial T}{\partial f}\right)_t
+      C_Y^{-1} \epsilon_t\, , 
+\end{align}
+where, writing explicitly the data index, 
+\begin{align}
+    \label{eq:EpsDef}
+    \epsilon_{t,I} = Y_I - T_I[f_t]\, , \quad I=1, \ldots, \ndat\, .
 \end{align}
 For the specific case of a quadratic loss function, the gradient is proportional to $\epsilon_t$, which 
 is the difference between the theoretical prediction and the data at training time $t$. If at some point 
@@ -367,7 +374,7 @@ In the specific case of NNPDF fits, the integrals in Eq.~\eqref{eq:TheoryPred} a
 a Riemann sum over the grid of $x$ points, 
 \begin{align}
     \label{eq:FKTabDef}
-    Y_I \approx \sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} f_{i\alpha}\, ,
+    T_I[f] \approx \sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} f_{i\alpha}\, ,
 \end{align}
 and hence 
 \begin{align}
@@ -375,7 +382,7 @@ and hence
     \left(\frac{\partial T_I}{\partial f_{i\alpha}}\right)_t = 
         \FKtab_{Ii\alpha}\, ,
 \end{align}
-and is independent of $t$. The flow of parameters $\theta$ tranlsates into a flow for the fields, 
+and is independent of $t$. The flow of parameters $\theta$ translates into a flow for the fields, 
 \begin{align}
     \label{eq:NTKFlow}
     \ddt &f_{t,i_1\alpha_1} = (\nabla_\mu f_{t,i_1\alpha_1}) \ddt \theta_\mu = 
@@ -385,7 +392,7 @@ and is independent of $t$. The flow of parameters $\theta$ tranlsates into a flo
 where
 \begin{align}
     \label{eq:NTKDef}
-    \Theta_{t,i_1i_2\alpha_1\alpha_2} = \sum_\mu 
+    \Theta_{t,i_1\alpha_1i_2\alpha_2} = \sum_\mu 
     \nabla_\mu f_{t,i_1\alpha_1} \nabla_\mu f_{t,i_2\alpha_2}\, .
 \end{align}
 For clarity, we often omit indices and write
@@ -394,6 +401,7 @@ For clarity, we often omit indices and write
         &= \FKtab\, , \\
     \Theta_t  
         &= \left(\nabla_\mu f_t\right)^T \left(\nabla_\mu f_t\right)\, , \\
+    \label{eq:FlowEquationNoIndices}
     \ddt f_t 
         &= \Theta_t \FKtabT C_Y^{-1} \epsilon_t\, .
 \end{align}
@@ -401,8 +409,92 @@ Note that these equations do not refer to a specific parametrization and remain 
 explicit functional form is chosen to parametrize the PDFs, as \eg\ in 
 Refs.~\cite{Bailey:2020ooq,Hou:2019efy}.
 
+\subsection{Lazy Training for the Flow Equation}
+\label{sec:Lazy}
 
+The large-$n_{\ell}$ effective theory discussed in Sect.~\ref{sec:Init} also predicts that
+the NTK remains constant along training, up to corrections that are $O(1/n_{\ell})$, see 
+Ref.~\cite{DBLP:journals/corr/abs-1806-07572} and references therein for a derivation of this result. 
+This regime is sometimes referred to as {\em lazy kernel training}, and allows an analytical
+solution of the flow equation.
 
+We start by rewriting Eq.~\eqref{eq:FlowEquationNoIndices} as
+\begin{align}
+    \label{eq:FlowEqTwo}
+    \ddt f_t = \Theta M f_t + b\, ,
+\end{align}
+where 
+\begin{align}
+    M &= \FKtabT C_Y^{-1} \FKtab\, , \quad b = \Theta \FKtabT C_Y^{-1} Y\, .
+\end{align}
+The eigenvectors of $\Theta$, 
+\begin{align}
+    \label{eq:ThetaEigensystem}
+    \Theta z^{(k)} = \lambda^{(k)} z^{(k)}\, ,
+\end{align}
+provide a basis for expanding Eq.~\eqref{eq:FlowEqTwo}. It is necessary at this stage to distinguish
+the components of $f_t$ that are in the kernel of $\Theta$ from the ones that are in the orthogonal 
+complement, hence we introduce the notation
+\begin{align}
+    &f^\parallel_{k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda_{(k)} = 0\, , \\
+    &f^\perp_{k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda^{(k)} \neq 0\, .
+\end{align}
+One can readily see that the component in the kernel of $\Theta$, $\text\ \Theta$, 
+do not evolve during the flow, 
+\begin{align}
+    \label{eq:FlowParallel}
+    \ddt f^\parallel_{t,k} = 0 
+        \quad \Longrightarrow \quad f^\parallel_{t,k} = f^\parallel_{0,k}\, .
+\end{align}
+The flow equation for the orthogonal components can be written as
+\begin{align}
+    \label{eq:FlowPerp}
+    \ddt f^\perp_{t,k} = - H^\perp_{kk'} f^\perp_{t,k'} + B^\perp_{k}\, ,    
+\end{align}
+where the indices on quantities that have a $\perp$ suffix only span the space orthogonal to the kernel 
+of $\Theta$, while the indices on quantities that have a $\parallel$ suffix span the kernel. 
+In Eq.~\eqref{eq:FlowPerp}, we introduced
+\begin{align}
+    H^\perp_{kk'} &= \lambda^{(k)} \left(z^{(k)}, M z^{(k')}\right)\, ,\\
+    B^\perp_k &= -\lambda^{(k)} \left[\left(z^{(k)}, M z^{(k')}\right) f^\parallel_{0,k'} 
+        + \left(z^{(k)}, \FKtabT C_Y^{-1} Y\right)\right]\, .
+\end{align}
+Denoting by $d^\perp$ the dimension of the subspace orthogonal to $\text{ker}\ \Theta$, $H^\perp$ is 
+a $d^\perp\times d^\perp$ matrix, whose eigenvalues and eigenvectors satisfy
+\begin{align}
+    H^\perp w^{(i)} = h^{(i)} w^{(i)}\, .
+\end{align}
+The solution to Eq.~\eqref{eq:FlowPerp} can be written as the sum of the solution of the 
+homogeneous equation and a particular solution of the full equation. For the homogeneous equation, 
+the solution $\hat{f}^{\perp}_{t,k}$ can be written as
+\begin{align}
+    \label{eq:HomoSoln}
+    \hat{f}^{\perp}_{t,k} = \sum_{i=1}^{d^\perp} c_i e^{-h^{(i)}t} w^{(i)}_k\, ,
+\end{align}
+where 
+\begin{align}
+    \label{eq:InitialCi}
+    c_i = \left(w^{(i)}, f_{0}\right)
+\end{align}
+guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is 
+satisfied. If we define
+\begin{align}
+    \label{eq:BiDef}
+    B^{(i)} = \left(w{(i)}, B\right)\, ,
+\end{align}
+then 
+\begin{align}
+    \label{eq:PartSol}
+    \check{f}^\perp_{t,k} = \sum_{i} \frac{1}{h^{(i)}} b^{(i)} 
+        \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k
+\end{align}
+is a particular solution of the inhomogeneous equation, which satisfies the boundary 
+condition $\check{f}_{0,k}=0$. Finally, the solution of the flow equation in the subspace orthogonal to 
+$\text{ker}\ \Theta$ is 
+\begin{align}
+    \label{eq:FlowSolution}
+    f^\perp_{t,k} = \hat{f}^\perp_{t,k} + \check{f}^\perp_{t,k}\, .
+\end{align}
 
 \bibliographystyle{unsrt}
 \bibliography{ntk.bib}
