@@ -421,7 +421,7 @@ solution of the flow equation.
 We start by rewriting Eq.~\eqref{eq:FlowEquationNoIndices} as
 \begin{align}
     \label{eq:FlowEqTwo}
-    \ddt f_t = \Theta M f_t + b\, ,
+    \ddt f_t = -\Theta M f_t + b\, ,
 \end{align}
 where 
 \begin{align}
@@ -480,12 +480,12 @@ guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is
 satisfied. If we define
 \begin{align}
     \label{eq:BiDef}
-    B^{(i)} = \left(w{(i)}, B\right)\, ,
+    B^{(i)} = \left(w^{(i)}, B\right)\, ,
 \end{align}
 then 
 \begin{align}
     \label{eq:PartSol}
-    \check{f}^\perp_{t,k} = \sum_{i} \frac{1}{h^{(i)}} b^{(i)} 
+    \check{f}^\perp_{t,k} = \sum_{i} \frac{1}{h^{(i)}} B^{(i)} 
         \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k
 \end{align}
 is a particular solution of the inhomogeneous equation, which satisfies the boundary 
