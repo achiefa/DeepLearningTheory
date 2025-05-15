@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: [3.9, 3.10, 3.11]
+        python-version: ["3.9", "3.10", "3.11"]
         include:
           - os: ubuntu-latest
             CONDA_OS: linux-64
@@ -23,10 +23,11 @@ jobs:
       - name: Prepare conda environment
         uses: conda-incubator/setup-miniconda@v3
         with:
-          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          activate-environment: test
-          conda-os: ${{ matrix.CONDA_OS }}
+          show_channel_urls: true
+          auto-update-conda: true
+          activate-environment: test_environment
+          channels: conda-forge, defaults
 
       - name: Install package using pip with (requires previous step)
         shell: bash -l {0}
