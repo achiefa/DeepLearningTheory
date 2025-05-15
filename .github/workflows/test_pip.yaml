@@ -1,0 +1,34 @@
+name: Test pip installation
+
+# This workflow tests the pip installation of the package.
+
+on: [push, workflow_dispatch]
+concurrency:
+  group: ${{ github.head_ref }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-pip:
+    if: ${{ contains(github.event.head_commit.message, '@@test_pip@@') }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.9, 3.10, 3.11]
+        include:
+          - os: ubuntu-latest
+            CONDA_OS: linux-64
+      fail-fast: true # Stop the job if one of the tests fails
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Prepare conda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          activate-environment: test
+          conda-os: ${{ matrix.CONDA_OS }}
+
+      - name: Install package using pip with (requires previous step)
+        shell: bash -l {0}
+        run: |
+          pip install -e ".[docs, format, test]"
