@@ -1,5 +1,5 @@
 # DeepLearningTheory
-This repository collects a series of experiments that focus on deep learning. 
+This repository collects a series of experiments that focus on deep learning.
 
 # Installation
 
@@ -20,7 +20,7 @@ pip install .
 pip install ".[docs,format,test]"
 ```
 
-### From GitHub 
+### From GitHub
 ```bash
 pip install git+https://github.com/yourusername/nnpdf.git
 ```
