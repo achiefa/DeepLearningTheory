@@ -174,3 +174,7 @@ output
 
 # Tensorflow weights
 *.weights.h5
+
+# Temporary directories
+tmp/
+temp/
