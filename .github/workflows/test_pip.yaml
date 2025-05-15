@@ -20,14 +20,17 @@ jobs:
       fail-fast: true # Stop the job if one of the tests fails
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Prepare conda environment
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: ${{ matrix.python-version }}
+          channels: conda-forge, defaults
           show_channel_urls: true
           auto-update-conda: true
           activate-environment: test_environment
-          channels: conda-forge, defaults
 
       - name: Install package using pip with (requires previous step)
         shell: bash -l {0}
