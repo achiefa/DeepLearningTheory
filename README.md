@@ -1,3 +1,5 @@
+[![Test pip installation](https://github.com/achiefa/DeepLearningTheory/actions/workflows/test_pip.yaml/badge.svg)](https://github.com/achiefa/DeepLearningTheory/actions/workflows/test_pip.yaml)
+
 # DeepLearningTheory
 This repository collects a series of experiments that focus on deep learning.
 
