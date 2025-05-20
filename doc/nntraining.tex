@@ -438,7 +438,8 @@ the components of $f_t$ that are in the kernel of $\Theta$ from the ones that ar
 complement, hence we introduce the notation
 \begin{align}
     &f^\parallel_{t,k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda_{(k)} = 0\, , \\
-    &f^\perp_{t,k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda^{(k)} \neq 0\, .
+    &f^\perp_{t,k} = \frac{1}{\sqrt{\lambda^{(k)}}} \left(z^{(k)}, f_t\right)\, , \quad 
+        \text{if}\ \lambda^{(k)} \neq 0\, .
 \end{align}
 One can readily see that the components in the kernel of $\Theta$, $\text{ker}\ \Theta$, 
 do not evolve during the flow, 
@@ -450,14 +451,15 @@ do not evolve during the flow,
 The flow equation for the orthogonal components can be written as
 \begin{align}
     \label{eq:FlowPerp}
-    \ddt f^\perp_{t,k} = - H^\perp_{kk'} f^\perp_{t,k'} + B^\perp_{k}\, ,    
+    \ddt f^\perp_{t,k} = - H^\perp_{kk'} f^\perp_{t,k'} 
+        + B^\perp_{k}\, ,    
 \end{align}
 where the indices on quantities that have a $\perp$ suffix only span the space orthogonal to the kernel 
 of $\Theta$, while the indices on quantities that have a $\parallel$ suffix span the kernel. 
 In Eq.~\eqref{eq:FlowPerp}, we introduced
 \begin{align}
-    H^\perp_{kk'} &= \left(z^{(k)}, M z^{(k')}\right)\, ,\\
-    B^\perp_k &= -\left[\left(z^{(k)}, M z^{(k')}\right) f^\parallel_{0,k'} 
+    H^\perp_{kk'} &= \sqrt{\lambda^{(k)}} \left(z^{(k)}, M z^{(k')}\right) \sqrt{\lambda^{(k')}}\, ,\\
+    B^\perp_k &= -\sqrt{\lambda^{(k)}} \left[\left(z^{(k)}, M z^{(k')}\right) f^\parallel_{0,k'} 
         - \left(z^{(k)}, \FKtabT C_Y^{-1} Y\right)\right]\, .
 \end{align}
 We refer to $H^\perp$ as the flow (or training) Hamiltonian; we see explicitly in the definition above that 
@@ -481,23 +483,23 @@ The solution of the homogeneous equation is
     \hat{f}^{\perp}_{t,k} = \sum_{i=1}^{d^\perp} C_i e^{-h^{(i)}t} w^{(i)}_k\, ,
 \end{align}
 where
-~\footnote{
-    Note that here the scalar product is computed in the subspace orthogonal to the kernel of $\Theta$,
-    \[
-        \left(w^{(i)}, f^\perp_0\right) = \sum_{k=1}^{d_\perp} w^{(i)}_{k} f^\perp_{0,k}
-    \]
-} 
+% ~\footnote{
+%     Note that here the scalar product is computed in the subspace orthogonal to the kernel of $\Theta$,
+%     \[
+%         \left(w^{(i)}, f^\perp_0\right) = \sum_{k=1}^{d_\perp} w^{(i)}_{k} f^\perp_{0,k}
+%     \]
+% } 
 \begin{align}
     \label{eq:InitialCi}
-    C_i %= \sum_{k=1}^{d_\perp} \left(W^{-1}\right)_{ik} f^\perp_{0,k} 
-        = \left(w^{(i)}, f^\perp_0\right)\, , 
+    C_i = \sum_{k=1}^{d_\perp} w^{(i)}_k f^\perp_{0,k}\, ,
+        %= \left(w^{(i)}, f^\perp_0\right)\, , 
 \end{align}
 guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is 
 satisfied. If we define
 \begin{align}
     \label{eq:BiDef}
-    B_i %= \sum_{k=1}^{d_\perp} \left(W^{-1}\right)_{ik} B^\perp_{k}
-            = \left(w^{(i)}, B^\perp\right)\, ,
+    B_i = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
+        %= \left(w^{(i)}, B^\perp\right)\, ,
 \end{align}
 then 
 \begin{align}
@@ -512,13 +514,13 @@ $\text{ker}\ \Theta$ is
 \begin{align}
     f^\perp_{t,k} 
     \label{eq:FlowSolution}
-        &= \hat{f}^\perp_{t,k} + \check{f}^\perp_{t,k} \\
-        &= \sum_{i=1}^{d^\perp}  \left(w^{(i)}, f^\perp_0\right) e^{-h^{(i)}t} w^{(i)}_k
-            + \sideset{}{'}\sum_{i=1}  \frac{1}{h^{(i)}} \left(w^{(i)}, B^\perp\right)
-                \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k
+        &= \hat{f}^\perp_{t,k} + \check{f}^\perp_{t,k} 
+        % &= \sum_{i=1}^{d^\perp}  \left(w^{(i)}, f^\perp_0\right) e^{-h^{(i)}t} w^{(i)}_k
+        %     + \sideset{}{'}\sum_{i=1}  \frac{1}{h^{(i)}} \left(w^{(i)}, B^\perp\right)
+        %         \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k
         \, .
 \end{align}
-Collecting all terms yields
+Collecting all terms yields (this needs to be rewritten)
 \begin{align}
     f_{t,\alpha} 
     &= \sum_{k} \left\{\sum_{i=1}^{d^\perp}  
