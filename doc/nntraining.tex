@@ -495,7 +495,7 @@ where
         %= \left(w^{(i)}, f^\perp_0\right)\, , 
 \end{align}
 guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is 
-satisfied. If we define
+satisfied. Similarly, if we define
 \begin{align}
     \label{eq:BiDef}
     B_i = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
@@ -520,16 +520,59 @@ $\text{ker}\ \Theta$ is
         %         \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k
         \, .
 \end{align}
-Collecting all terms yields (this needs to be rewritten)
+Collecting all terms yields a simple (and useful!) expression,
 \begin{align}
+    \label{eq:AnalyticSol}
     f_{t,\alpha} 
-    &= \sum_{k} \left\{\sum_{i=1}^{d^\perp}  
-        \left(w^{(i)}, f^\perp_0\right) e^{-h^{(i)}t} w^{(i)}_k z^{(k)}_\alpha
-    + \sideset{}{'}\sum_{i=1}  \frac{1}{h^{(i)}} \left(w^{(i)}, B^\perp\right)
-        \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k z^{(k)}_\alpha \right.\nonumber \\
-        \label{eq:AnalyticSol}
-    & \quad\quad + f^\parallel_{0,k} z^{(k)}_\alpha \Bigg\}\, ,
+        = U(t)_{\alpha\alpha'} f_{0,\alpha'} + V(t)_{\alpha I} Y_{I}\, .
 \end{align}
+The two evolution operators $U(t)$ and $V(t)$ have lengthy, yet explicit, expressions, which we 
+summarise here or move to an appendix:
+\begin{align}
+    U(t)_{\alpha\alpha'} = \hat{U}^\perp(t)_{\alpha\alpha'} 
+        + \check{U}^\perp(t)_{\alpha\alpha'} + U^\parallel(t)_{\alpha\alpha'}\, ,     
+\end{align}
+where 
+\begin{align}
+    \hat{U}^\perp(t)_{\alpha\alpha'} 
+        &= \sum_i Z^{(i)}_{\alpha} e^{-h^{(i)}t} Z^{(i)}_{\alpha'}\, , \\
+    Z^{(i)}_{\alpha} 
+        &= \sum_{k\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha w^{(i)}_{k}\, ,
+\end{align}
+and
+\begin{align}
+    \check{U}^\perp(t)_{\alpha\alpha'}
+        &= \sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \left(1 - e^{-h^{(i)}t}\right) \tilde{Z}^{(i)}_{\alpha'}\, , \\
+    \tilde{Z}^{(i)}_{\alpha} 
+        &= \sum_{k'\in\perp} \sum_{k''\in\parallel} w^{(i)}_{k'} \left(-\sqrt{\lambda^{(k')}}\right) 
+            T^{(k') T} C_Y^{-1} T^{(k'')} z^{(k'')}_{\alpha}\, ,
+\end{align}
+and
+\begin{align}
+    U^\parallel_{\alpha\alpha'} 
+        = \sum_{k\in\parallel} z^{(k)}_\alpha \delta_{\alpha\alpha'}\, ,
+\end{align}
+and 
+
+\section{Behaviour of the NTK}
+\label{sec:NTKvsTraining}
+
+variation of the NTK 
+
+eigenvalues at initialization, eigenvalues at $t$ after the NTK has stabilized, criteria to define the kernel
+
+try a few variations of the architecture in order to get a feeling
+
+eigenvalues and eigenvectors of $H^\perp$, dependence on the number of datapoints, on the choice of experiments
+
+
+\section{First Training Results}
+
+
+\section{Training and Closure}
+
+level-0, level-1, level-2
+
 
 \bibliographystyle{unsrt}
 \bibliography{ntk.bib}
