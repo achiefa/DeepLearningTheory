@@ -329,9 +329,10 @@ class PDFmodel:
                         if rel_loss > tol and epoch != 0:
                             loss_pre = loss
                         elif rel_loss < tol:
-                            self.model.save_weights(
-                                savedir / f"epoch_{epoch}.weights.h5"
-                            )
+                            if callback and savedir is not None:
+                                self.model.save_weights(
+                                    savedir / f"epoch_{epoch}.weights.h5"
+                                )
                             logger.warning(f"Convergence reached at epoch {epoch}.")
                             break
 
