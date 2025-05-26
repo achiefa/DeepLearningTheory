@@ -567,7 +567,7 @@ and
 and
 \begin{align}
     U^\parallel_{\alpha\alpha'} 
-        = \sum_{k\in\parallel} z^{(k)}_\alpha z^{(k)}_{\alpha'} \, ,
+        = \sum_{k\in\parallel} z^{(k)}_\alpha \delta_{\alpha\alpha'}\, ,
 \end{align}
 and 
 \begin{align}
@@ -592,23 +592,14 @@ and the variance of the trained fields.
 The central values of the trained fields is obtained by taking the expectation value of
 Eq.~\eqref{eq:AnalyticSol} over the initial fields, which are Gaussian distributed at initialization,
 \begin{align}
-    \label{eq:MeanValAtT}
     \bar{f}_{t,\alpha} = \mathbb{E}\left[f_{t,\alpha}\right]
-        = \mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right] + \mathbb{E}\left[V(t)_{\alpha I}\right] Y_I\, .
+        &= U(t)_{\alpha\alpha'} \bar{f}_{0,\alpha'} + V(t)_{\alpha I} Y_I \\
+        \label{eq:MeanValAtT}
+        &= V(t)_{\alpha I} Y_I\, ,
 \end{align}
-
-Taking the limit $t\to\infty$, we can check that the central value of the trained fields does indeed minimize 
-the loss function, as expected. In this limit, the evolution operators $U(t)$ and $V(t)$ become
-\begin{align}
-    U(\infty)_{\alpha\alpha'} &= \lim_{t\to\infty} U(t)_{\alpha\alpha'} = \sum_{i} Z^{(i)}_{\alpha} Z^{(i)}_{\alpha'}\, , \\
-    V(\infty)_{\alpha I} &= \lim_{t\to\infty} V(t)_{\alpha I} = \sum_{i} Z^{(i)}_{\alpha} \tilde{T}^{(i)}_{I}\, .
-\end{align}
-Eq.~\eqref{eq:MeanValAtT} explicitly shows the contribution of each data point to the central value of the 
-trained fields at each value of $x_{\alpha}$. Note that the first term on the right-hand side, 
-$\mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right]$ is entirely determined by the correlation between 
-$U(t)_{\alpha\alpha'}$ and $f_{0,\alpha'}$; in the absence of correlations the expectation value would factorise
-and therefore vanish, since the expectation value of the initial fields vanishes. 
-
+where we used the fact that the central value of the replicas at initialization is zero.
+Eq.~\eqref{eq:MeanValAtT} explicitly show the contribution of each data point to the central value of the 
+trained fields at each value of $x_{\alpha}$.
 
 \section{Behaviour of the NTK}
 \label{sec:NTKvsTraining}
