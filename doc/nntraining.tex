@@ -566,8 +566,8 @@ and
 \end{align}
 and
 \begin{align}
-    U^\parallel_{\alpha\alpha'} 
-        = \sum_{k\in\parallel} z^{(k)}_\alpha \delta_{\alpha\alpha'}\, ,
+    U^\parallel(t)_{\alpha\alpha'} 
+        = \sum_{k\in\parallel} z^{(k)}_\alpha z^{(k)}_{\alpha'} \, ,
 \end{align}
 and 
 \begin{align}
@@ -590,15 +590,33 @@ operators $U(t)$ and $V(t)$. Eq.~\eqref{eq:AnalyticSol} yields informations on b
 and the variance of the trained fields.
 
 The central values of the trained fields is obtained by taking the expectation value of
-Eq.~\eqref{eq:AnalyticSol} over the initial fields, which are Gaussian distributed at initialization,
+Eq.~\eqref{eq:AnalyticSol} over the initial fields, which are Gaussian distributed at initialization, and over the 
+fluctuation of the NTK, 
 \begin{align}
+    \label{eq:MeanValAtT}
     \bar{f}_{t,\alpha} = \mathbb{E}\left[f_{t,\alpha}\right]
-        &= U(t)_{\alpha\alpha'} \bar{f}_{0,\alpha'} + V(t)_{\alpha I} Y_I \\
-        \label{eq:MeanValAtT}
-        &= V(t)_{\alpha I} Y_I\, ,
+        = \mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right] 
+            + \mathbb{E}\left[V(t)_{\alpha I}\right] Y_I \, .
 \end{align}
-where we used the fact that the central value of the replicas at initialization is zero.
-Eq.~\eqref{eq:MeanValAtT} explicitly show the contribution of each data point to the central value of the 
+Note that the first term on the right-hand side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of the 
+correlations between $U(t)$ and $f_0$. In the absence of such correlations, the first term would be given by the product
+of the expectation values and hence would vanish, since the expectation value of the fields at initialization vanishes.
+
+\paragraph{Central value at infinite training time.} 
+
+In the limit of inifinite training time, the evolution operators $U(t)$ and $V(t)$ simplify to
+\begin{align}
+    \hat{U}^\perp(t\to\infty)_{\alpha\alpha'} 
+        &= 0\, \\
+    \check{U}^\perp(t\to\infty)_{\alpha\alpha'}
+        &= \sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{Z}^{(i)}_{\alpha'}\, , \\
+    U^\parallel(t\to\infty)_{\alpha\alpha'}
+        &= \sum_{k\in\parallel} z^{(k)}_\alpha z^{(k)}_{\alpha'}\, , \\
+    V(t\to\infty)_{\alpha I}
+        &= \sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{T}^{(i)}_{I}\, .
+\end{align}
+
+Eq.~\eqref{eq:MeanValAtT} explicitly shows the contribution of each data point to the central value of the 
 trained fields at each value of $x_{\alpha}$.
 
 \section{Behaviour of the NTK}
