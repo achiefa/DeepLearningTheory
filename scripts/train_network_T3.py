@@ -77,9 +77,9 @@ def parse_args():
 
     # Positional arguments
     parser.add_argument("replica", help="Replica number")
-    parser.add_argument("seed", help="Seed number")
 
     # Optional arguments
+    parser.add_argument("--seed", help="Seed number", default=57298, type=int)
     parser.add_argument(
         "--savedir",
         type=str,
