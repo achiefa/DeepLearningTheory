@@ -48,7 +48,29 @@ def numpify(func):
 
 
 class Distribution:
+    """A class to represent a distribution of data, with support for
+    operations like addition, subtraction, multiplication, and custom
+    operations. The distribution can hold multiple replicas of data,
+    and each replica can be a multi-dimensional numpy array.
+
+    Attributes:
+        name (str): The name of the distribution.
+        shape (tuple): The shape of the data of each replica.
+        size (int): The number of replicas in the distribution.
+    """
+
     def __init__(self, name, shape=None, size=None):
+        """Initialize the Distribution with a name, shape, and size.
+        Args:
+            name (str): The name of the distribution.
+            shape (tuple, optional): The shape of the data for each replica.
+                If None, the shape will be determined when data is added.
+            size (int, optional): The number of replicas to pre-allocate space for.
+                If None, the distribution will grow dynamically.
+        """
+        if not isinstance(name, str):
+            raise TypeError(f"Expected name to be a string, got {type(name)}")
+
         self.name = name
         self._shape = shape
 
@@ -56,7 +78,7 @@ class Distribution:
         self._pre_allocated_size = 0 if size is None else size
 
         if size is not None and shape is not None:
-            self._data = [np.zeros(*shape) for _ in range(size)]
+            self._data = [np.zeros(shape=shape) for _ in range(size)]
         else:
             self._data = []
 
@@ -86,6 +108,21 @@ class Distribution:
     def get_data(self):
         """Get the raw data as a numpy multi-dimensional array."""
         return np.array(self._data)
+
+    def set_name(self, name):
+        """Set the name of the distribution."""
+        if not isinstance(name, str):
+            raise TypeError(f"Expected name to be a string, got {type(name)}")
+        self.name = name
+
+    def transpose(self):
+        """Transpose the data of each replica."""
+        res = Distribution(
+            f"{self.name} transposed", shape=self.shape[::-1], size=self.size
+        )
+        for rep in range(self.size):
+            res.add(self._data[rep].T)
+        return res
 
     @validate_shape
     @validate_size
@@ -130,14 +167,31 @@ class Distribution:
             raise TypeError(f"Expected a scalar, got {type(other)}")
 
     def __matmul__(self, other):
-        if not isinstance(other, Distribution):
-            raise TypeError(f"Expected a Distribution instance, got {type(other)}")
+        """Matrix multiplication of the distribution with another distribution"""
+        if isinstance(other, Distribution):
+            if len(other.shape) < 2:
+                shape = (self.shape[0],)
+            else:
+                shape = (self.shape[0], other.shape[1])
+            res = Distribution(
+                f"{self.name} @ {other.name}", shape=shape, size=self.size
+            )
+            for rep in range(self.size):
+                res.add(self._data[rep] @ other._data[rep])
+            return res
 
-        shape = np.array([self.shape[0], other.shape[1]])
-        res = Distribution(f"{self.name} @ {other.name}", shape=shape, size=self.size)
-        for rep in range(self.size):
-            res.add(self._data[rep] @ other._data[rep])
-        return res
+        elif isinstance(other, np.ndarray):
+            if len(other.shape) < 2:
+                shape = (self.shape[0],)
+            else:
+                shape = (self.shape[0], other.shape[1])
+            res = Distribution(f"{self.name} @ ndarraydd", shape=shape, size=self.size)
+            for rep in range(self.size):
+                res.add(self._data[rep] @ other)
+            return res
+
+        else:
+            raise TypeError(f"Expected a Distribution instance, got {type(other)}")
 
     @check_size
     def __truediv__(self, other):
@@ -175,6 +229,23 @@ class Distribution:
                 func1d=operator, axis=axis, arr=self._data[rep], b=b
             )
             res.add(aux)
+        return res
+
+    def make_diagonal(self):
+        """Convert the distribution to a diagonal matrix representation."""
+        if self._shape is None or len(self._shape) != 1:
+            raise ValueError(
+                "Distribution must have a 1D shape to be converted to a diagonal matrix."
+            )
+
+        res = Distribution(
+            f"{self.name} diagonal",
+            shape=(self._shape[0], self._shape[0]),
+            size=self.size,
+        )
+        for rep in range(self.size):
+            diag_data = np.diag(self._data[rep])
+            res.add(diag_data)
         return res
 
     def __str__(self):

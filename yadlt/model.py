@@ -9,12 +9,11 @@ import json
 import logging
 from typing import Callable, Dict
 
+from dlt.layers import MyDense
 import keras.initializers as Kinit
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
-
-from dlt.layers import MyDense
 
 h5py_logger = logging.getLogger("h5py")
 h5py_logger.setLevel(logging.WARNING)
@@ -53,6 +52,44 @@ def generate_loss(func, *args, **kwargs):
 
 def generate_mse_loss(Cinv):
     return generate_loss(mse_loss, Cinv)
+
+
+@tf.function(reduce_retracing=True)
+def _compute_ntk_static(inputs, model, outputs):
+    """
+    Optimized Neural Tangent Kernel computation.
+    This function computes the NTK in a more efficient way by
+    leveraging static shapes and avoiding unnecessary operations.
+
+    This function avoids reretracing by using `tf.function` with `reduce_retracing=True`.
+    """
+    with tf.GradientTape(persistent=False) as tape:
+        predictions = model(inputs)
+        jacobian = tape.jacobian(predictions, model.trainable_variables)
+
+    input_size = inputs.shape[0]
+
+    if outputs == 1:
+        # Concatenate jacobians along the parameter dimension
+        jac_list = []
+        for jac in jacobian:
+            # Flatten dimension
+            jac_flat = tf.reshape(jac, (input_size, -1))
+            jac_list.append(jac_flat)
+
+        # Concatenate all parameter jacobians
+        full_jacobian = tf.concat(jac_list, axis=1)  # Shape: [input_size, total_params]
+
+        # Compute NTK in one operation
+        ntk = tf.matmul(full_jacobian, full_jacobian, transpose_b=True)
+
+    else:
+        # Multiple outputs case
+        raise NotImplementedError(
+            "Multiple outputs optimization not implemented. Use original method."
+        )
+
+    return ntk
 
 
 class PDFmodel:
@@ -151,7 +188,7 @@ class PDFmodel:
         logger.debug(f"Using {kernel_initializer} as kernel initializer.")
         logger.debug(f"Initialization parameters: {ki_args}")
 
-        self.model = self.__generate_model(ki_function, ki_args)
+        self.model = self._generate_model(ki_function, ki_args)
         self.config = {
             "dense_layer": "Dense",
             "input": str(input),
@@ -162,7 +199,7 @@ class PDFmodel:
             "dtype": self.float_type,
         }
 
-    def __generate_model(self, ki_function, ki_args):
+    def _generate_model(self, ki_function, ki_args):
         """
         Generate the Sequential model given the kernel initializer
         function and its arguments. This function is meant to be used
@@ -367,11 +404,14 @@ class PDFmodel:
         Compute the jacobian of the model.
         """
         with tf.GradientTape(persistent=False) as tape:
-            # tape.watch(x)
-            # Forward pass
+
             predictions = self.predict()
             jacobian = tape.jacobian(predictions, self.model.trainable_variables)
         return jacobian
+
+    def compute_ntk_optimized(self):
+        """Wrapper method that calls the static function."""
+        return _compute_ntk_static(self.inputs, self.model, self.outputs)
 
     def compute_ntk(self, only_diagonal=False, learning_tensor=False):
         """
@@ -389,6 +429,7 @@ class PDFmodel:
 
         # Initialize the ntk
         input_size = self.inputs.shape[0]
+
         if self.outputs == 1:
             ntk = tf.zeros((input_size, input_size), dtype=self.float_type)
         else:
@@ -399,6 +440,7 @@ class PDFmodel:
             raise Warning(
                 "TODO: The implementation for multiple outputs needs to be checked."
             )
+
         for jac in jacobian:
             jac = tf.squeeze(jac, axis=[1, 2])
             if len(jac.shape) == 3:
@@ -441,6 +483,7 @@ class PDFmodel:
         # Create the model
         config["input"] = np.fromstring(config["input"].strip("[]"), sep=" ")
         model = PDFmodel(**config)
+
         # Load the weights
         model.model.load_weights(weights_path)
 
