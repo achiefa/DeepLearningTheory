@@ -9,11 +9,12 @@ import json
 import logging
 from typing import Callable, Dict
 
-from dlt.layers import MyDense
 import keras.initializers as Kinit
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras as keras
+
+from yadlt.layers import MyDense
 
 h5py_logger = logging.getLogger("h5py")
 h5py_logger.setLevel(logging.WARNING)
@@ -399,16 +400,6 @@ class PDFmodel:
                 self.model.save_weights(savedir / f"epoch_{epoch}.weights.h5")
                 logger.info(f"Model saved in {savedir} at epoch {epoch}.")
 
-    def copmute_jacobian(self):
-        """
-        Compute the jacobian of the model.
-        """
-        with tf.GradientTape(persistent=False) as tape:
-
-            predictions = self.predict()
-            jacobian = tape.jacobian(predictions, self.model.trainable_variables)
-        return jacobian
-
     def compute_ntk_optimized(self):
         """Wrapper method that calls the static function."""
         return _compute_ntk_static(self.inputs, self.model, self.outputs)
@@ -422,8 +413,6 @@ class PDFmodel:
 
         """
         with tf.GradientTape(persistent=False) as tape:
-            # tape.watch(x)
-            # Forward pass
             predictions = self.model(self.inputs)
             jacobian = tape.jacobian(predictions, self.model.trainable_variables)
 
