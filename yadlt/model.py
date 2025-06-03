@@ -351,6 +351,11 @@ class PDFmodel:
         try:
             while True:
                 with tf.GradientTape(persistent=False) as tape:
+
+                    if epoch > max_epochs:
+                        print("Maximum number of iterations reached.")
+                        break
+
                     # Forward pass: Compute predictions
                     preds = self.compute_predictions(FK_dict)
 
@@ -383,13 +388,8 @@ class PDFmodel:
                     if epoch % log_fr == 0:
                         total_str = f"Epoch {epoch}/{max_epochs}:\n   Loss: {loss.numpy()}, Loss/Ndat: {loss.numpy()/ndata}, Rel. loss: {rel_loss}"
                         logger.info(total_str)
-                epoch += 1
 
-                if epoch > max_epochs:
-                    print("Maximum number of iterations reached.")
-                    if callback and savedir is not None:
-                        self.model.save_weights(savedir / f"epoch_{epoch}.weights.h5")
-                    break
+                epoch += 1
 
                 # Save model and epochs
                 if epoch % log_fr == 0 and callback and savedir is not None:

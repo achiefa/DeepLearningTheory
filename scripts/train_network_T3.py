@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from dlt import data
-from dlt.log import MyHandler
-from dlt.model import PDFmodel, generate_mse_loss
+from yadlt import data
+from yadlt.log import MyHandler
+from yadlt.model import PDFmodel, generate_mse_loss
 
 data_path = Path(pkg_resources.files(data) / "BCDMS_data")
 
