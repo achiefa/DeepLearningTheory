@@ -42,9 +42,10 @@ on DIS data, which depend
 linearly on the function $f(x)$. The theoretical prediction for the data point $Y_I$ is denoted
 \begin{equation}
     \label{eq:TheoryPred}
-    T_I[f] = \int dx\, C_{Ii}(x) f_{i}(x)\, ,
+    T_I[f] = \sum_{i=1}^{\nflav} \int dx\, C_{Ii}(x) f_{i}(x)\, ,
 \end{equation}
-where $C_{Ii}(x)$ is a coefficient function, $i$ labels the parton flavor, and $f_i(x)$
+where $C_{Ii}(x)$ is a coefficient function, known to some given order in perturbation theory, 
+$i$ labels the parton flavor, and $f_i(x)$
 is the PDF (or set of PDFs) that we want to determine.
 
 Trying to determine a function $f$ in an infinite dimensional space of solutions with a finite
@@ -54,13 +55,13 @@ of solutions that can be obtained. Together with the fit methodology, the parame
 determines the propagation of the error on the data to the error on the fitted solution. Understanding
 the bias and the variance of the fitted PDF is therefore a major challenge for precision physics.
 
-Following the ideas highlighted in Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, we find it
-useful to introduce a Bayesian
-framework for this analysis. The function $f$ is promoted to a stochastic process; for any grid
-of points $x_{\alpha}$, $\alpha=1, \ldots, \ngrid$, the vector $f_{\alpha}=f(x_{\alpha})$ is a
-vector of $\ngrid$ stochastic variables, for which we introduce a prior distribution $p(f)$.~\footnote{Following
-the same convention used for the data, when omitting the grid index $\alpha$, we will always refer to a
-vector $f \in \mathbb{R}^{\ngrid}$.}
+Following the ideas highlighted in Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, the solution 
+of the inverse problem is conveniently phrased in 
+a Bayesian framework. The functions $f_i$ are promoted to stochastic processes; for any grid
+of points $x_{\alpha}$, $\alpha=1, \ldots, \ngrid$, the vector $f_{i\alpha}=f_{i}(x_{\alpha})$ is a
+vector of $\nflav\times\ngrid$ stochastic variables, for which we introduce a prior distribution $p(f)$.~\footnote{Following
+the same convention used for the data, when omitting the grid index $\alpha$, and/or the flavor index $i$, we will always refer to a
+vector $f \in \mathbb{R}^{\nflav\times\ngrid}$.}
 
 Any fitting procedure is interpreted as a recipe that yields the posterior distribution
 $\tilde{p}(f)$.
@@ -69,7 +70,7 @@ In this study, probability distributions are represented by ensembles of i.i.d. 
 So, for instance, the prior distribution $p(f)$ is described by an ensemble
 \begin{equation}
     \label{eq:RepDef}
-    \left\{f^{(k)} \in \mathbb{R}^{\ngrid}; k=1, \ldots, \nreps\right\}\, ,
+    \left\{f^{(k)} \in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots, \nreps\right\}\, ,
 \end{equation}
 drawn from the distribution $p$, so that
 \begin{equation}
@@ -87,9 +88,11 @@ matrix $C_Y$,
     \label{eq:ExpReplicaDistr}
     Y^{(k)} \sim \mathcal{N}\left(Y, C_Y\right)\, .
 \end{equation}
-Each replica is $f^{(k)}$ trained on its corresponding data set $Y^{(k)}$. We denote the replicas at training time $t$,
-$f^{(k)}_{t} \in \mathbb{R}^\ngrid$. Stopping the training at time $\bar{t}$, the posterior probability
-distribution is represented by the set of replicas $\left\{f^{(k)}_{\bar{t}}\right\}$, so that
+Each replica $f^{(k)}$ is trained on its corresponding data set $Y^{(k)}$. We denote the replicas at training time $t$,
+$f^{(k)}_{t} \in \mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $\bar{t}$, the posterior probability
+distribution is represented by the set of replicas 
+$\left\{f^{(k)}_{\bar{t}}\in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots, \nreps\right\}$, so that averages over the posterior 
+distribution are computed as
 \begin{equation}
     \label{eq:PostEnsemble}
     \mathbb{E}_{\tilde{p}}[O(f)] = \frac{1}{\nreps} \sum_{k=1}^{\nreps}
@@ -170,12 +173,13 @@ preactivations,
           - b^{(\ell)}_i
           \right)\, .
 \end{align}
-Note that, here and in what follows, $p(\phi^{(\ell)})$ denotes the joint probability for all the components
-of $\phi^{(\ell)}$,
+Note that, here and in what follows, $p(\phi^{(\ell)})$ denotes the joint probability for all the 
+$n_{\ell}\times\ngrid$ components of $\phi^{(\ell)}$,
 \begin{align}
     \label{eq:ExplIndices}
     p\left(\phi^{(\ell)}\right) = p\left(\phi^{(\ell)}_{1,\alpha_1}, \phi^{(\ell)}_{2,\alpha_1}, \ldots,
-        \phi^{(\ell)}-{n_\ell,\alpha_1}, \ldots,
+        \phi^{(\ell)}_{n_\ell,\alpha_1}, \phi^{(\ell)}_{1,\alpha_2}, \ldots, \phi^{(\ell)}_{n_\ell,\alpha_2},
+        \ldots, 
         \phi^{(\ell)}_{n_\ell,\ngrid}\right)\, .
 \end{align}
 This duality between parameter-space and function-space provides a powerful framework to study
@@ -346,13 +350,13 @@ get something interesting...
 \label{sec:GradFlow}
 
 The parameter-space/function-space duality described in Sec.~\ref{sec:Init} yields intersting insight
-on the training process. Our main concern in this paper is understanding the dynamics driving the
-training process, therefore we work in a simplified setting where we consider standard gradient descent
+on the training process. Our main aim in this paper is understanding the dynamics driving the
+training process. Therefore, we work in a simplified setting where we consider standard gradient descent
 and data that depend linearly on the unknwon PDFs, as shown in Eq.~\eqref{eq:TheoryPred}. The generalization
 to other minimizers and non-linear data is left to future investigations, but is expected to yield
 qualitatively similar results. The results
 in this subsection apply to any generic parametrization of the unknown function, they are {\em not}\
-specific to the case of using NN for the parametrization.
+specific to the case of using NNs for the parametrization.
 
 Gradient descent is described as a continuous flow of the parameters $\theta$ in training time $t$
 along the negative gradient of the loss function $\mathcal{L}$. The parameters and the fields during
@@ -392,7 +396,7 @@ In the specific case of NNPDF fits, the integrals in Eq.~\eqref{eq:TheoryPred} a
 a Riemann sum over the grid of $x$ points,
 \begin{align}
     \label{eq:FKTabDef}
-    T_I[f] \approx \sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} f_{i\alpha}\, ,
+    T_I[f] \approx \sum_{i=1}^{\nflav}\sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} f_{i\alpha}\, ,
 \end{align}
 and hence
 \begin{align}
@@ -453,6 +457,13 @@ The eigenvectors of $\Theta$,
 provide a basis for expanding Eq.~\eqref{eq:FlowEqTwo}. It is necessary at this stage to distinguish
 the components of $f_t$ that are in the kernel of $\Theta$ from the ones that are in the orthogonal
 complement, hence we introduce the notation
+~\footnote{
+    The scalar product below is defined as
+    \[
+        \left(f'_{t'}, f_t\right) 
+            = \sum_{i,\alpha} f'_{t',i\alpha} f_{t,i\alpha}\, .      
+    \]
+}
 \begin{align}
     &f^\parallel_{t,k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda_{(k)} = 0\, , \\
     &f^\perp_{t,k} = \frac{1}{\sqrt{\lambda^{(k)}}} \left(z^{(k)}, f_t\right)\, , \quad
@@ -487,7 +498,12 @@ data, on which $M$ depends. More specifically, the matrix elements of $M$ can be
     \left(z^{(k)}, M z^{(k')}\right) = T^{(k)T} C_Y^{-1} T^{(k')}\, ,
 \end{align}
 where $T^{(k)} = T[z^{(k)}]$ is the vector of theory predictions for the data obtained using $z^{(k)}$ as the
-input PDF. Denoting by $d^\perp$ the dimension of the subspace orthogonal to $\text{ker}\ \Theta$, $H^\perp$ is
+input PDF. Similarly, we have 
+\begin{align}
+    \label{eq:BMatElems}
+    \left(z^{(k)}, \FKtabT C_Y^{-1} Y\right) = T^{(k)T} C_Y^{-1} Y\, .
+\end{align}
+Denoting by $d^\perp$ the dimension of the subspace orthogonal to $\text{ker}\ \Theta$, $H^\perp$ is
 a $d^\perp\times d^\perp$ symmetric matrix, whose eigenvalues and eigenvectors satisfy
 \begin{align}
     H^\perp_{kk'} w^{(i)}_{k'} = h^{(i)} w^{(i)}_{k}\, .
@@ -497,7 +513,7 @@ homogeneous equation, $\hat{f}^{\perp}_{t,k}$, and a particular solution of the 
 The solution of the homogeneous equation is
 \begin{align}
     \label{eq:HomoSoln}
-    \hat{f}^{\perp}_{t,k} = \sum_{i=1}^{d^\perp} C_i e^{-h^{(i)}t} w^{(i)}_k\, ,
+    \hat{f}^{\perp}_{t,k} = \sum_{i=1}^{d^\perp} f^{\perp}_{0,i} e^{-h^{(i)}t} w^{(i)}_k\, ,
 \end{align}
 where
 % ~\footnote{
@@ -508,25 +524,25 @@ where
 % }
 \begin{align}
     \label{eq:InitialCi}
-    C_i = \sum_{k=1}^{d_\perp} w^{(i)}_k f^\perp_{0,k}\, ,
+    f^{\perp}_{0,i} = \sum_{k=1}^{d_\perp} w^{(i)}_k f^\perp_{0,k}\, ,
         %= \left(w^{(i)}, f^\perp_0\right)\, ,
 \end{align}
 guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is 
 satisfied. Similarly, if we define
 \begin{align}
     \label{eq:BiDef}
-    B_i = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
+    B^{\perp}_i = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
         %= \left(w^{(i)}, B^\perp\right)\, ,
 \end{align}
 then
 \begin{align}
     \label{eq:PartSol}
-    \check{f}^\perp_{t,k} = \sideset{}{'}\sum_{i} \frac{1}{h^{(i)}} B_i
+    \check{f}^\perp_{t,k} = \sideset{}{'}\sum_{i} \frac{1}{h^{(i)}} B^{\perp}_i
         \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k\, ,
 \end{align}
 where the sum only involves the non-zero modes of $H^\perp$,
 is a particular solution of the inhomogeneous equation, which satisfies the boundary
-condition $\check{f}_{0,k}=0$. Finally, the solution of the flow equation in the subspace orthogonal to
+condition $\check{f}^{\perp}_{0,k}=0$. Finally, the solution of the flow equation in the subspace orthogonal to
 $\text{ker}\ \Theta$ is
 \begin{align}
     f^\perp_{t,k}
@@ -547,7 +563,7 @@ The two evolution operators $U(t)$ and $V(t)$ have lengthy, yet explicit, expres
 summarise here or move to an appendix:
 \begin{align}
     U(t)_{\alpha\alpha'} = \hat{U}^\perp(t)_{\alpha\alpha'} 
-        + \check{U}^\perp(t)_{\alpha\alpha'} + U^\parallel(t)_{\alpha\alpha'}\, ,     
+        + \check{U}^\perp(t)_{\alpha\alpha'} + U^\parallel_{\alpha\alpha'}\, ,     
 \end{align}
 where 
 \begin{align}
@@ -559,24 +575,24 @@ where
 and
 \begin{align}
     \check{U}^\perp(t)_{\alpha\alpha'}
-        &= \sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \left(1 - e^{-h^{(i)}t}\right) \tilde{Z}^{(i)}_{\alpha'}\, , \\
+        &= \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \left(1 - e^{-h^{(i)}t}\right) \tilde{Z}^{(i)}_{\alpha'}\, , \\
     \tilde{Z}^{(i)}_{\alpha} 
-        &= \sum_{k'\in\perp} \sum_{k''\in\parallel} w^{(i)}_{k'} \left(-\sqrt{\lambda^{(k')}}\right) 
+        &= -\sum_{k'\in\perp} \sum_{k''\in\parallel} w^{(i)}_{k'} \sqrt{\lambda^{(k')}}
             T^{(k') T} C_Y^{-1} T^{(k'')} z^{(k'')}_{\alpha}\, ,
 \end{align}
 and
 \begin{align}
-    U^\parallel(t)_{\alpha\alpha'} 
+    U^\parallel_{\alpha\alpha'} 
         = \sum_{k\in\parallel} z^{(k)}_\alpha z^{(k)}_{\alpha'} \, ,
 \end{align}
 and 
 \begin{align}
-    V(t)_{\alpha I} = \sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \left(1 - e^{-h^{(i)}t}\right)
+    V(t)_{\alpha I} = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \left(1 - e^{-h^{(i)}t}\right)
         \tilde{T}^{(i)}_{I}\, ,
 \end{align}
 and
 \begin{align}
-    \tilde{T}^{(i)}_{I} = \sum_{k'\in\perp} w^{(i)}_{k'} \left(\sqrt{\lambda^{(k')}}\right)
+    \tilde{T}^{(i)}_{I} = \sum_{k'\in\perp} w^{(i)}_{k'} \sqrt{\lambda^{(k')}}
         T^{(k')}_J \left(C_Y^{-1}\right)_{JI}\, .  
 \end{align}
 
@@ -601,34 +617,56 @@ fluctuation of the NTK,
 Note that the first term on the right-hand side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of the 
 correlations between $U(t)$ and $f_0$. In the absence of such correlations, the first term would be given by the product
 of the expectation values and hence would vanish, since the expectation value of the fields at initialization vanishes.
+Eq.~\eqref{eq:MeanValAtT} explicitly shows the contribution of each data point to the central value of the 
+trained fields at each value of $x_{\alpha}$.
 
 \paragraph{Central value at infinite training time.} 
 
-In the limit of inifinite training time, the evolution operators $U(t)$ and $V(t)$ simplify to
+In the limit of infinite training time, the evolution operators $U(t)$ and $V(t)$ simplify to
 \begin{align}
-    \hat{U}^\perp(t\to\infty)_{\alpha\alpha'} 
-        &= 0\, \\
-    \check{U}^\perp(t\to\infty)_{\alpha\alpha'}
-        &= \sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{Z}^{(i)}_{\alpha'}\, , \\
-    U^\parallel(t\to\infty)_{\alpha\alpha'}
-        &= \sum_{k\in\parallel} z^{(k)}_\alpha z^{(k)}_{\alpha'}\, , \\
-    V(t\to\infty)_{\alpha I}
-        &= \sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{T}^{(i)}_{I}\, .
+    \hat{U}^\perp_{\infty, \alpha\alpha'}    
+        &= \lim_{t\to\infty}\hat{U}^\perp(t)_{\alpha\alpha'} = 0\, \\
+    \check{U}^\perp_{\infty,\alpha\alpha'}
+        &= \lim_{t\to\infty}\check{U}^\perp(t)_{\alpha\alpha'} 
+            = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{Z}^{(i)}_{\alpha'}\, , \\
+    V_{\infty,\alpha I}
+        &= \lim_{t\to\infty}V(t)_{\alpha I} 
+            = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{T}^{(i)}_{I}\, .
 \end{align}
-
-Eq.~\eqref{eq:MeanValAtT} explicitly shows the contribution of each data point to the central value of the 
-trained fields at each value of $x_{\alpha}$.
+Introducing the matrix 
+\begin{align}
+    \label{eq:calMDef}
+    \mathcal{M}_{t,kk'} 
+        = \sideset{}{'}\sum_{i} \sqrt{\lambda^{(k)}} w^{(i)}_{k} \frac{1}{h^{(i)}}
+            \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_{k'} \sqrt{\lambda^{(k')}} \, ,
+\end{align}
+we can write the evolution operators as
+\begin{align}
+    \label{eq:UcheckInfty}
+    \check{U}^\perp_{\infty,\alpha\alpha'} 
+        &= \sum_{k,k'\in\perp} \sum_{k''\in\parallel} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'} M_{k'k''} z^{(k'')}_{\alpha'}\, , \\
+    \label{eq:VInfty}
+    V_{\infty, \alpha I} 
+        &= \sum_{k,k'\in\perp} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'} 
+            \left(T^{(k') T} C_{Y}^{-1}\right)_I \, .
+\end{align}
 
 \section{Behaviour of the NTK}
 \label{sec:NTKvsTraining}
 
-variation of the NTK 
+variation of the NTK vs training time $t$
 
 eigenvalues at initialization, eigenvalues at $t$ after the NTK has stabilized, criteria to define the kernel
 
 try a few variations of the architecture in order to get a feeling
 
 eigenvalues and eigenvectors of $H^\perp$, dependence on the number of datapoints, on the choice of experiments
+
+compute the mean value and the variance, for a several values of $t$, similar to the $\Delta\Theta$ plot,
+\[
+    \bar{U}(t)_{\alpha\alpha'} = \mathbb{E}[U(t)_{\alpha\alpha'}]\, , \quad
+        \mathbb{E}\left[\left(U(t)_{\alpha\alpha'} - \bar{U}(t)_{\alpha\alpha'}\right)^2\right]\, .
+\]
 
 \section{Training and Closure}
 
