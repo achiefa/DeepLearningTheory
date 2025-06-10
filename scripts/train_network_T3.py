@@ -49,10 +49,6 @@ def save_metadata(args, save_dir):
             "dense_layer": "Dense",
             "outputs": 1,
         },
-        "data_info": {
-            "data_path": str(data_path),
-            "datasets": ["BCDMS"],
-        },
     }
 
     # Save to YAML file
@@ -147,6 +143,15 @@ def parse_args():
         # Override args with values from YAML
         if "arguments" in config:
             for key, value in config["arguments"].items():
+                if hasattr(args, key):
+                    setattr(args, key, value)
+                else:
+                    print(f"{key} not in args")
+                    raise RuntimeError("Unexpected error.")
+
+        # Model info
+        if "model_info" in config:
+            for key, value in config["model_info"].items():
                 if hasattr(args, key):
                     setattr(args, key, value)
                 else:
