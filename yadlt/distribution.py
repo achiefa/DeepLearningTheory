@@ -105,6 +105,12 @@ class Distribution:
     def get_std(self, axis=0):
         return np.std(self._data, axis=axis)
 
+    def get_68_percentile(self, axis=0):
+        """Get the 68% percentile of the distribution along a given axis."""
+        cl_high = np.nanpercentile(self._data, 84, axis=0)
+        cl_low = np.nanpercentile(self._data, 16, axis=0)
+        return (cl_low, cl_high)
+
     def get_data(self):
         """Get the raw data as a numpy multi-dimensional array."""
         return np.array(self._data)

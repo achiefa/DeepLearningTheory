@@ -44,7 +44,7 @@ linearly on the function $f(x)$. The theoretical prediction for the data point $
     \label{eq:TheoryPred}
     T_I[f] = \sum_{i=1}^{\nflav} \int dx\, C_{Ii}(x) f_{i}(x)\, ,
 \end{equation}
-where $C_{Ii}(x)$ is a coefficient function, known to some given order in perturbation theory, 
+where $C_{Ii}(x)$ is a coefficient function, known to some given order in perturbation theory,
 $i$ labels the parton flavor, and $f_i(x)$
 is the PDF (or set of PDFs) that we want to determine.
 
@@ -55,8 +55,8 @@ of solutions that can be obtained. Together with the fit methodology, the parame
 determines the propagation of the error on the data to the error on the fitted solution. Understanding
 the bias and the variance of the fitted PDF is therefore a major challenge for precision physics.
 
-Following the ideas highlighted in Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, the solution 
-of the inverse problem is conveniently phrased in 
+Following the ideas highlighted in Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, the solution
+of the inverse problem is conveniently phrased in
 a Bayesian framework. The functions $f_i$ are promoted to stochastic processes; for any grid
 of points $x_{\alpha}$, $\alpha=1, \ldots, \ngrid$, the vector $f_{i\alpha}=f_{i}(x_{\alpha})$ is a
 vector of $\nflav\times\ngrid$ stochastic variables, for which we introduce a prior distribution $p(f)$.~\footnote{Following
@@ -90,8 +90,8 @@ matrix $C_Y$,
 \end{equation}
 Each replica $f^{(k)}$ is trained on its corresponding data set $Y^{(k)}$. We denote the replicas at training time $t$,
 $f^{(k)}_{t} \in \mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $\bar{t}$, the posterior probability
-distribution is represented by the set of replicas 
-$\left\{f^{(k)}_{\bar{t}}\in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots, \nreps\right\}$, so that averages over the posterior 
+distribution is represented by the set of replicas
+$\left\{f^{(k)}_{\bar{t}}\in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots, \nreps\right\}$, so that averages over the posterior
 distribution are computed as
 \begin{equation}
     \label{eq:PostEnsemble}
@@ -173,13 +173,13 @@ preactivations,
           - b^{(\ell)}_i
           \right)\, .
 \end{align}
-Note that, here and in what follows, $p(\phi^{(\ell)})$ denotes the joint probability for all the 
+Note that, here and in what follows, $p(\phi^{(\ell)})$ denotes the joint probability for all the
 $n_{\ell}\times\ngrid$ components of $\phi^{(\ell)}$,
 \begin{align}
     \label{eq:ExplIndices}
     p\left(\phi^{(\ell)}\right) = p\left(\phi^{(\ell)}_{1,\alpha_1}, \phi^{(\ell)}_{2,\alpha_1}, \ldots,
         \phi^{(\ell)}_{n_\ell,\alpha_1}, \phi^{(\ell)}_{1,\alpha_2}, \ldots, \phi^{(\ell)}_{n_\ell,\alpha_2},
-        \ldots, 
+        \ldots,
         \phi^{(\ell)}_{n_\ell,\ngrid}\right)\, .
 \end{align}
 This duality between parameter-space and function-space provides a powerful framework to study
@@ -321,16 +321,15 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
 \end{align}
 
 \begin{figure}[!ht]
-    \begin{center}
-        \includegraphics[scale=0.4]{plots/NNPDFAtInit.png}
-    \end{center}
-    \caption{Parametrized singlet (left) and gluon (right) at initialization. The line labeled
-    as Replica0 is the average of the functions over the ensemble of replicas. The blue $1\sigma$ band
+    \centering
+    \includegraphics[width=0.45\textwidth]{plots/t3_lin_init.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/xt3_lin_init.pdf}
+    \caption{Parametrized $T_3$ (left) and $xT_3$ (right) distributions in linear scale at initialization.
+    The line labeled as Replica0 is the average of the functions over the ensemble of replicas. The blue $1\sigma$ band
     shows the variance of the ensemble of replicas, while the dotted line is the 68\% CL.
     The agreement between these two quantities is a confirmation of the Gaussianity of the
     distribution of replicas.
-    \label{fig:SingletGluonInit}
-    }
+    \label{fig:SingletGluonInit}}
 \end{figure}
 
 \paragraph{Dependence on the architecture.}
@@ -460,8 +459,8 @@ complement, hence we introduce the notation
 ~\footnote{
     The scalar product below is defined as
     \[
-        \left(f'_{t'}, f_t\right) 
-            = \sum_{i,\alpha} f'_{t',i\alpha} f_{t,i\alpha}\, .      
+        \left(f'_{t'}, f_t\right)
+            = \sum_{i,\alpha} f'_{t',i\alpha} f_{t,i\alpha}\, .
     \]
 }
 \begin{align}
@@ -498,7 +497,7 @@ data, on which $M$ depends. More specifically, the matrix elements of $M$ can be
     \left(z^{(k)}, M z^{(k')}\right) = T^{(k)T} C_Y^{-1} T^{(k')}\, ,
 \end{align}
 where $T^{(k)} = T[z^{(k)}]$ is the vector of theory predictions for the data obtained using $z^{(k)}$ as the
-input PDF. Similarly, we have 
+input PDF. Similarly, we have
 \begin{align}
     \label{eq:BMatElems}
     \left(z^{(k)}, \FKtabT C_Y^{-1} Y\right) = T^{(k)T} C_Y^{-1} Y\, .
@@ -527,8 +526,9 @@ where
     f^{\perp}_{0,i} = \sum_{k=1}^{d_\perp} w^{(i)}_k f^\perp_{0,k}\, ,
         %= \left(w^{(i)}, f^\perp_0\right)\, ,
 \end{align}
-guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is 
+guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is
 satisfied. Similarly, if we define
+\ac{The notation here is a bit confusing, with $B_i$ and $B^\perp_k$ ...}
 \begin{align}
     \label{eq:BiDef}
     B^{\perp}_i = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
@@ -556,36 +556,36 @@ $\text{ker}\ \Theta$ is
 Collecting all terms yields a simple (and useful!) expression,
 \begin{align}
     \label{eq:AnalyticSol}
-    f_{t,\alpha} 
+    f_{t,\alpha}
         = U(t)_{\alpha\alpha'} f_{0,\alpha'} + V(t)_{\alpha I} Y_{I}\, .
 \end{align}
-The two evolution operators $U(t)$ and $V(t)$ have lengthy, yet explicit, expressions, which we 
-summarise here or move to an appendix:
+The two evolution operators $U(t)$ and $V(t)$ have lengthy, yet explicit, expressions, which we
+summarise here or move to an appendix: \ac{$U^\parallel$ should not be time-dependent, right?}
 \begin{align}
-    U(t)_{\alpha\alpha'} = \hat{U}^\perp(t)_{\alpha\alpha'} 
-        + \check{U}^\perp(t)_{\alpha\alpha'} + U^\parallel_{\alpha\alpha'}\, ,     
+    U(t)_{\alpha\alpha'} = \hat{U}^\perp(t)_{\alpha\alpha'}
+        + \check{U}^\perp(t)_{\alpha\alpha'} + U^\parallel_{\alpha\alpha'}\, ,
 \end{align}
-where 
+where
 \begin{align}
-    \hat{U}^\perp(t)_{\alpha\alpha'} 
+    \hat{U}^\perp(t)_{\alpha\alpha'}
         &= \sum_i Z^{(i)}_{\alpha} e^{-h^{(i)}t} Z^{(i)}_{\alpha'}\, , \\
-    Z^{(i)}_{\alpha} 
+    Z^{(i)}_{\alpha}
         &= \sum_{k\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha w^{(i)}_{k}\, ,
 \end{align}
 and
 \begin{align}
     \check{U}^\perp(t)_{\alpha\alpha'}
         &= \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \left(1 - e^{-h^{(i)}t}\right) \tilde{Z}^{(i)}_{\alpha'}\, , \\
-    \tilde{Z}^{(i)}_{\alpha} 
+    \tilde{Z}^{(i)}_{\alpha}
         &= -\sum_{k'\in\perp} \sum_{k''\in\parallel} w^{(i)}_{k'} \sqrt{\lambda^{(k')}}
             T^{(k') T} C_Y^{-1} T^{(k'')} z^{(k'')}_{\alpha}\, ,
 \end{align}
 and
 \begin{align}
-    U^\parallel_{\alpha\alpha'} 
+    U^\parallel_{\alpha\alpha'}
         = \sum_{k\in\parallel} z^{(k)}_\alpha z^{(k)}_{\alpha'} \, ,
 \end{align}
-and 
+and
 \begin{align}
     V(t)_{\alpha I} = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \left(1 - e^{-h^{(i)}t}\right)
         \tilde{T}^{(i)}_{I}\, ,
@@ -593,7 +593,7 @@ and
 and
 \begin{align}
     \tilde{T}^{(i)}_{I} = \sum_{k'\in\perp} w^{(i)}_{k'} \sqrt{\lambda^{(k')}}
-        T^{(k')}_J \left(C_Y^{-1}\right)_{JI}\, .  
+        T^{(k')}_J \left(C_Y^{-1}\right)_{JI}\, .
 \end{align}
 
 \subsection{Behaviour of the solution}
@@ -601,72 +601,58 @@ and
 The solution in Eq.~\eqref{eq:AnalyticSol} is the main result of this section. It shows that the
 training process can be described as a linear transformation of the initial fields $f_{0,\alpha}$,
 which are the preactivations of the output layer at initialization, and a linear transformation
-of the data $Y_I$. The two transformations depend on the flow time $t$ and are given by the evolution 
-operators $U(t)$ and $V(t)$. Eq.~\eqref{eq:AnalyticSol} yields informations on both the central value 
+of the data $Y_I$. The two transformations depend on the flow time $t$ and are given by the evolution
+operators $U(t)$ and $V(t)$. Eq.~\eqref{eq:AnalyticSol} yields informations on both the central value
 and the variance of the trained fields.
 
 The central values of the trained fields is obtained by taking the expectation value of
-Eq.~\eqref{eq:AnalyticSol} over the initial fields, which are Gaussian distributed at initialization, and over the 
-fluctuation of the NTK, 
+Eq.~\eqref{eq:AnalyticSol} over the initial fields, which are Gaussian distributed at initialization, and over the
+fluctuation of the NTK,
 \begin{align}
     \label{eq:MeanValAtT}
     \bar{f}_{t,\alpha} = \mathbb{E}\left[f_{t,\alpha}\right]
-        = \mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right] 
+        = \mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right]
             + \mathbb{E}\left[V(t)_{\alpha I}\right] Y_I \, .
 \end{align}
-Note that the first term on the right-hand side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of the 
+Note that the first term on the right-hand side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of the
 correlations between $U(t)$ and $f_0$. In the absence of such correlations, the first term would be given by the product
 of the expectation values and hence would vanish, since the expectation value of the fields at initialization vanishes.
-Eq.~\eqref{eq:MeanValAtT} explicitly shows the contribution of each data point to the central value of the 
+Eq.~\eqref{eq:MeanValAtT} explicitly shows the contribution of each data point to the central value of the
 trained fields at each value of $x_{\alpha}$.
 
-\paragraph{Central value at infinite training time.} 
+\paragraph{Central value at infinite training time.}
 
 In the limit of infinite training time, the evolution operators $U(t)$ and $V(t)$ simplify to
 \begin{align}
-    \hat{U}^\perp_{\infty, \alpha\alpha'}    
+    \hat{U}^\perp_{\infty, \alpha\alpha'}
         &= \lim_{t\to\infty}\hat{U}^\perp(t)_{\alpha\alpha'} = 0\, \\
     \check{U}^\perp_{\infty,\alpha\alpha'}
-        &= \lim_{t\to\infty}\check{U}^\perp(t)_{\alpha\alpha'} 
+        &= \lim_{t\to\infty}\check{U}^\perp(t)_{\alpha\alpha'}
             = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{Z}^{(i)}_{\alpha'}\, , \\
     V_{\infty,\alpha I}
-        &= \lim_{t\to\infty}V(t)_{\alpha I} 
+        &= \lim_{t\to\infty}V(t)_{\alpha I}
             = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{T}^{(i)}_{I}\, .
 \end{align}
-Introducing the matrix 
+Introducing the matrix
 \begin{align}
     \label{eq:calMDef}
-    \mathcal{M}_{t,kk'} 
+    \mathcal{M}_{t,kk'}
         = \sideset{}{'}\sum_{i} \sqrt{\lambda^{(k)}} w^{(i)}_{k} \frac{1}{h^{(i)}}
             \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_{k'} \sqrt{\lambda^{(k')}} \, ,
 \end{align}
 we can write the evolution operators as
 \begin{align}
     \label{eq:UcheckInfty}
-    \check{U}^\perp_{\infty,\alpha\alpha'} 
+    \check{U}^\perp_{\infty,\alpha\alpha'}
         &= -\sum_{k,k'\in\perp} \sum_{k''\in\parallel} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'} M_{k'k''} z^{(k'')}_{\alpha'}\, , \\
     \label{eq:VInfty}
-    V_{\infty, \alpha I} 
-        &= \sum_{k,k'\in\perp} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'} 
+    V_{\infty, \alpha I}
+        &= \sum_{k,k'\in\perp} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'}
             \left(T^{(k') T} C_{Y}^{-1}\right)_I \, .
 \end{align}
 
-\section{Behaviour of the NTK}
-\label{sec:NTKvsTraining}
-
-variation of the NTK vs training time $t$
-
-eigenvalues at initialization, eigenvalues at $t$ after the NTK has stabilized, criteria to define the kernel
-
-try a few variations of the architecture in order to get a feeling
-
-eigenvalues and eigenvectors of $H^\perp$, dependence on the number of datapoints, on the choice of experiments
-
-compute the mean value and the variance, for a several values of $t$, similar to the $\Delta\Theta$ plot,
-\[
-    \bar{U}(t)_{\alpha\alpha'} = \mathbb{E}[U(t)_{\alpha\alpha'}]\, , \quad
-        \mathbb{E}\left[\left(U(t)_{\alpha\alpha'} - \bar{U}(t)_{\alpha\alpha'}\right)^2\right]\, .
-\]
+\newpage
+\input{ntk_pheno.tex}
 
 \section{Training and Closure}
 
@@ -674,8 +660,11 @@ level-0, level-1, level-2
 
 analytical expressions should simplify
 
-distance between the numerical minimization and the analytical formula as a function of 
+distance between the numerical minimization and the analytical formula as a function of
 training time $t$
+
+\newpage
+\input{training.tex}
 
 \section{First Training Results}
 

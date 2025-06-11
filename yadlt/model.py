@@ -56,7 +56,7 @@ def generate_mse_loss(Cinv):
 
 
 @tf.function(reduce_retracing=True)
-def _compute_ntk_static(inputs, model, outputs):
+def compute_ntk_static(inputs, model, outputs):
     """
     Optimized Neural Tangent Kernel computation.
     This function computes the NTK in a more efficient way by
