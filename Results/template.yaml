@@ -9,7 +9,7 @@ arguments:
   log_level: INFO
   profiler: false
 model_info:
-  architecture:
+  layers:
   - 28
   - 20
   activation: tanh
