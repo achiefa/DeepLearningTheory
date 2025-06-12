@@ -172,6 +172,8 @@ cython_debug/
 *.out
 pdfs
 output
+nntraining.pdf
+ntk.pdf
 
 # Tensorflow weights
 *.weights.h5

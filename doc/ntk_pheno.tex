@@ -146,7 +146,6 @@ $T\rightarrow\infty$ to be learned, which is unpractical.
   \label{fig:NTKTimeDiffArch}
 \end{figure}
 % ===================================
-Then there is the dependence on the architecture...
 
 % ===================================
 \begin{figure}[h!]
@@ -162,3 +161,34 @@ Then there is the dependence on the architecture...
   \label{fig:NTKvalsDiffArch}
 \end{figure}
 % ===================================
+Then there is the dependence on the architecture...
+
+
+% ===================================
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_0.pdf}
+  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_10000.pdf}
+  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_30000.pdf}
+  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_50000.pdf}
+  \vspace{0.5cm}
+  \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L2 data and for a single
+  replica of the NTK. The matrix is shown at different epochs of the training process,
+  indicated in the top of each panel.}
+  \label{fig:NtkMAlign}
+\end{figure}
+% ===================================
+It has been argued before that there is a non-trivial interplay between the eigenspace of
+the NTK and that of the matrix $M$. Indeed, the former encodes the model dependence, while
+the latter brings physical information. Of course the two matrices are independent at
+initialisation, and we do not expect any alignment patter between the two. However, this picture
+might change during training, as the NTK evolves and the model learns the target function.
+To quantify this alignment, we define the matrix $A$ as
+\begin{equation}
+  A_{kk'} = \left( \left< z^{(k)}, v^{(k')}\right> \right)^2 = \cos^2(\theta_{kk'}) \;,
+  \label{eq:MatrixA}
+\end{equation}
+where $z^{(k)}$ and $v^{(k')}$ are the $k$-th and $k'$-th eigenvectors of the NTK and
+$M$, respectively. The matrix $A$ is thus a measure of the alignment between the eigenspaces of
+the two matrices. In Fig.~\ref{fig:NtkMAlign}, we show the matrix $A$ at different epochs of
+the training for L2 data and for a single NTK replica.
