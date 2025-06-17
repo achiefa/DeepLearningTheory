@@ -20,13 +20,20 @@ Peter~Guthrie~Tait~Road, Edinburgh EH9 3FD, United Kingdom.}
 \maketitle
 
 \begin{abstract}
-    The determination of Parton Distribution Functions (PDFs) from experimental data
-    is a central ingredient in the theoretical prediction of experimental results
-    at hadronic colliders. As the LHC is now producing high-precision results, a robust
-    determination of PDFs and their associated errors have become increasingly important.
-    The NNPDF Colalaboration has pioneered the use of Machine Learning for the determination
-    of PDFs. In this paper, we develop a theoretical formalism to analyse the training of
-    Neural Networks in the context of PDF determinations.
+  Parton Distribution Functions (PDFs) play a crucial role in describing
+  experimental data at hadron colliders and provide insight into proton
+  structure. As the LHC enters an era of high-precision measurements, a robust
+  PDF determination with a reliable uncertainty quantification has become
+  increasingly important to match the experimental precision. The NNPDF
+  collaboration has pioneered the use of Machine Learning (ML) techniques for PDF
+  determination. In this work, we develop a theoretical framework based on the
+  Neural Tangent Kernel (NTK) to analyze the training dynamics of Neural
+  Networks. This approach allows us to derive, under certain assumptions, an
+  analytical description of how the neural network evolves during training,
+  enabling us to better understand the NNPDF methodology and its dependence on
+  the underlying model architecture. Notably, we demonstrate that our results
+  contrast, to some extent, with the standard picture of the \textit{lazy training}
+  regime commonly discussed in the ML community.
 \end{abstract}
 
 \section{Introduction}
@@ -655,11 +662,10 @@ A more concise form is obtained by defining the matrix
     \label{eq:PInftyDef}
     P_{\infty,kk''} = \sum_{k'\in\perp} \mathcal{M}_{\infty,kk'} M_{k'k''}\, ,
 \end{equation}
-so that 
+so that
 \begin{equation}
     \label{eq:UcheckInftyV2}
-    \check{U}^\perp_{\infty,\alpha\alpha'}
-        &= -\sum_{k\in\perp} \sum_{k''\in\parallel} z^{(k)}_{\alpha} P_{\infty,kk''} z^{(k'')}_{\alpha'}\, .
+    \check{U}^\perp_{\infty,\alpha\alpha'} = -\sum_{k\in\perp} \sum_{k''\in\parallel} z^{(k)}_{\alpha} P_{\infty,kk''} z^{(k'')}_{\alpha'}\, .
 \end{equation}
 
 
@@ -676,7 +682,7 @@ distance between the numerical minimization and the analytical formula as a func
 training time $t$
 
 \newpage
-\input{training.tex}
+\input{training_and_closure.tex}
 
 \section{First Training Results}
 
