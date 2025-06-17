@@ -78,7 +78,7 @@ observations do not depend on the architecture.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.6\textwidth]{../plots/delta_ntk.pdf}
-  \caption{Variation of the NTK during training for L0, L1, and L2 data. Error
+  \caption{Relative variation of the NTK during training for L0, L1, and L2 data. Error
   bands correspond to one-sigma uncertainties over the ensemble of networks.}
   \label{fig:NTKTime}
 \end{figure}
@@ -87,8 +87,13 @@ Having established the properties of the NTK at initialisation, we now discuss
 its behaviour during training. In the machine learning literature, it is argued
 that the NTK remains constant during training provided that the width of the
 network is large enough. Here we show that this is not the case, at least for
-the NNPDF methodology. In Fig.~\ref{fig:NTKTime}, we show the variation of the
-Frobenius norm of the NTK during training for three different datasets, L0, L1,
+the NNPDF methodology. In Fig.~\ref{fig:NTKTime}, we show the relative variation
+of the Frobenius norm of the NTK
+\begin{equation}
+\delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
+\label{eq:DeltaNTK}
+\end{equation}
+during training for three different datasets, L0, L1,
 and L2. We observe that the NTK does not remain constant during training, but
 rather it tends to change with time. In the figure, we can identify two
 different phases. The first one covers the initial part of the training. From
@@ -138,7 +143,7 @@ $T\rightarrow\infty$ to be learned, which is unpractical.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.6\textwidth]{../plots/delta_ntk_arch.pdf}
+  \includegraphics[width=0.6\textwidth]{../plots/delta_ntk_arch_L1.pdf}
   \caption{Comparison of the variation of the NTK during training for two
   different architectures with sizes $[28,20]$ and $[100,100]$ respectively. In
   both cases, L1 data are used. Error bands correspond to one-sigma
@@ -167,10 +172,10 @@ Then there is the dependence on the architecture...
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_0.pdf}
-  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_10000.pdf}
-  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_30000.pdf}
-  \includegraphics[width=0.23\textwidth]{plots/overlap_epoch_50000.pdf}
+  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_0.pdf}
+  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_4000.pdf} \\[-15pt]
+  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_30000.pdf}
+  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_50000.pdf}
   \vspace{0.5cm}
   \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L2 data and for a single
   replica of the NTK. The matrix is shown at different epochs of the training process,
