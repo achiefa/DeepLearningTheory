@@ -428,7 +428,7 @@ For clarity, we often omit indices and write
     \left(\frac{\partial T}{\partial f}\right)_t
         &= \FKtab\, , \\
     \Theta_t
-        &= \left(\nabla_\mu f_t\right)^T \left(\nabla_\mu f_t\right)\, , \\
+        &= \left(\nabla_\mu f_t\right) \left(\nabla_\mu f_t\right)^T\, , \\
     \label{eq:FlowEquationNoIndices}
     \ddt f_t
         &= \Theta_t \FKtabT C_Y^{-1} \epsilon_t\, .
@@ -536,15 +536,16 @@ where
 guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is
 satisfied. Similarly, if we define
 \ac{The notation here is a bit confusing, with $B_i$ and $B^\perp_k$ ...}
+\ldd{I have changed B to Upsilon}
 \begin{align}
     \label{eq:BiDef}
-    B^{\perp}_i = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
+    \Upsilon^{(i)} = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
         %= \left(w^{(i)}, B^\perp\right)\, ,
 \end{align}
 then
 \begin{align}
     \label{eq:PartSol}
-    \check{f}^\perp_{t,k} = \sideset{}{'}\sum_{i} \frac{1}{h^{(i)}} B^{\perp}_i
+    \check{f}^\perp_{t,k} = \sideset{}{'}\sum_{i} \frac{1}{h^{(i)}} \Upsilon^{(i)}
         \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_k\, ,
 \end{align}
 where the sum only involves the non-zero modes of $H^\perp$,
@@ -674,12 +675,38 @@ so that
 
 \section{Training and Closure}
 
-level-0, level-1, level-2
+It is important to analyse whether the analytical solution in \eqref{eq:AnalyticSol} can 
+shed some light onto the behaviour of the numerical neural network training. 
+In order to study the training process, the NNPDF collaboration has successfully developed so-called 
+{\em closure tests}. A closure test uses synthetic data, generated using a known 
+set of PDFs, to train the neural network. The results of the training are then compared to the
+known PDFs, which allows to assess the performance of the training algorithm and the NN
+architecture. Following the original presentation in Ref.~\cite{NNPDF:2014otw}, we distinguish three
+levels of closure tests, which are defined by the complexity of the data used to train the NNs. 
+We use the standard NNPDF nomenclature and refer to these three levels as level-0 (L0), level-1 (L1), 
+and level-2 (L2) closure tests and we denote the input PDFs used to generate the data as $\fin$. 
 
-analytical expressions should simplify
+Let us start by discussing the case of L0 tests. In this case, the data are given by
+\begin{equation}
+    \label{eq:DataL0}
+    Y_I = T[f^{\rm in}]_I 
+        = \sum_{i=1}^{\nflav} \sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} f^{\rm in}_{i\alpha}\, ,
+\end{equation}
+or equivalently, suppressing the indices,
+\begin{equation}
+    \label{eq:DataL0NoIndices}
+    Y = \FKtab f^{\rm in}\, .
+\end{equation}
+
+
+analytical expressions should simplify \ldd{Done. Need to type the equations. }
 
 distance between the numerical minimization and the analytical formula as a function of
-training time $t$
+training time $t$ \ldd{Plots from Amedeo needed here.}
+
+\ldd{Compute distances between numerical and analytical solutions using the standard NNPDF definition of the
+distance.}
+
 
 \newpage
 \input{training_and_closure.tex}
