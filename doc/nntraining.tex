@@ -626,8 +626,8 @@ fluctuation of the NTK,
 \end{align}
 Note that the first term on the right-hand side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of the
 correlations between $U(t)$ and $f_0$. In the absence of such correlations, the first term would be given by the product
-of the expectation values and hence would vanish up to corrections of order $\mathcal{O}(1/n)$, since the expectation 
-value of the fields at initialization vanishes in the limit of infinitely wide networks. 
+of the expectation values and hence would vanish up to corrections of order $\mathcal{O}(1/n)$, since the expectation
+value of the fields at initialization vanishes in the limit of infinitely wide networks.
 Assuming that the correlations between the initial fields and the evolution operators vanish, we can write
 \begin{align}
     \label{eq:MeanUt}
@@ -637,14 +637,14 @@ Assuming that the correlations between the initial fields and the evolution oper
     \bar{V}(t)
         &= \mathbb{E}\left[V(t)\right]\, ,
 \end{align}
-and 
+and
 \begin{equation}
     \label{eq:MeanValAtTNoCorr}
     \bar{f}_{t,\alpha} = \bar{U}(t)_{\alpha\alpha'} \bar{f}_{0,\alpha'}
         + \bar{V}(t)_{\alpha I} Y_I = \bar{V}(t)_{\alpha I} Y_I \, .
 \end{equation}
 
-The second term in Eq.~\eqref{eq:MeanValAtT}, or equivalently Eq.~\eqref{eq:MeanValAtTNoCorr}, explicitly shows the contribution 
+The second term in Eq.~\eqref{eq:MeanValAtT}, or equivalently Eq.~\eqref{eq:MeanValAtTNoCorr}, explicitly shows the contribution
 of each data point to the central value of the
 trained fields at each value of $x_{\alpha}$. It is worthiwhile remarking that the central value
 from the set of trained network is a linear combination of the data points, with coefficients given by the
@@ -695,52 +695,31 @@ so that
 
 \subsubsection{Covariance of the trained fields.}
 \label{sec:Covariance}
-For the covariance we have 
-\begin{align}
-    \cov[f_t,f_t^T]
-        &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
-            - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[f_0^T U(t)^T\right]  \nonumber \\
-        &\quad + \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
-            - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[Y^T V(t)^T\right] \nonumber \\
-        &\quad + \mathbb{E}\left[V(t) Y f_0^T U(t)^T\right]
-            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[f_0^T U(t)^T\right] \nonumber \\
-    \label{eq:CovAtT}
-        &\quad + \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
-            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right] \, .
-\end{align}
-We see explicitly that the fluctuations of the fields at initialization yield a contriburtion to 
-the statistical uncertainty of the trained fields. In the limit where we ignore the fluctuations 
-of $U(t)$ and $V(t)$, we obtain
-\begin{align}
-    \cov[f_t,f_t^T]
-        &= \bar{U}(t) K \bar{U}(t)^T 
-            + \bar{V}(t) C_Y \bar{V}(t)^T\, ,
-\end{align}
-where we used the fact that the fluctuations of the data $Y$ are statistically independenct from 
-the fluctations of the fields at initialization. 
+For the covariance 
+
 
 \newpage
 \input{ntk_pheno.tex}
 
 \section{Training and Closure}
 
-The analytical solution in \eqref{eq:AnalyticSol} can 
-shed a new light onto the behaviour of the numerical neural network training. 
-In order to study the training process, the NNPDF collaboration has successfully developed so-called 
-{\em closure tests}. A closure test uses synthetic data, generated using a known 
+The analytical solution in \eqref{eq:AnalyticSol} can
+shed a new light onto the behaviour of the numerical neural network training.
+In order to study the training process, the NNPDF collaboration has successfully developed so-called
+{\em closure tests}. A closure test uses synthetic data, generated using a known
 set of PDFs, to train the neural network. The PDFs used for genrating the data are called here {\em input}\
 PDFs. The results of the training are then compared to the
 known input PDFs; the performance of the training algorithm and the NN
-architecture are assessed by quantifying the comparison between trained PDFs and input PDFs. 
+architecture are assessed by quantifying the comparison between trained PDFs and input PDFs.
 Following the original presentation in Ref.~\cite{NNPDF:2014otw}, we distinguish three
-levels of closure tests, which are defined by the complexity of the data used to train the NNs. 
-We use the standard NNPDF nomenclature and refer to these three levels as level-0 (L0), level-1 (L1), 
-and level-2 (L2) closure tests and we denote the input PDFs used to generate the data as $\fin$. 
+levels of closure tests, which are defined by the complexity of the data used to train the NNs.
+We use the standard NNPDF nomenclature and refer to these three levels as level-0 (L0), level-1 (L1),
+and level-2 (L2) closure tests and we denote the input PDFs used to generate the data as $\fin$.
 
 Let us start by discussing the case of L0 tests. In this case, the data are given by
 \begin{equation}
     \label{eq:DataL0}
-    Y_I = T[\fin]_I 
+    Y_I = T[\fin]_I
         = \sum_{i=1}^{\nflav} \sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} \fin_{i\alpha}\, ,
 \end{equation}
 or equivalently, suppressing the indices,
@@ -758,6 +737,46 @@ training time $t$ \ldd{Plots from Amedeo needed here.}
 
 \ldd{Compute distances between numerical and analytical solutions using the standard NNPDF definition of the
 distance.}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.48\textwidth]{plots/pdf_plot_init.pdf}
+  \includegraphics[width=0.48\textwidth]{plots/distance_plot_init.pdf}
+  \caption{PDF comparison (left) and PDF distance (right) of the trained
+  solution at the end of training (eot) and analytical solution. The frozen NTK
+  is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a
+  different ensemble of networks at initialisation. The analytical solution is
+  evolved for the equivalent of $T_{\rm tot}$ epochs. \ac{Plots obtained with L2
+  data}}
+  \label{fig:xT3_analytical_init}
+\end{figure}
+% ===================================
+
+% ===================================
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.48\textwidth]{plots/pdf_plot_ref_20000.pdf}
+  \includegraphics[width=0.48\textwidth]{plots/distance_plot_ref_20000.pdf}
+  \caption{PDF comparison (left) and PDF distance (right) of the trained
+  solution at the end of training (eot) and analytical solution. The frozen NTK
+  is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$ is the
+  trained function at $T_{\rm ref}$. The analytical solution is evolved for the
+  equivalent of $T_{\rm tot} - T_{\rm ref}$ epochs. \ac{Plots obtained with L2
+  data}}
+  \label{fig:xT3_analytical_ref}
+\end{figure}
+% ===================================
+
+% ===================================
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.48\textwidth]{plots/pdf_plot_ref_0.pdf}
+  \includegraphics[width=0.48\textwidth]{plots/distance_plot_ref_0.pdf}
+  \caption{Same as Fig.~\ref{fig:xT3_analytical_ref}, but for $T_{\rm ref} = 0$.
+  \ac{Plots obtained with L2 data}}
+  \label{fig:xT3_analytical_ref_0}
+\end{figure}
+% ===================================
 
 
 \newpage
