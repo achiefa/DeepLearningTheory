@@ -209,8 +209,17 @@ class Distribution:
             for rep in range(self.size):
                 res.add(self._data[rep] / other)
             return res
+        if isinstance(other, np.ndarray):
+            if other.shape != self.shape:
+                raise ValueError(f"Shape mismatch: {self.shape} vs {other.shape}")
+            res = Distribution(
+                f"{self.name} / ndarray", shape=self.shape, size=self.size
+            )
+            for rep in range(self.size):
+                res.add(self._data[rep] / other)
+            return res
         else:
-            raise TypeError(f"Expected a scalar, got {type(other)}")
+            raise TypeError(f"Expected a scalar or array, got {type(other)}")
 
     @check_size
     def apply_operator(self, b, operator, axis=0, name=None):
