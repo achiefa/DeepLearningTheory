@@ -716,9 +716,16 @@ of $U(t)$ and $V(t)$, we obtain
         &= \bar{U}(t) K \bar{U}(t)^T 
             + \bar{V}(t) C_Y \bar{V}(t)^T\, ,
 \end{align}
-where we used the fact that the fluctuations of the data $Y$ are statistically independenct from 
+where we used the fact that the fluctuations of the data $Y$ are statistically independent from 
 the fluctations of the fields at initialization. 
 
+An important criterion that we want to put forward at this point is that the covariance of the trained
+fields should be dominated by the statistical error on the data. This is the case towards the end of
+training as shown in Fig.~\ref{fig:xT3_exp_val}. In this way we ensure that the quoted error 
+on the PDFs is actually dominated by the statistical error on the data, and not by the fluctuations of the
+initial fields. This is a crucial point, since it guarantees that the ensemble of trained PDFs is not biased by the
+choice of prior that is made by selecting a given architecture, activation function, and probability distribution 
+for the biases and weights at initialization. \ldd{More plots needed. To be discussed.}
 
 
 \newpage
