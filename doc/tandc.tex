@@ -1,0 +1,51 @@
+The analytical solution in \eqref{eq:AnalyticSol} can
+shed a new light onto the behaviour of the numerical neural network training.
+In order to study the training process, the NNPDF collaboration has successfully developed so-called
+{\em closure tests}. A closure test uses synthetic data, generated using a known
+set of PDFs, to train the neural network. The PDFs used for genrating the data are called here {\em input}\
+PDFs. The results of the training are then compared to the
+known input PDFs; the performance of the training algorithm and the NN
+architecture are assessed by quantifying the comparison between trained PDFs and input PDFs.
+Following the original presentation in Ref.~\cite{NNPDF:2014otw}, we distinguish three
+levels of closure tests, which are defined by the complexity of the data used to train the NNs.
+We use the standard NNPDF nomenclature and refer to these three levels as level-0 (L0), level-1 (L1),
+and level-2 (L2) closure tests and we denote the input PDFs used to generate the data as $\fin$.
+
+Let us start by discussing the case of L0 tests. In this case, the data are given by
+\begin{equation}
+    \label{eq:DataL0}
+    Y_I = T[\fin]_I
+        = \sum_{i=1}^{\nflav} \sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} \fin_{i\alpha}\, ,
+\end{equation}
+or equivalently, suppressing the indices,
+\begin{equation}
+    \label{eq:DataL0NoIndices}
+    Y = \FKtab \fin\, .
+\end{equation}
+Using L0 data in the analytical expression for the trained network in Eq.~\eqref{eq:AnalyticSol} allows
+a simplification of the second term,
+\begin{align}
+    \label{eq:L0ClosureTrained}
+    V(t) Y = \sumprime_{i} Z^{(i)} \left(1 - e^{-h^{(i)}t}\right) 
+        \sum_{k\in\perp} w^{(i)}_k \fin_k\, .
+\end{align}
+Interestingly, for $t\to\infty$, 
+\begin{align}
+    \label{eq:L0ClosureInfiniteTraining}
+    \lim_{t\to\infty} V(t) Y = \finperp\, ,
+\end{align}
+and therefore the $V$ component of the trained solution reproduces exactly the 
+component of the PDF that lies in  the subspace orthogonal to the kernel of $\Theta$.
+
+
+Distance between the numerical minimization and the analytical formula as a function of
+training time $t$ 
+
+\ldd{Compute distances between numerical and analytical solutions using the standard NNPDF definition of the
+distance. Same as the ones that are below, but using L0 data}
+
+
+\newpage
+\input{training_and_closure.tex}
+
+\FloatBarrier
