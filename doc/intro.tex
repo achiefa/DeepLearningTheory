@@ -47,7 +47,8 @@ drawn from the distribution $p$, so that
 \end{equation}
 for any observable $O$ that is built from the PDFs.
 
-The prior distribution $p(f)$ is defined by initializing a set of replicas using a Glorot-Normal initializer.
+The prior distribution $p(f)$ is defined by initializing a set of replicas using a Glorot-Normal 
+initializer~\cite{glorot2010understanding}.
 The result of this initialization is discussed below in Sec.~\ref{sec:Init}.
 For each replica, a new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional Gaussian distribution
 centred at the experimental central value $Y$, with the covariance given by the experimental covariance
