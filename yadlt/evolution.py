@@ -8,7 +8,8 @@ import yaml
 from yadlt.distribution import Distribution
 from yadlt.model import PDFmodel
 
-FIT_FOLDER = Path("../Results/fits/")
+MODULE_DIR = Path(__file__).parent
+FIT_FOLDER = (MODULE_DIR / "../Results/fits").resolve()
 
 
 class EvolutionOperatorComputer:

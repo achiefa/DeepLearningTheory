@@ -46,13 +46,13 @@ dynamics change as it learns the target function.
 \end{figure}
 % ===================================
 We first discuss the properties of the NTK at initialisation, that is when the
-network is blind to data. We remind that, at this stage, the NTK depends on
-the $x$-grid of input and on the architecture. It is argued in the literature
-that, in the large-width limit, the variance of the NTK tends to zero with the
-size of the architecture (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order
-to assess this property of the NTK, we compute the Frobenius norm of the NTK
-over an ensemble of networks for different architectures. For each architecture,
-we take mean value and standard deviation as statistical estimators of the
+network is blind to data. We remind that, at this stage, the NTK depends on the
+$x$-grid of input and on the architecture. It is argued in the literature that,
+in the large-width limit, the variance of the NTK tends to zero with the size of
+the architecture (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to
+assess this property of the NTK, we compute the Frobenius norm of the NTK over
+an ensemble of networks for different architectures. For each architecture, we
+take mean value and standard deviation as statistical estimators of the
 ensemble. The result is displayed in Fig.~\ref{fig:NTKInit}. From this figure,
 we can confirm that the variance of the NTK becomes smaller with the size of the
 network. Note that, in addition to the scaling $\mathcal{O}(1/n)$ theoretically
@@ -117,11 +117,11 @@ phase, when the NTK has stabilized, as discussed later in this article.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_1.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_2.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_3.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_4.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_5.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_1.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_2.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_3.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_4.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_5.pdf}
   \vspace{0.5cm}
   \caption{The first five eigenvalues of the NTK for L0, L1, and L2 data. Error
   bands correspond to one-sigma uncertainties over the ensemble of networks.}
@@ -147,27 +147,13 @@ $T\rightarrow\infty$ to be learned, which is unpractical.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.6\textwidth]{../plots/delta_ntk_arch_L1.pdf}
-  \caption{Comparison of the variation of the NTK during training for two
-  different architectures with sizes $[28,20]$ and $[100,100]$ respectively. In
-  both cases, L1 data are used. Error bands correspond to one-sigma
-  uncertainties over the ensemble of networks.}
+  \includegraphics[width=0.45\textwidth]{../plots/delta_ntk_arch.pdf}
+  \includegraphics[width=0.45\textwidth]{../plots/ntk_eigvals_single_plot_arch.pdf}
+  \caption{Comparison of the variation of the NTK during training (left) and the
+  first three eigenvalues (right) for two different architectures with sizes
+  $[28,20]$ and $[100,100]$ respectively. In both cases, L1 data is used. Error
+  bands correspond to one-sigma uncertainties over the ensemble of networks.}
   \label{fig:NTKTimeDiffArch}
-\end{figure}
-% ===================================
-
-% ===================================
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_1_arch_L0.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_1_arch_L1.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/eigval_1_arch_L2.pdf}
-  \vspace{0.5cm}
-  \caption{Comparison of the first eigenvalue of the NTK obtained using two
-  different architectures in the case of L0 (upper-left), L1 (upper-right), and
-  L2 (bottom) generated data. Error bands correspond to one-sigma uncertainties
-  over the ensemble of networks.}
-  \label{fig:NTKvalsDiffArch}
 \end{figure}
 % ===================================
 Then there is the dependence on the architecture...
@@ -176,11 +162,7 @@ Then there is the dependence on the architecture...
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_0.pdf}
-  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_4000.pdf} \\[-15pt]
-  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_30000.pdf}
-  \includegraphics[width=0.45\textwidth]{plots/overlap_epoch_50000.pdf}
-  \vspace{0.5cm}
+  \includegraphics[width=1\textwidth]{plots/ntk_alignment.pdf}
   \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L1 data and for a
   single replica of the NTK. The matrix is shown at different epochs of the
   training process, indicated in the top of each panel. The white dashed line

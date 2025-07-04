@@ -7,140 +7,137 @@
 """
 import matplotlib as mpl
 from matplotlib import rc
+from matplotlib.colors import Normalize
+from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 import numpy as np
+import yaml
 
 rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
 rc("text", usetex=True)
 
 from argparse import ArgumentParser
-import importlib.resources as pkg_resources
-from pathlib import Path
-import pickle
 
-from yadlt import data
-from yadlt.distribution import Distribution
-
-PLOT_DIR = Path(__file__).parent / "../plots"
-FIT_PATH = Path(__file__).parent / "../../Results/fits"
-
-FONTSIZE = 20
-LABELSIZE = 16
-LEGENDSIZE = 16
-TICKSIZE = 14
+from yadlt.evolution import EvolutionOperatorComputer
+from yadlt.plotting import FONTSIZE, LABELSIZE, PLOT_DIR, TICKSIZE
 
 
-def load_serialized_data(fit_name, data_name, fit_path=FIT_PATH):
-    serialization_folder = fit_path / fit_name / "serialization"
-    data = pickle.load(open(serialization_folder / f"{data_name}.pickle", "rb"))
-    return data
-
-
-REF_EPOCHS = [0, 4000, 30000, 50000]
-REF_REPLICA = 34  # Random replica
-REF_FIT = "250604-ac-03-L2"
-
-# Load Tommaso's file
-data_path = Path(pkg_resources.files(data) / "BCDMS_data")
-fk_grid = np.load(data_path / "fk_grid.npy")
-FK = np.load(data_path / "FK.npy")
-f_bcdms = np.load(data_path / "f_bcdms.npy")
-Cy = np.load(data_path / "Cy.npy")
-Cinv = np.linalg.inv(Cy)
-
-# Compute M
-M = FK.T @ Cinv @ FK
-
-
-def produce_mat_plot(args):
+def produce_mat_plot(
+    evolution: EvolutionOperatorComputer, replica: int, epochs: list[int], filename: str
+):
     """Produce a comparison of delta NTK for different fits."""
 
-    eigvecs_time = load_serialized_data(
-        args.fit, "eigvecs_time", fit_path=Path(args.fit_folder)
-    )
-    common_epochs = load_serialized_data(
-        args.fit, "common_epochs", fit_path=Path(args.fit_folder)
-    )
-    cut_by_epoch = load_serialized_data(args.fit, "cut", fit_path=Path(args.fit_folder))
+    eigvecs_time = evolution.eigvecs_time
+    common_epochs = evolution.common_epochs
+    cut_by_epoch = evolution.cut_by_epoch
 
     # Compute eigvals and eigvecs of M
-    m, W = np.linalg.eigh(M)
+    m, W = np.linalg.eigh(evolution.M)
     m = m[::-1]
     W = W[:, ::-1]
-    Z = eigvecs_time[common_epochs.index(args.epochs[0])]
 
-    for ref_epoch in args.epochs:
-        fig, ax = plt.subplots(
-            1,
-            1,
-            figsize=(5, 5),
-            gridspec_kw={"left": 0.15, "right": 0.90, "top": 0.99, "bottom": 0.05},
-        )
+    gridspec_kw = {"left": 0.07, "right": 0.93, "top": 0.99, "bottom": 0.05}
+    fig = plt.figure(figsize=(15, 5))
+    gs = GridSpec(1, 4, width_ratios=[1, 1, 1, 0.07], wspace=0.20, **gridspec_kw)
+
+    # Create axes
+    ax1 = fig.add_subplot(gs[0, 0])  # Left plot
+    ax2 = fig.add_subplot(gs[0, 1])  # Left plot
+    ax3 = fig.add_subplot(gs[0, 2])  # Left plot
+    cax = fig.add_subplot(gs[0, 3])  # Colorbar axis
+    axs = [ax1, ax2, ax3]
+
+    matrices = []
+    cut_values = []
+
+    # Compute the overlap matrices for each reference epoch
+    for ref_epoch in epochs:
         Z = eigvecs_time[common_epochs.index(ref_epoch)]
         cut = cut_by_epoch[common_epochs.index(ref_epoch)]
-        A = np.power(Z[args.replica].T @ W, 2)
+        A = np.power(Z[replica].T @ W, 2)
+        cut_value = cut[replica]
+        cut_values.append(cut_value)
+        matrices.append(A)
 
+    vmin = min(np.percentile(A, 1) for A in matrices)
+    vmax = max(np.percentile(A, 95) for A in matrices)
+    print(f"vmin: {vmin}, vmax: {vmax}")
+
+    for idx, ax in enumerate(axs):
         ms = ax.matshow(
-            A,
+            matrices[idx],
             cmap=mpl.colormaps["RdBu_r"],
-            vmax=A.max(),
-            vmin=0.0,
-            # norm=mpl.colors.LogNorm(vmin=1.e-7, vmax=A.max()),
+            norm=Normalize(
+                vmin=vmin, vmax=vmax, clip=True
+            ),  # clip=True will clip out-of-range values4
         )
 
         # Plot horizontal and vertical lines at the cut value
-        cut_value = cut[args.replica]
-        ax.axhline(y=cut_value, color="white", linestyle="--", linewidth=2)
-
-        cbar = plt.colorbar(ms, ax=ax, fraction=0.046, pad=0.04)
-        # cbar.ax.tick_params(labelsize=TICKSIZE)  # Apply the same tick size as your main axes
-
+        ax.axhline(y=cut_values[idx], color="white", linestyle="--", linewidth=2)
         ax.set_title(
-            r"$\textrm{Overlap at epoch = }" + f"{ref_epoch}" + r"$", fontsize=FONTSIZE
+            r"$\textrm{Overlap at epoch = }" + f"{epochs[idx]}" + r"$",
+            fontsize=FONTSIZE,
         )
-        ax.set_ylabel(r"$\textrm{Eigenvectors of the NTK}$", fontsize=LABELSIZE)
-        ax.set_xlabel(r"$\textrm{Eigenvectors of the M matrix}$", fontsize=LABELSIZE)
+
         ax.tick_params(labelsize=TICKSIZE)
         ax.xaxis.set_ticks_position("bottom")
         ax.xaxis.set_label_position("bottom")
 
-        # fig.tight_layout()
-        fig.savefig(PLOT_DIR / f"overlap_epoch_{ref_epoch}.pdf", dpi=300)
+    cbar = plt.colorbar(ms, cax=cax, extend="both")
+    cbar.ax.yaxis.set_label_position("left")
+
+    # Get the actual position of one of your matshow plots (they should all be the same height)
+    pos = ax1.get_position()
+    cax_pos = cax.get_position()
+    cax.set_position([cax_pos.x0, pos.y0, cax_pos.width, pos.height])
+
+    cbar.ax.tick_params(
+        labelsize=TICKSIZE
+    )  # Apply the same tick size as your main axes
+
+    ax1.set_ylabel(r"$\textrm{Eigenvectors of the NTK}$", fontsize=LABELSIZE)
+    ax2.set_xlabel(r"$\textrm{Eigenvectors of the M matrix}$", fontsize=LABELSIZE)
+
+    fig.savefig(PLOT_DIR / filename, dpi=300)
 
 
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        "--fit_folder",
-        "-f",
+        "config",
         type=str,
-        default=FIT_PATH.absolute(),
-        help="Path to the folder containing fit results",
+        help="Path to the config file",
     )
     parser.add_argument(
-        "--fit",
+        "--plot-dir",
         type=str,
-        default=REF_FIT,
-        help="Fit name to use for the comparison",
+        default=None,
+        help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
     parser.add_argument(
-        "--replica",
-        "-r",
-        type=int,
-        default=REF_REPLICA,
-        help="Replica number to use for the comparison",
-    )
-    parser.add_argument(
-        "--epochs",
-        "-e",
-        type=int,
-        nargs="+",
-        default=REF_EPOCHS,
-        help="Epochs to use for the comparison",
+        "--filename",
+        type=str,
+        default="ntk_alignment.pdf",
+        help="Filename to save the plot.",
     )
     args = parser.parse_args()
 
-    produce_mat_plot(args)
+    if args.plot_dir is not None:
+        from yadlt.plotting import set_plot_dir
+
+        set_plot_dir(args.plot_dir)
+
+    with open(args.config, "r") as f:
+        config = yaml.safe_load(f)
+
+    fitname = config["fitname"]
+    replica = config["replica"]
+    epochs = config["epochs"]
+
+    evolution = EvolutionOperatorComputer(fitname)
+    produce_mat_plot(
+        evolution=evolution, replica=replica, epochs=epochs, filename=args.filename
+    )
 
 
 if __name__ == "__main__":

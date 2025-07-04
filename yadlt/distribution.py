@@ -47,6 +47,24 @@ def numpify(func):
     return wrapper
 
 
+def combine_distributions(list_of_distributions):
+    """Combine a list of Distribution objects into a single Distribution."""
+    if not list_of_distributions:
+        raise ValueError("List of distributions is empty")
+
+    # Get the shape and size from the first distribution
+    first = list_of_distributions[0]
+    new_shape = (len(list_of_distributions), *first.shape)
+    size = first.size
+    new_dist = Distribution(name="Combined distribution", shape=new_shape, size=size)
+
+    # Stack the data from each distribution
+    combined = np.stack([dist.get_data() for dist in list_of_distributions], axis=1)
+    new_dist.set_data(combined)
+
+    return new_dist
+
+
 class Distribution:
     """A class to represent a distribution of data, with support for
     operations like addition, subtraction, multiplication, and custom
@@ -120,6 +138,17 @@ class Distribution:
         if not isinstance(name, str):
             raise TypeError(f"Expected name to be a string, got {type(name)}")
         self.name = name
+
+    def set_data(self, data):
+        if self.shape is None or self._pre_allocated_size == 0:
+            raise ValueError(
+                "Distribution shape and size must be set before adding data."
+            )
+        if data.shape != (self._pre_allocated_size, *self.shape):
+            raise ValueError(
+                f"Data shape {data.shape} does not match expected shape {(self._pre_allocated_size, *self.shape)}"
+            )
+        self._data = data
 
     def transpose(self):
         """Transpose the data of each replica."""
@@ -261,6 +290,24 @@ class Distribution:
         for rep in range(self.size):
             diag_data = np.diag(self._data[rep])
             res.add(diag_data)
+        return res
+
+    def slice(self, index):
+        """Slice the distribution data.
+
+        Args:
+            index: Can be an int, slice object, tuple of indices/slices, or numpy array
+                  Examples:
+                  - 5 → data[5]
+                  - slice(10, 20) → data[10:20]
+                  - (slice(None), 5) → data[:, 5]
+                  - (0, slice(10, 20)) → data[0, 10:20]
+        """
+        sample_sliced = self._data[0][index]
+        new_shape = sample_sliced.shape
+        res = Distribution(f"{self.name} sliced", shape=new_shape, size=self.size)
+        for data in self._data:
+            res.add(data[index])
         return res
 
     def __str__(self):
