@@ -17,5 +17,6 @@ eigvals:
   - 2
   - 3
 
-group_by: eigvals
+# Eigvals of the same fit have the same colour
+group_by: fitnames
 ylabel: "$\\lambda$"

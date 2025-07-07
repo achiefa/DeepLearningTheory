@@ -1,0 +1,6 @@
+fitnames:
+  - 250604-ac-01-L0
+  - 250604-ac-02-L1
+reference_epoch: 20000
+epochs: [0, 20000]
+seed: 1423413

@@ -84,25 +84,35 @@ print_status "Starting plot generation..."
 
 # NTK pheno section
 # ~~~~~~~~~~~~~~~~~~~~~
+NTK_PHENO_DIR="$OUTPUT_DIR/ntk_pheno"
+mkdir -p "$NTK_PHENO_DIR"
 run_script "delta_ntk_plots.py" \
-  "$CONFIG_DIR/delta_ntk.yaml --plot-dir $OUTPUT_DIR --filename delta_ntk.pdf" \
+  "$CONFIG_DIR/delta_ntk.yaml --plot-dir $NTK_PHENO_DIR --filename delta_ntk.pdf" \
   "Plot of delta ntk for LO L1 and L2 data"
 
 run_script "ntk_eigvals_plots.py" \
-  "$CONFIG_DIR/ntk_eigvals_L0_L1_L2.yaml --plot-dir $OUTPUT_DIR --filename ntk_eigvals_L0_L1_L2" \
+  "$CONFIG_DIR/ntk_eigvals_L0_L1_L2.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_eigvals_L0_L1_L2" \
   "Plot of ntk eigvals for LO L1 and L2 data"
 
 run_script "delta_ntk_plots.py" \
-  "$CONFIG_DIR/delta_ntk_arch.yaml --plot-dir $OUTPUT_DIR --filename delta_ntk_arch.pdf" \
+  "$CONFIG_DIR/delta_ntk_arch.yaml --plot-dir $NTK_PHENO_DIR --filename delta_ntk_arch.pdf" \
   "Plot of delta ntk for different architectures"
 
 run_script "eigvals_single_plot.py" \
-  "$CONFIG_DIR/ntk_eigvals_arch_single_plot.yaml --plot-dir $OUTPUT_DIR --filename ntk_eigvals_single_plot_arch.pdf" \
+  "$CONFIG_DIR/ntk_eigvals_arch_single_plot.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_eigvals_single_plot_arch.pdf" \
   "Single plot of the ntk eigvals for different architectures"
 
 run_script "ntk_alignment.py" \
-  "$CONFIG_DIR/ntk_alignment.yaml --plot-dir $OUTPUT_DIR --filename ntk_alignment.pdf" \
+  "$CONFIG_DIR/ntk_alignment.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_alignment.pdf" \
   "Plot of the alignment of the NTK with M"
+
+# Studies on U and V
+# ~~~~~~~~~~~~~~~~~~~~~
+U_V_STUDIES_DIR="$OUTPUT_DIR/u_v_studies"
+mkdir -p "$U_V_STUDIES_DIR"
+run_script "u_v_fluctuations.py" \
+  "$CONFIG_DIR/u_v_fluctuations.yaml --plot-dir $U_V_STUDIES_DIR" \
+  "Plot of the fluctuations of U and V"
 
 # H section
 # ~~~~~~~~~~~~~~~~~~~~~
@@ -110,18 +120,20 @@ run_script "eigvals_single_plot.py" \
   "$CONFIG_DIR/h_eigvals_arch_single_plot.yaml --plot-dir $OUTPUT_DIR --filename h_eigvals_single_plot.pdf" \
   "Single plot of the H eigvals"
 
+
 # Analytical evolution
 # ~~~~~~~~~~~~~~~~~~~~~
+AS_DIR="$OUTPUT_DIR/analytical_solution"
+mkdir -p "$AS_DIR"
 # PDF plots with L0 data
-# run_script "pdf_plots.py" \
-#   "$L0_SET --ref-epoch 20000 --plot-dir $OUTPUT_DIR" \
-#   "PDF plots with L0 data"
+run_script "pdf_plots.py" \
+  "$L0_SET --ref-epoch 20000 --plot-dir $AS_DIR" \
+  "PDF plots with L0 data"
 
-# # PDF plots with L2 data
-# run_script "pdf_plots.py" \
-#   "$L2_SET --ref-epoch 20000 --plot-dir $OUTPUT_DIR" \
-#   "PDF plots with L2 data"
-
+# PDF plots with L2 data
+run_script "pdf_plots.py" \
+  "$L2_SET --ref-epoch 20000 --plot-dir $AS_DIR" \
+  "PDF plots with L2 data"
 
 
 # =============================================================================

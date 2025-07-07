@@ -1,3 +1,14 @@
+"""
+This modules the plotting structures for the YADLT library.
+It provides three different plotting functions:
+1. `produce_pdf_plot`: Produces a plot with two panels, one for
+    the absolute values of the distributions and one for the
+    normalised values. It can also plot the ratio of the distributions
+    with respect to a reference distribution.
+2. `produce_plot`: Produces a plot with a single panel for the
+   distributions.
+"""
+
 from pathlib import Path
 
 from matplotlib import rc
@@ -6,6 +17,7 @@ import numpy as np
 
 rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
 rc("text", usetex=True)
+rc("text.latex", preamble=r"\usepackage{amsmath,amssymb}")
 
 from yadlt.distribution import Distribution
 from yadlt.utils import compute_distance
@@ -30,6 +42,16 @@ def set_plot_dir(plot_dir: str | Path):
     PLOT_DIR = Path(plot_dir)
     if not PLOT_DIR.exists():
         PLOT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def get_plot_dir() -> Path:
+    """
+    Get the directory where plots are saved.
+
+    Returns:
+        Path: The directory path where plots are saved.
+    """
+    return PLOT_DIR
 
 
 def produce_pdf_plot(
@@ -126,6 +148,7 @@ def produce_pdf_plot(
 def produce_plot(
     xgrid,
     grids: list[Distribution],
+    additional_grids: list[dict] | None = None,
     ylabel="",
     xlabel="",
     filename="plot.pdf",
@@ -135,13 +158,13 @@ def produce_plot(
     save_fig=True,
     labels: list[str] | None = None,
     colors: list[str] | None = None,
-    group_by: int = 1,
+    group_size: int = 1,
 ):
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
     label_seen = set()
     for idx, grid in enumerate(grids):
-        group_idx = idx // group_by
+        group_idx = idx // group_size
         color = colors[group_idx] if colors else None
         label = labels[group_idx] if labels else grid.name
 
@@ -158,6 +181,15 @@ def produce_plot(
             alpha=0.3,
             color=pl[0].get_color(),
         )
+
+    if additional_grids is not None:
+        for additional_grid in additional_grids:
+            ax.plot(
+                xgrid,
+                additional_grid["mean"],
+                label=additional_grid.get("label", ""),
+                color=additional_grid.get("color", None),
+            )
 
     # Set the title
     if title is not None:

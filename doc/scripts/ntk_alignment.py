@@ -19,7 +19,7 @@ rc("text", usetex=True)
 from argparse import ArgumentParser
 
 from yadlt.evolution import EvolutionOperatorComputer
-from yadlt.plotting import FONTSIZE, LABELSIZE, PLOT_DIR, TICKSIZE
+from yadlt.plotting import FONTSIZE, LABELSIZE, TICKSIZE, get_plot_dir
 
 
 def produce_mat_plot(
@@ -98,7 +98,7 @@ def produce_mat_plot(
     ax1.set_ylabel(r"$\textrm{Eigenvectors of the NTK}$", fontsize=LABELSIZE)
     ax2.set_xlabel(r"$\textrm{Eigenvectors of the M matrix}$", fontsize=LABELSIZE)
 
-    fig.savefig(PLOT_DIR / filename, dpi=300)
+    fig.savefig(get_plot_dir() / filename, dpi=300)
 
 
 def main():

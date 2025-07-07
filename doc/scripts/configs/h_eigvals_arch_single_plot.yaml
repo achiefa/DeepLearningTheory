@@ -18,5 +18,5 @@ eigvals:
   - 2
   - 3
 
-group_by: fitnames
-ylabel: r"\textrm{h}"
+group_by: eigvals
+ylabel: "$\\textrm{h}$"

@@ -40,11 +40,10 @@ def main():
     fitlabels = config.get("fitlabels", None)
     fitcolors = config.get("fitcolors", None)
     eigvals = config.get("eigvals", [0])
-    eigval_type = config.get("eigval_type", "ntk")
+    eigval_type = config.get("eigval_type", None)
     ylabel = config.get("ylabel", r"")
 
     group_by = config["group_by"]
-    group_size = len(config[group_by])
 
     eigvals_by_fit = []
     epochs = None
@@ -55,6 +54,7 @@ def main():
             epochs = evolution.epochs
         else:
             assert epochs == evolution.epochs, "Epochs do not match across fits."
+
         if eigval_type == "ntk":
             tmp = combine_distributions(evolution.eigvals_time)
         elif eigval_type == "h":
@@ -86,6 +86,13 @@ def main():
     else:
         raise ValueError(f"Unknown group_by: {group_by}. Use 'fitnames' or 'eigvals'.")
 
+    number_of_groups = len(config[group_by])
+    group_size = len(all_slices) / number_of_groups
+    if group_size != int(group_size):
+        raise ValueError(
+            f"Number of groups ({number_of_groups}) does not evenly divide the number of eigvals ({len(all_slices)})."
+        )
+
     # Extract distributions in the desired order
     eigvals_grids = [item["distribution"] for item in all_slices]
 
@@ -105,7 +112,7 @@ def main():
         ax_specs=ax_specs,
         filename=args.filename,
         save_fig=True,
-        group_by=group_size,
+        group_size=int(group_size),
     )
 
 
