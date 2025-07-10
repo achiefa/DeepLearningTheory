@@ -1,0 +1,21 @@
+fitnames:
+  - 250604-ac-01-L0
+  - 250604-ac-02-L1
+  - 250604-ac-03-L2
+
+fitlabels:
+  - "$\\textrm{L0}$"
+  - "$\\textrm{L1}$"
+  - "$\\textrm{L2}$"
+
+fitcolors:
+  - "C0"
+  - "C1"
+  - "C2"
+
+eigvals:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5

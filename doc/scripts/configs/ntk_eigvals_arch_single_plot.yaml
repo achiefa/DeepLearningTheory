@@ -1,0 +1,22 @@
+eigval_type: ntk
+
+fitnames:
+  - 250604-ac-02-L1
+  - 250605-ac-02-L1-100
+
+fitlabels:
+  - "$\\textrm{Arch. } [28,20]$"
+  - "$\\textrm{Arch. } [100,100]$"
+
+fitcolors:
+  - "C0"
+  - "C1"
+
+eigvals:
+  - 1
+  - 2
+  - 3
+
+# Eigvals of the same fit have the same colour
+group_by: fitnames
+ylabel: "$\\lambda$"
