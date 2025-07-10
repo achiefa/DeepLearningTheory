@@ -4,7 +4,7 @@ A first paragraph on precision physics at the LHC and the need for robust determ
 
 The extraction of PDFs from experimental data is a classic example of an inverse problem,
 namely the reconstruction of a function $f(x)$ from a finite set of data points
-$Y_I$, where the index $I=1, \ldots, \ndat$.~\footnote{When omitting the data index $I$, we will always
+$Y_I$, where the index $I=1, \ldots, \ndat$.1\footnote{When omitting the data index $I$, we will always
 assume $Y \in \mathbb{R}^{\ndat}$.} In particular, for this study, we will focus
 on DIS data, which depend
 linearly on the function $f(x)$. The theoretical prediction for the data point $Y_I$ is denoted
@@ -47,7 +47,7 @@ drawn from the distribution $p$, so that
 \end{equation}
 for any observable $O$ that is built from the PDFs.
 
-The prior distribution $p(f)$ is defined by initializing a set of replicas using a Glorot-Normal 
+The prior distribution $p(f)$ is defined by initializing a set of replicas using a Glorot normal 
 initializer~\cite{glorot2010understanding}.
 The result of this initialization is discussed below in Sec.~\ref{sec:Init}.
 For each replica, a new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional Gaussian distribution
@@ -58,14 +58,14 @@ matrix $C_Y$,
     Y^{(k)} \sim \mathcal{N}\left(Y, C_Y\right)\, .
 \end{equation}
 Each replica $f^{(k)}$ is trained on its corresponding data set $Y^{(k)}$. We denote the replicas at training time $t$,
-$f^{(k)}_{t} \in \mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $\bar{t}$, the posterior probability
+$f^{(k)}_{t} \in \mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $T$, the posterior probability
 distribution is represented by the set of replicas
-$\left\{f^{(k)}_{\bar{t}}\in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots, \nreps\right\}$, so that averages over the posterior
+$\left\{f^{(k)}_{T}\in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots, \nreps\right\}$, so that averages over the posterior
 distribution are computed as
 \begin{equation}
     \label{eq:PostEnsemble}
     \mathbb{E}_{\tilde{p}}[O(f)] = \frac{1}{\nreps} \sum_{k=1}^{\nreps}
-        O\left(f^{(k)}_{\bar{t}}\right)\, .
+        O\left(f^{(k)}_{T}\right)\, .
 \end{equation}
 All knowledge about the solution of the inverse problem, $f$, is encoded in the posterior
 $\tilde{p}$ and is expressed as expectation values of observables $O$ using

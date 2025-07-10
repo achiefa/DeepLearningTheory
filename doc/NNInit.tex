@@ -1,11 +1,11 @@
 As detailed in Ref.~\cite{NNPDF:2021njg}, the NNs used for the NNPDF fit have a 2-25-20-8 architecture,
-a $\tanh$ activation function
-and are initialized using a Glorot-Normal distribution~\cite{glorot2010understanding}. The preactivation
+a $\tanh$ activation function,
+and are initialized using a Glorot normal distribution~\cite{glorot2010understanding}. The preactivation
 function of a neuron is denoted as $\phi^{(\ell)}_{i,\alpha} = \phi^{(\ell)}_i(x_\alpha)$, where $\ell$
-denotes the layer of the neuron, $i$ identifies the neuron within the layer~\footnote{We will refer
+denotes the layer of the neuron, $i$ identifies the neuron within the layer\footnote{We refer
 to $i$ as the {\em neuron}\ index.}, and $x_{\alpha}$ is a point in the interval $[0,1]$.
-A grid of $\ngrid=50$ points is used to compute observables in the NNPDF formalism and we will focus
-on those values of $x_\alpha$ here. For completeness, we list the values of $x_\alpha$ in
+A grid of $\ngrid=50$ points is used to compute observables in the NNPDF formalism and in this work 
+we focus on the vakue of $f$ at those values of $x_\alpha$. For completeness, we list the values of $x_\alpha$ in
 Tab.~\ref{tab:Xvals}.
 
 \begin{table}[ht]
@@ -19,7 +19,7 @@ Tab.~\ref{tab:Xvals}.
 \end{table}
 
 The output of the neuron identified by the pair $(\ell,i)$ is
-$\rho^{(\ell)}_{i,\alpha} = \tanh\left(\phi^{(\ell)}_{i,\alpha}\right)$.
+$\rho^{(\ell)}_{i\alpha} = \tanh\left(\phi^{(\ell)}_{i\alpha}\right)$.
 The parameters of the NN are the weights $w^{(\ell)_{ij}}$ and the biases $b^{(\ell)}_i$, which are
 collectively denoted as $\theta_\mu$, where $\mu = 1, \ldots, P$ and the total number of parameters
 is
@@ -27,10 +27,16 @@ is
     \label{eq:TotPar}
     P = \sum_{\ell=1}^{L} \left(n_{\ell} n_{\ell-1} + n_\ell\right)\, .
 \end{equation}
+The preactivation function in layer $(\ell+1)$ is a weighted average of the outputs of the neurons on 
+the previous layer, namely
+\begin{align}
+    \label{eq:RecursionNN}
+    \phi^{(\ell+1)}_{i\alpha} = \sum_{j=1}^{n_\ell} w^{(\ell+1)}_{ij} \rho^{(\ell)}_{i\alpha} + b^{(\ell+1)}_{i}\, .
+\end{align}
 The PDFs in the
 so-called evolution basis are parametrized by the preactivation functions of the output layer $L$,
-$f_i(x_\alpha)=A_i \phi^{(L)}_{i,\alpha}$, where $i=1, \ldots, 8$ labels the flavors.
-~\footnote{For simplicity, we ignore the preprocessing function $x^{-\alpha_i} (1-x)^{\beta_i}$ that
+$x_\alpha f_i(x_\alpha)=A_i \phi^{(L)}_{i,\alpha}$, where $i=1, \ldots, 8$ labels the flavors.
+\footnote{For simplicity, we ignore the preprocessing function $x^{-\alpha_i} (1-x)^{\beta_i}$ that
 is currently used in the NNPDF fits. While the preprocessing may be useful in speeding the training
 it does not affect the current discussion.}
 The input layer is identified by $\ell=0$ and the activation
@@ -53,6 +59,7 @@ rescaled by the number of nodes in adjacent layers,
     \frac{C^{(\ell)}_{w}}{\sqrt{n_{\ell-1} + n_{\ell}}}\, ,
     \quad \frac{C^{(\ell)}_{b}}{\sqrt{n_{\ell-1} + n_{\ell}}}\, .
 \end{equation}
+Following the NNPDF prescription, we have $C^{(\ell)_{w}=C^(\ell)}_{b}=1$. 
 The probability distribution of the NN parameters induces a probability distribution for the
 preactivations,
 \begin{align}
@@ -212,18 +219,6 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
     \label{eq:VarAtInit}
     O(f) = \frac{\nreps}{\nreps-1} \left(f_i(x_\alpha) - \bar{f}_{i}(x_\alpha)\right)^2\, .
 \end{align}
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.45\textwidth]{plots/t3_lin_init.pdf}
-    \includegraphics[width=0.45\textwidth]{plots/xt3_lin_init.pdf}
-    \caption{Parametrized $T_3$ (left) and $xT_3$ (right) distributions in linear scale at initialization.
-    The line labeled as Replica0 is the average of the functions over the ensemble of replicas. The blue $1\sigma$ band
-    shows the variance of the ensemble of replicas, while the dotted line is the 68\% CL.
-    The agreement between these two quantities is a confirmation of the Gaussianity of the
-    distribution of replicas.
-    \label{fig:SingletGluonInit}}
-\end{figure}
 
 \paragraph{Dependence on the architecture.}
 Having analytical expressions for the variance at initialization allows us to investigate the
