@@ -135,7 +135,7 @@ def plot_evolution_from_initialisation(
     epochs: list[int] = [0],
     seed: int = SEED,
     filename: str = "init",
-    show_t3_true: bool = False,
+    show_true: bool = False,
 ):
     """Plot the PDF comparison from a random initialised
     model using the frozen NTK.
@@ -162,8 +162,17 @@ def plot_evolution_from_initialisation(
         tmp.set_name(rf"$\textrm{{AS @ }} T =  {{{epoch}}}$")
         grids_list.append(tmp)
 
-    if show_t3_true:
-        t3 = evolution.f_bcdms
+    if show_true:
+        add_grid_dict = {
+            "mean": evolution.f_bcdms,
+            "spec": {
+                "linestyle": "--",
+                "label": r"$\textrm{True function}$",
+                "color": "black",
+            },
+        }
+
+    ax_specs_ratio = {"set_ylim": (0.5, 1.5)}
 
     produce_pdf_plot(
         evolution.fk_grid,
@@ -171,6 +180,8 @@ def plot_evolution_from_initialisation(
         normalize_to=1,
         filename=f"pdf_plot_{filename}_{datatype}.pdf",
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
+        additional_grids=[add_grid_dict] if show_true else None,
+        ax_specs=[None, ax_specs_ratio],
     )
 
 
@@ -316,23 +327,29 @@ def main():
     # Compute evolution operators U and V
     evolution = EvolutionOperatorComputer(fitname)
 
+    # Evolution with random initialisation, at different epochs
     plot_evolution_from_initialisation(
         evolution,
         ref_epoch=ref_epoch,
         epochs=[700, 5000, 100000],
         filename="init_epochs",
     )
+    # Evolution with random initialisation, at the last epoch
     plot_evolution_from_initialisation(
-        evolution, ref_epoch=ref_epoch, epochs=[-1], filename="init_last_epoch"
+        evolution,
+        ref_epoch=ref_epoch,
+        epochs=[-1],
+        filename="init_last_epoch",
+        show_true=True,
     )
 
     # plot_evolution_from_ref(evolution, ref_epoch=ref_epoch)
     # plot_evolution_from_ref(evolution, ref_epoch=0)
 
-    # plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=100)
-    # plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=50000)
+    plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=100)
+    plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=50000)
 
-    # plot_distance(evolution, ref_epoch=ref_epoch, seed=SEED)
+    plot_distance(evolution, ref_epoch=ref_epoch, seed=SEED)
 
 
 if __name__ == "__main__":

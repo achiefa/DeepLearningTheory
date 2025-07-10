@@ -74,7 +74,7 @@ observations do not depend on the architecture.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.6\textwidth]{../plots/delta_ntk.pdf}
+  \includegraphics[width=0.6\textwidth]{../plots/ntk_pheno/delta_ntk.pdf}
   \caption{Relative variation of the NTK during training for L0, L1, and L2
   data. Error bands correspond to one-sigma uncertainties over the ensemble of
   networks.}
@@ -117,11 +117,11 @@ phase, when the NTK has stabilized, as discussed later in this article.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_1.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_2.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_3.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_4.pdf}
-  \includegraphics[width=0.48\textwidth]{../plots/ntk_eigvals_L0_L1_L2_n_5.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_pheno/ntk_eigvals_L0_L1_L2_n_1.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_pheno/ntk_eigvals_L0_L1_L2_n_2.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_pheno/ntk_eigvals_L0_L1_L2_n_3.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_pheno/ntk_eigvals_L0_L1_L2_n_4.pdf}
+  \includegraphics[width=0.48\textwidth]{../plots/ntk_pheno/ntk_eigvals_L0_L1_L2_n_5.pdf}
   \vspace{0.5cm}
   \caption{The first five eigenvalues of the NTK for L0, L1, and L2 data. Error
   bands correspond to one-sigma uncertainties over the ensemble of networks.}
@@ -147,8 +147,8 @@ $T\rightarrow\infty$ to be learned, which is unpractical.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.45\textwidth]{../plots/delta_ntk_arch.pdf}
-  \includegraphics[width=0.45\textwidth]{../plots/ntk_eigvals_single_plot_arch.pdf}
+  \includegraphics[width=0.45\textwidth]{../plots/ntk_pheno/delta_ntk_arch.pdf}
+  \includegraphics[width=0.45\textwidth]{../plots/ntk_pheno/ntk_eigvals_single_plot_arch.pdf}
   \caption{Comparison of the variation of the NTK during training (left) and the
   first three eigenvalues (right) for two different architectures with sizes
   $[28,20]$ and $[100,100]$ respectively. In both cases, L1 data is used. Error
@@ -162,7 +162,7 @@ Then there is the dependence on the architecture...
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=1\textwidth]{plots/ntk_alignment.pdf}
+  \includegraphics[width=1\textwidth]{plots/ntk_pheno/ntk_alignment.pdf}
   \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L1 data and for a
   single replica of the NTK. The matrix is shown at different epochs of the
   training process, indicated in the top of each panel. The white dashed line
