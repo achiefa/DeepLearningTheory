@@ -127,12 +127,12 @@ AS_DIR="$OUTPUT_DIR/analytical_solution"
 mkdir -p "$AS_DIR"
 # PDF plots with L0 data
 run_script "pdf_plots.py" \
-  "$L0_SET --ref-epoch 20000 --plot-dir $AS_DIR" \
+  "250604-ac-01-L0 --ref-epoch 20000 --plot-dir $AS_DIR" \
   "PDF plots with L0 data"
 
 # PDF plots with L2 data
 run_script "pdf_plots.py" \
-  "$L2_SET --ref-epoch 20000 --plot-dir $AS_DIR" \
+  "250604-ac-03-L2 --ref-epoch 20000 --plot-dir $AS_DIR" \
   "PDF plots with L2 data"
 
 
