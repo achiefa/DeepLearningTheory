@@ -57,6 +57,7 @@ def get_plot_dir() -> Path:
 def produce_pdf_plot(
     x_grid,
     grids: list[Distribution],
+    additional_grids: list[dict] | None = None,
     normalize_to=1,
     ylabel="",
     xlabel="",
@@ -94,6 +95,7 @@ def produce_pdf_plot(
             alpha=0.3,
             color=pl[0].get_color(),
         )
+
         if normalize_to == 0:
             ref_grid = grid
 
@@ -107,12 +109,20 @@ def produce_pdf_plot(
             color=pl[0].get_color(),
         )
 
+    if additional_grids is not None:
+        for additional_grid in additional_grids:
+            spec = additional_grid.get("spec", {})
+            mean = additional_grid.get("mean")
+            axs[0].plot(x_grid, mean, **spec)
+            axs[1].plot(x_grid, mean / ref_grid.get_mean(), **spec)
+
     # Set the title
     if title is not None:
         fig.suptitle(title, fontsize=FONTSIZE)
 
     # Set the ratio label
     axs[1].set_ylabel(ratio_label, fontsize=FONTSIZE)
+    axs[1].set_ylim
 
     # X labels
     axs[1].set_xlabel(xlabel, fontsize=FONTSIZE)
@@ -127,16 +137,18 @@ def produce_pdf_plot(
     axs[0].legend(fontsize=LEGENDSIZE)
 
     for idx, ax_spec in enumerate(ax_specs):
+        if ax_spec is None:
+            continue
         ax = axs.flatten()[idx]
         for key, value in ax_spec.items():
             if hasattr(ax, key):
                 if isinstance(value, dict):
                     # If value is a dict, assume it's for a method call
                     getattr(ax, key)(**value)
+                else:
+                    getattr(ax, key)(value)
             else:
-                getattr(ax, key)(value)
-        else:
-            print(f"Warning: {key} is not a valid attribute of the Axes object.")
+                print(f"Warning: {key} is not a valid attribute of the Axes object.")
 
     fig.tight_layout()
     if save_fig:
