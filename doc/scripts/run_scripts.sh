@@ -4,7 +4,7 @@
 # Usage: ./generate_plots.sh
 
 # Configuration
-CONDA_ENV_NAME="dlt"
+CONDA_ENV_NAME=$1
 OUTPUT_DIR="../plots"
 SCRIPT_DIR="./"
 CONFIG_DIR="./configs"
@@ -117,7 +117,7 @@ run_script "u_v_fluctuations.py" \
 # H section
 # ~~~~~~~~~~~~~~~~~~~~~
 run_script "eigvals_single_plot.py" \
-  "$CONFIG_DIR/h_eigvals_arch_single_plot.yaml --plot-dir $OUTPUT_DIR --filename h_eigvals_single_plot.pdf" \
+  "$CONFIG_DIR/h_eigvals_single_plot.yaml --plot-dir $OUTPUT_DIR --filename h_eigvals_single_plot.pdf" \
   "Single plot of the H eigvals"
 
 
