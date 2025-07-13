@@ -233,7 +233,7 @@ The contributions from $\check{U}^\perp(t)$ and $V(t)$ are more easily expressed
 introducing the operator
 \begin{align}
     \label{eq:MOperatorDef}
-    \mathcal{M}_{\alpha\alpha'}(t) 
+    \mathcal{M}(t)_{\alpha\alpha'} 
         = \sum_{k,k'\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha 
             \left[\sideset{}{'}\sum_{i} w^{(i)}_{k} \frac{1}{h^{(i)}}\, 
             \left( 1- e^{-h^{(i)}t}\right) w^{(i)}_{k'}\right]
@@ -243,12 +243,12 @@ Then, we can write
 \begin{align}
     \label{eq:UperpCheck}
     \check{U}^\perp(t)
-        = - \mathcal{M}\; \FKtabT C_Y^{-1} \FKtab 
+        = - \mathcal{M}(t)\; \FKtabT C_Y^{-1} \FKtab 
             \left[\sum_{k''\in\parallel} z^{(k'')} z^{(k'') T}\right]\, ,
 \end{align}
 and
 \begin{align}
-    V(t) = \mathcal{M}\; \FKtabT C_Y^{-1}\, ,
+    V(t) = \mathcal{M}(t)\; \FKtabT C_Y^{-1}\, ,
 \end{align}
 where we note that the term in the bracket in Eq.~\eqref{eq:UperpCheck} is simply the projector on the 
 kernel of the NTK. 
@@ -256,8 +256,9 @@ kernel of the NTK.
 \paragraph{Physical Interpretation.} The four terms that appear in the analytical solution have a clear physical interpretation. 
 \begin{itemize}
     \item The first term $\hat{U}^\perp(t)$ suppresses the components of the initial condition that lie in the subspace orthogonal 
-    to the kernel of the NTK. These are the components that are learned by the network during training. The suppression 
-    of the dependence on the initial condition is exponential in the training time, and the rates are given by the eigenvalues of 
+    to the kernel of the NTK. These are the components that are learned by the network during training. While the trained solution
+    still depends on its value at initialization, that dependence is suppressed during training. This suppression 
+    is exponential in the training time, and the rates are given by the eigenvalues of 
     $H^{\perp}$.
     \item The contribution from $U^\parallel$ yields the component of the initial condition that lies in the kernel of the NTK. 
     As such, those components remain unchanged during training and are part of the trained field at all times $t$. 
@@ -388,6 +389,8 @@ the evolution operators at infinite training time are
         &= \sum_{k,k'\in\perp} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'}
             \left(T^{(k') T} C_{Y}^{-1}\right)_I \, .
 \end{align}
+\ldd{To be rewritten using the expression we found in the section above. Should yield a very nice interpretation.}
+
 A more concise form is obtained by defining the matrix
 \begin{equation}
     \label{eq:PInftyDef}
