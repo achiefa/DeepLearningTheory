@@ -1,6 +1,6 @@
 arguments:
-  seed: 41412312
-  data: L0
+  seed: 2143141
+  data: L2
   max_iterations: 60000
   learning_rate: 1.0e-05
   callback_freq: 100
@@ -8,8 +8,8 @@ arguments:
   log_level: INFO
 model_info:
   architecture:
-  - 25
-  - 20
+    - 25
+    - 20
   activation: tanh
   use_scaled_input: false
   use_preprocessing: false
