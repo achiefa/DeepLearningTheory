@@ -259,9 +259,9 @@ def main():
     # Define trainable model
     train_model = tf.keras.models.Model(inputs=model_input, outputs=obs(model_input))
     if args.optimizer == "SGD":
-        optimizer = tf.keras.optimizers.SGD(learning_rate=args.learning_rate)
+        optimizer = tf.keras.optimizers.SGD(learning_rate=float(args.learning_rate))
     elif args.optimizer == "Adam":
-        optimizer = tf.keras.optimizers.Adam(learning_rate=args.learning_rate)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=float(args.learning_rate))
     else:
         raise ValueError(f"Unknown optimizer: {args.optimizer}")
     train_model.compile(optimizer=optimizer, loss=[chi2])
@@ -273,7 +273,9 @@ def main():
     )
     data = y.reshape(1, -1)
     x = fk_grid.reshape(1, -1, 1)
-    _ = train_model.fit(x, data, epochs=2000, verbose=0, callbacks=[log_cb, save_cb])
+    _ = train_model.fit(
+        x, data, epochs=int(args.max_iterations), verbose=0, callbacks=[log_cb, save_cb]
+    )
 
     log.info("Training completed")
     log.info(f"Model saved to {replica_save_dir}")
