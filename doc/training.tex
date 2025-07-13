@@ -181,8 +181,6 @@ where
 \end{align}
 guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is
 satisfied. Similarly, if we define
-\ac{The notation here is a bit confusing, with $B_i$ and $B^\perp_k$ ...}
-\ldd{I have changed B to Upsilon}
 \begin{align}
     \label{eq:BiDef}
     \Upsilon^{(i)} = \sum_{k=1}^{d_\perp} w^{(i)}_k B^\perp_{k}\, ,
@@ -231,8 +229,10 @@ and
     U^\parallel_{\alpha\alpha'}
         = \sum_{k''\in\parallel} z^{(k)}_\alpha z^{(k)}_{\alpha'} \, .
 \end{align}
-In order to write the other two contributions, we introduce the operator
+The contributions from $\check{U}^\perp(t)$ and $V(t)$ are more easily expressed by
+introducing the operator
 \begin{align}
+    \label{eq:MOperatorDef}
     \mathcal{M}_{\alpha\alpha'}(t) 
         = \sum_{k,k'\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha 
             \left[\sideset{}{'}\sum_{i} w^{(i)}_{k} \frac{1}{h^{(i)}}\, 
@@ -261,7 +261,7 @@ kernel of the NTK.
     $H^{\perp}$.
     \item The contribution from $U^\parallel$ yields the component of the initial condition that lies in the kernel of the NTK. 
     As such, those components remain unchanged during training and are part of the trained field at all times $t$. 
-    \item The two remaining contributions can be physically interpreted by combining them together,
+    \item The two remaining contributions are best understood by combining them together,
     \begin{align}
         \label{eq:DataCorrectedInference}
         \check{U}^{\perp}(t) f_{0} + V(t) Y 
@@ -319,17 +319,17 @@ kernel of the NTK.
 \subsection{Behaviour of the solution}
 \label{sec:BehaviourOfSolution}
 The solution in Eq.~\eqref{eq:AnalyticSol} is the main result of this section. It shows that the
-training process can be described as a linear transformation of the initial fields $f_{0,\alpha}$,
+training process can be described as the sum of a linear transformation of the initial fields $f_{0,\alpha}$,
 which are the preactivations of the output layer at initialization, and a linear transformation
 of the data $Y_I$. The two transformations depend on the flow time $t$ and are given by the evolution
-operators $U(t)$ and $V(t)$. Eq.~\eqref{eq:AnalyticSol} yields informations on both the central value
-and the variance of the trained fields.
+operators $U(t)$ and $V(t)$. Eq.~\eqref{eq:AnalyticSol} encode the information on the central value
+and the variance of the trained fields, and any other quantity that is derived from the PDFs. 
 
 \subsubsection{Central value of the trained fields.}
 \label{sec:CentralValue}
 The central values of the trained fields is obtained by taking the expectation value of
-Eq.~\eqref{eq:AnalyticSol} over the initial fields, which are Gaussian distributed at initialization, and over the
-fluctuations of the NTK,
+Eq.~\eqref{eq:AnalyticSol} over the initial fields, which are approximately Gaussian distributed at 
+initialization, and over the fluctuations of the NTK,
 \begin{align}
     \label{eq:MeanValAtT}
     \bar{f}_{t,\alpha} = \mathbb{E}\left[f_{t,\alpha}\right]
@@ -377,14 +377,8 @@ In the limit of infinite training time, the evolution operators $U(t)$ and $V(t)
         &= \lim_{t\to\infty}V(t)_{\alpha I}
             = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{T}^{(i)}_{I}\, .
 \end{align}
-Introducing the matrix
-\begin{align}
-    \label{eq:calMDef}
-    \mathcal{M}_{t,kk'}
-        = \sideset{}{'}\sum_{i} \sqrt{\lambda^{(k)}} w^{(i)}_{k} \frac{1}{h^{(i)}}
-            \left(1 - e^{-h^{(i)}t}\right) w^{(i)}_{k'} \sqrt{\lambda^{(k')}} \, ,
-\end{align}
-we can write the evolution operators as
+Using the operator $\mathcal{M}$, introduced in Eq.~\eqref{eq:MOperatorDef},
+the evolution operators at infinite training time are
 \begin{align}
     \label{eq:UcheckInfty}
     \check{U}^\perp_{\infty,\alpha\alpha'}
