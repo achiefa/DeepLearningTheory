@@ -27,11 +27,11 @@ class WeightStorageCallback(tf.keras.callbacks.Callback):
             self.loss_checkpoints.append(logs.get("loss", 0))
 
             # Get PDF model weights
-            pdf_model = self.model.get_layer("Observable").get_layer("PDF")
+            pdf_model = self.model.get_layer("Observable").get_layer("pdf")
 
             # Save weights to file
             weight_filename = f"{self.storage_path}/epoch_{epoch + 1}.weights.h5"
-            pdf_model.model.save_weights(weight_filename)
+            pdf_model.save_weights(weight_filename)
 
     def save_history(self, filename=None):
         """Save the complete training history to a file"""

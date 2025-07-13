@@ -1,15 +1,15 @@
 arguments:
-  seed: 21312
-  data: L2
-  tolerance: 0.0
-  max_iterations: 50000
+  seed: 1241
+  data: L0
+  max_iterations: 2000
   learning_rate: 1.0e-05
-  callback_rate: 100
+  callback_freq: 100
   optimizer: SGD
   log_level: INFO
-  profiler: false
 model_info:
-  layers:
+  architecture:
   - 28
   - 20
   activation: tanh
+  use_scaled_input: true
+  use_preprocessing: true

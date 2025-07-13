@@ -46,7 +46,7 @@ def save_metadata(args, save_dir):
             "log_level": args.log_level,
         },
         "model_info": {
-            "architecture": args.layers,
+            "architecture": args.architecture,
             "activations": args.activation,
             "kernel_initializer": "GlorotNormal",
             "outputs": 1,
@@ -122,7 +122,7 @@ def parse_args():
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
     )
     parser.add_argument(
-        "--layers",
+        "--architecture",
         help="Architecture of the network",
         type=int,
         nargs="+",
@@ -236,8 +236,8 @@ def main():
     log.info("Generating PDF model")
     pdf_model = generate_pdf_model(
         outputs=1,
-        architecture=args.layers,
-        activations=[args.activation for _ in range(len(args.layers))],
+        architecture=args.architecture,
+        activations=[args.activation for _ in range(len(args.architecture))],
         kernel_initializer="GlorotNormal",
         bias_initializer="zeros",
         user_ki_args=None,
@@ -246,6 +246,7 @@ def main():
         preprocessing=args.use_preprocessing,
     )
     pdf_model.summary()
+    pdf_model.get_layer("pdf_raw").summary()
     model_input = pdf_model.input
 
     # Prepare convolution layer
@@ -257,7 +258,6 @@ def main():
 
     # Define trainable model
     train_model = tf.keras.models.Model(inputs=model_input, outputs=obs(model_input))
-    train_model.summary()
     if args.optimizer == "SGD":
         optimizer = tf.keras.optimizers.SGD(learning_rate=args.learning_rate)
     elif args.optimizer == "Adam":

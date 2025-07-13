@@ -81,13 +81,13 @@ def generate_pdf_model(
             if key in ki_args.keys() and value is not None:
                 ki_args[key] = value
 
-    input_layer_raw = input_layer = tf.keras.layers.Input(shape=(None, 1), name="xgrid")
+    input_layer = tf.keras.layers.Input(shape=(None, 1), name="xgrid")
+
+    pdf_raw = tf.keras.Sequential(name="pdf_raw")
 
     if scaled_input:
-        input_layer = InputScaling()
-
-    pdf_raw = tf.keras.Sequential(name="pdf")
-    pdf_raw.add(input_layer)
+        scaled_input = InputScaling()
+        pdf_raw.add(scaled_input)
 
     for l_idx, layer in enumerate(architecture):
         ki_args_layer = ki_args.copy()
@@ -124,9 +124,9 @@ def generate_pdf_model(
         final_result = mm_layer(
             [pdf_raw(input_layer), preprocessing_factor(input_layer)]
         )
-        return tf.keras.models.Model(input_layer, final_result, name="PDF")
+        return tf.keras.models.Model(input_layer, final_result, name="pdf")
 
-    return tf.keras.models.Model(input_layer_raw, pdf_raw(input_layer_raw), name="PDF")
+    return tf.keras.models.Model(input_layer, pdf_raw(input_layer), name="pdf")
 
 
 def load_trained_model(replica_dir, epoch=None):
@@ -158,7 +158,6 @@ def load_trained_model(replica_dir, epoch=None):
     # For backward compatibility, ensure keys exist
     model_config.setdefault("use_scaled_input", False)
     model_config.setdefault("use_preprocessing", False)
-    print(f"{model_config['architecture']}")
 
     # Reconstruct the PDF model with same configuration
     pdf_model = generate_pdf_model(
