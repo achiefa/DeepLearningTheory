@@ -6,7 +6,12 @@ import tensorflow as tf
 import yaml
 
 from yadlt.distribution import Distribution
-from yadlt.model import PDFmodel
+from yadlt.load_data import (
+    load_bcdms_cov,
+    load_bcdms_fk,
+    load_bcdms_grid,
+    load_bcdms_pdf,
+)
 
 MODULE_DIR = Path(__file__).parent
 FIT_FOLDER = (MODULE_DIR / "../Results/fits").resolve()
@@ -103,15 +108,10 @@ class EvolutionOperatorComputer:
 
     def _load_bcdms_data(self):
         """Load BCDMS data required for evolution operator computation."""
-        import importlib.resources as pkg_resources
-
-        from yadlt import data
-
-        data_path = Path(pkg_resources.files(data) / "BCDMS_data")
-        self.fk_grid = np.load(data_path / "fk_grid.npy")
-        self.FK = np.load(data_path / "FK.npy")
-        self.f_bcdms = np.load(data_path / "f_bcdms.npy")
-        self.Cy = np.load(data_path / "Cy.npy")
+        self.fk_grid = load_bcdms_grid()
+        self.FK = load_bcdms_fk()
+        self.f_bcdms = load_bcdms_pdf()
+        self.Cy = load_bcdms_cov()
         self.Cinv = np.linalg.inv(self.Cy)
         self.M = self.FK.T @ self.Cinv @ self.FK
 

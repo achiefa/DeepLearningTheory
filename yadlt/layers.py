@@ -1,55 +1,50 @@
-from typing import Dict
-
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import ops
 
 
-class Observable_layer(tf.keras.layers.Layer):
-    def __init__(self, fk_dict: Dict, **kwargs):
-        """
-        Custom layer that contracts the output of the neural network with the FK tables
-        to produce the theoretical prediction.
+class Preprocessing(tf.keras.layers.Layer):
+    """This layer represents the preprocessing function that multiplies
+    the model by (1 - x)**(1 + beta)"""
 
-        Parametsrs
-        ----------
-        fk_dict: Dict
-          Dictionary containing the FK tables for each experiment.
-          Each FK table is a Tensor of shape (Ndat, x_grid, Flavours)
-          that will be used for contraction.
-          It is assumed that all FK tables are padded such that
-          x_grid = 50.
-        """
-        super(Observable_layer, self).__init__(**kwargs)
-        self.FK = fk_dict
+    def build(self, input_shape):
+        self._beta = self.add_weight(
+            shape=(1,),
+            trainable=True,
+            name="beta",
+            constraint=tf.keras.constraints.non_neg(),
+            initializer="ones",
+        )
 
-    def call(self, f_pred):
-        """
-        Performs the contraction between the output of the neural
-        network (shape: (x_grid, flavours)) and the FK tables.
+    def call(self, x):
+        return (1.0 - x) ** (self._beta + 1.0)
 
-        Parameters
-        ----------
-        f_pred: Output of the neural network (shape: (x_grid, flavours)).
 
-        Return
-        -------
-        Returns a dictionary {exp : predictions}, where predictions is an
-        array of the Ndat predictions for a given experiment.
-        """
+class InputScaling(tf.keras.layers.Layer):
+    """This layer applies the logarithmic scaling to the input
+    and concatenates it.
+    """
 
-        # Perform the contraction: sum over the second and third axes
-        g = {}
-        for exp, fk in self.A.items():
-            g[exp] = tf.einsum("Iia, ia -> I ", fk, f_pred)
-        return g
+    def call(self, x):
+        return tf.concat([x, tf.math.log(x)], axis=-1)
 
-    # TODO
-    # This might be necessary for serialization.
-    # Maybe deprecated ...?
-    def get_config(self):
-        config = super().get_config()
-        config.update({"FK": self.FK})
-        return config
+
+class Convolution(tf.keras.layers.Layer):
+    """Applies the convolution operation to the output of the model"""
+
+    def __init__(self, fktables, basis, nfl=1, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._fktables = tf.constant(fktables, dtype=tf.float32)
+        basis_mask = np.zeros(nfl, dtype=np.float32)
+        for i in basis:
+            basis_mask[i] = True
+        self._basis_mask = tf.constant(basis_mask)
+
+    def call(self, pdf):
+        """Convolution operation"""
+        pdf_reshaped = tf.squeeze(pdf, axis=0)  # Remove batch dimension
+        masked_pdf = tf.boolean_mask(pdf_reshaped, self._basis_mask, axis=1)
+        return tf.einsum("nfx, xf -> n", self._fktables, masked_pdf)
 
 
 class MyDense(tf.keras.layers.Dense):
