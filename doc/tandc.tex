@@ -55,8 +55,8 @@ using L0 data}
 % L0 data
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.48\textwidth]{plots/pdf_plot_init_last_epoch_L0.pdf}
-    \includegraphics[width=0.48\textwidth]{plots/pdf_plot_init_epochs_L0.pdf}
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_last_epoch_L0.pdf}
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_epochs_L0.pdf}
     \caption{Comparison of the trained solution at the end of training and
     the analytical solution using L0 data. In both panels, the
     frozen NTK is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$
@@ -68,18 +68,7 @@ using L0 data}
   % ===================================
   \begin{figure}[h]
     \centering
-    \includegraphics[width=0.48\textwidth]{plots/pdf_plot_ref_0_L0.pdf}
-    \caption{Comparison of the trained solution at the end of training and
-    the analytical solution using L0 data. Different from
-    Fig.~\ref{fig:xT3_analytical_init_L0}, here both the frozen NTK and the
-    initial function $f_0$ are chosen at $T_{\rm ref} = 0$. The analytical
-    solution is then  evolved for $T_{\rm tot}$ epochs.}
-    \label{fig:xT3_analytical_tref0_L0}
-  \end{figure}
-  % ===================================
-  \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.48\textwidth]{plots/distance_plot_L0.pdf}
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_L0.pdf}
     \caption{PDF distance, as defined in Ref.~\cite{NNPDF:2021njg}, with respect to
     the trained solution at the end of training and analytical
     solutions for various initial conditions and evolution epochs.}
@@ -90,22 +79,15 @@ using L0 data}
   % L2 data
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.48\textwidth]{plots/pdf_plot_init_last_epoch_L2.pdf}
-    \includegraphics[width=0.48\textwidth]{plots/pdf_plot_init_epochs_L2.pdf}
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_last_epoch_L2.pdf}
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_epochs_L2.pdf}
     \caption{Same as Fig.~\ref{fig:xT3_analytical_init_L0}, but using L2 data.}
     \label{fig:xT3_analytical_init_L2}
   \end{figure}
   % ===================================
   \begin{figure}[h]
     \centering
-    \includegraphics[width=0.48\textwidth]{plots/pdf_plot_ref_0_L2.pdf}
-    \caption{Same as Fig.~\ref{fig:xT3_analytical_tref0_L0}, but using L2 data.}
-    \label{fig:xT3_analytical_tref0_L2}
-  \end{figure}
-  % ===================================
-  \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.48\textwidth]{plots/distance_plot_L2.pdf}
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_L2.pdf}
     \caption{Same as Fig.~\ref{fig:xT3_distance_L0}, but using L2 data.}
     \label{fig:xT3_distance_L2}
   \end{figure}
@@ -114,8 +96,8 @@ using L0 data}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.45\textwidth]{plots/pdf_plot_u_v_100_L0.pdf}
-    \includegraphics[width=0.45\textwidth]{plots/pdf_plot_u_v_50000_L0.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_100_L0.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_50000_L0.pdf}
     \caption{Contribution of the $U$ and $V$ terms to the analytical solution. The left
     panel shows this breakdown at early stages of the analytical training
     ($T=100$ epochs); the right panel shows the contributions at the end of
@@ -126,8 +108,8 @@ using L0 data}
 
   \begin{figure}[h]
     \centering
-    \includegraphics[width=0.45\textwidth]{plots/pdf_plot_u_v_100_L2.pdf}
-    \includegraphics[width=0.45\textwidth]{plots/pdf_plot_u_v_50000_L2.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_100_L2.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_50000_L2.pdf}
     \caption{Same as Fig.~\ref{fig:xT3_u_v_contributions_L0}, but using L2 data.}
     \label{fig:xT3_u_v_contributions_L2}
   \end{figure}

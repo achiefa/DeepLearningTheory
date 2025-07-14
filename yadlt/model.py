@@ -19,18 +19,72 @@ h5py_logger = logging.getLogger("h5py")
 h5py_logger.setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
-MAX_LAYER = 100
+MAX_LAYER = 100000
+
+
+def helper_zero_kernel_initializer(**args):
+    """
+    Wrapper for a zero kernel initializer.
+    """
+    return Kinit.Zeros
+
 
 supported_kernel_initializers = {
     "RandomNormal": (Kinit.RandomNormal, {"mean": 0.0, "stddev": 1, "seed": 0}),
     "HeNormal": (Kinit.HeNormal, {"seed": 0}),
     "GlorotNormal": (Kinit.GlorotNormal, {"seed": 0}),
+    "zeros": (helper_zero_kernel_initializer, {}),
 }
 
 # supported_optmizer = {
 #     "SGD": tf.optimizers.SGD,
 #     "Adam": tf.optimizers.Adam,
 # }
+
+
+@tf.function(reduce_retracing=True)
+def compute_ntk_static(inputs, model, outputs):
+    """
+    Optimized Neural Tangent Kernel computation.
+    This function computes the NTK in a more efficient way by
+    leveraging static shapes and avoiding unnecessary operations.
+
+    This function avoids reretracing by using `tf.function` with `reduce_retracing=True`.
+
+    Albeit a similar function exists in the model class, this one is optimized and
+    avoid retracing by using static shapes and a single operation to compute the NTK.
+
+    TODO: The two functions should be merged, but this requires some refactoring
+    """
+    with tf.GradientTape(persistent=False) as tape:
+        predictions = model(inputs)
+        jacobian = tape.jacobian(predictions, model.trainable_variables)
+
+    # Get the actual batch size from predictions shape
+    batch_size = tf.shape(predictions)[0]
+    seq_length = tf.shape(predictions)[1]
+
+    if outputs == 1:
+        # Concatenate jacobians along the parameter dimension
+        jac_list = []
+        for jac in jacobian:
+            # Reshape to (batch_size * seq_length, -1) to handle the sequence dimension
+            jac_flat = tf.reshape(jac, (batch_size * seq_length, -1))
+            jac_list.append(jac_flat)
+
+        # Concatenate all parameter jacobians
+        full_jacobian = tf.concat(jac_list, axis=1)  # Shape: [input_size, total_params]
+
+        # Compute NTK in one operation
+        ntk = tf.matmul(full_jacobian, full_jacobian, transpose_b=True)
+
+    else:
+        # Multiple outputs case
+        raise NotImplementedError(
+            "Multiple outputs optimization not implemented. Use original method."
+        )
+
+    return ntk
 
 
 class Chi2:
@@ -167,7 +221,7 @@ def load_trained_model(replica_dir, epoch=None):
             model_config["activations"]
             for _ in range(len(model_config["architecture"]))
         ],
-        kernel_initializer=model_config["kernel_initializer"],
+        kernel_initializer="zeros",  # model_config["kernel_initializer"],
         bias_initializer="zeros",
         user_ki_args=None,
         seed=args_config["seed"],  # Use same seed as training
@@ -176,7 +230,7 @@ def load_trained_model(replica_dir, epoch=None):
     )
 
     # Find and load weights
-    if epoch is None:
+    if epoch is None or epoch == -1:
         # Find the latest epoch
         weight_files = list(replica_dir.glob("epoch_*.weights.h5"))
         if not weight_files:
@@ -192,7 +246,11 @@ def load_trained_model(replica_dir, epoch=None):
         raise FileNotFoundError(f"PDF weight file not found: {weight_file}")
 
     # Load weights directly into PDF model
-    pdf_model.load_weights(weight_file)
+    try:
+        pdf_model.load_weights(weight_file)
+    except ValueError as e:  # Handle legacy
+        model = pdf_model.layers[1]
+        model.load_weights(weight_file)
 
     logger.info(f"PDF model loaded from: {weight_file}")
     return pdf_model, metadata

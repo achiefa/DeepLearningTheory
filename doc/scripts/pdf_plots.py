@@ -10,7 +10,7 @@ import numpy as np
 
 from yadlt.distribution import Distribution
 from yadlt.evolution import EvolutionOperatorComputer
-from yadlt.model import PDFmodel
+from yadlt.model import generate_pdf_model, load_trained_model
 from yadlt.plotting import produce_distance_plot, produce_pdf_plot
 
 SEED = 1423413
@@ -18,7 +18,7 @@ WEIGHTS_TOKEN = "weights.h5"
 
 
 @functools.cache
-def load_trained_model(evolution, epoch=-1):
+def load_model(evolution, epoch=-1):
     # Extract the last common epoch from the ensemble of replicas
     common_epochs = evolution.epochs
     epoch_idx = -1 if epoch == -1 else common_epochs.index(epoch)
@@ -41,11 +41,13 @@ def load_trained_model(evolution, epoch=-1):
 
     xT3_training = Distribution("xT3_training")
 
+    grid = evolution.fk_grid
+    x = np.array(grid).reshape(1, -1, 1)
+
     for replica_path in replicas_folders:
-        replica = replica_path.name
-        epoch = replica_epochs_dict[replica][epoch_idx]
-        model = PDFmodel.load_model(replica_path / "config.json", epoch)
-        xT3_training.add(model.predict().numpy().reshape(-1))
+        epoch = common_epochs[epoch_idx]
+        model, _ = load_trained_model(replica_path, epoch)
+        xT3_training.add(model(x).numpy().reshape(-1))
 
     return xT3_training
 
@@ -67,19 +69,20 @@ def produce_model_at_initialisation(
 ):
     """Initialise a model at random initialisation."""
     xT3_0 = Distribution("xT3 at initialisation")
+    x = np.array(fk_grid_tuple).reshape(1, -1, 1)
     for rep in range(replicas):
-        model = PDFmodel(
-            dense_layer="Dense",
-            input=np.array(fk_grid_tuple),
+        model = generate_pdf_model(
             outputs=1,
             architecture=list(architecture_tuple),
             activations=["tanh", "tanh"],
             kernel_initializer="GlorotNormal",
             user_ki_args=None,
             seed=seed + rep,
+            scaled_input=False,
+            preprocessing=False,
         )
 
-        xT3_0.add(model.predict().numpy().reshape(-1))
+        xT3_0.add(model(x).numpy().reshape(-1))
 
     return xT3_0
 
@@ -89,7 +92,7 @@ def xt3_from_ref(evolution: EvolutionOperatorComputer, ref_epoch: int = 0):
     of the training process using the boundary condition of the
     reference epoch."""
     # Load trained solution (at reference epoch)
-    xT3_ref = load_trained_model(evolution, ref_epoch)
+    xT3_ref = load_model(evolution, ref_epoch)
     xT3_ref.set_name(r"$\textrm{TS @ reference epoch}$")
 
     data_by_replica_original = load_data(evolution)
@@ -145,7 +148,7 @@ def plot_evolution_from_initialisation(
     datatype = metadata["arguments"]["data"]
 
     # Load trained solution
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(evolution, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Prepare evolution from initialisation and NTK frozen
@@ -195,7 +198,7 @@ def plot_evolution_from_ref(evolution, ref_epoch: int = 0):
     datatype = metadata["arguments"]["data"]
 
     # Load trained solution (end of training)
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(evolution, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Load data
@@ -204,7 +207,7 @@ def plot_evolution_from_ref(evolution, ref_epoch: int = 0):
     learning_rate = evolution.learning_rate
 
     # Load trained solution (at reference epoch)
-    xT3_ref = load_trained_model(evolution, ref_epoch)
+    xT3_ref = load_model(evolution, ref_epoch)
     xT3_ref.set_name(r"$\textrm{TS @ reference epoch}$")
 
     t = (common_epochs[-1] - ref_epoch) * learning_rate
@@ -232,7 +235,7 @@ def plot_distance(
     last_epoch = evolution.epochs[-1]
 
     # Load trained solution at the end of training
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(evolution, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Prepare evolution from initialisation and NTK frozen
@@ -267,7 +270,7 @@ def plot_u_v_contributions(evolution, ref_epoch: int = 0, ev_epoch: int = 1000):
     datatype = metadata["arguments"]["data"]
 
     # Load trained solution (end of training)
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(evolution, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Load data
@@ -278,7 +281,7 @@ def plot_u_v_contributions(evolution, ref_epoch: int = 0, ev_epoch: int = 1000):
     t = ev_epoch * learning_rate
 
     # Load trained solution (at reference epoch)
-    xT3_ref = load_trained_model(evolution, ref_epoch)
+    xT3_ref = load_model(evolution, ref_epoch)
     xT3_ref.set_name(rf"$\textrm{{TS @ }} T_{{\rm ref}}$")
 
     # Evolve the solution
@@ -342,9 +345,6 @@ def main():
         filename="init_last_epoch",
         show_true=True,
     )
-
-    # plot_evolution_from_ref(evolution, ref_epoch=ref_epoch)
-    # plot_evolution_from_ref(evolution, ref_epoch=0)
 
     plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=100)
     plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=50000)

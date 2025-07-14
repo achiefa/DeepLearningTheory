@@ -27,7 +27,7 @@ dynamics change as it learns the target function.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.90\textwidth]{../plots/ntk_initialization_with_uncertainty.pdf}
+  \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_with_uncertainty.pdf}
   \caption{Frobenius norm of the NTK at initialisation, $\lVert \Theta_0
   \rVert$, in function of the width of the network. On the left, central values
   and uncertainty bands are obtained as mean and one-sigma deviation of the
@@ -39,7 +39,7 @@ dynamics change as it learns the target function.
 % ===================================
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.90\textwidth]{plots/ntk_eigenvalue_spectrum.pdf}
+  \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_arch.pdf}
   \caption{Spectrum of the NTK for the first three architectures displayed in
   Fig.~\ref{fig:NTKInit}. \ac{I'm thinking of removing uncertainty bands.}}
   \label{fig:NTKSpectrum}
@@ -106,13 +106,6 @@ adopted in the literature. We conclude that, in this phase, the NTK does not
 change significantly. As a consequence, this suggests that the theory of the
 infinite-width networks during training can be applied only after the initial
 phase, when the NTK has stabilized, as discussed later in this article.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.75\textwidth]{plots/eigval_L0.pdf}
-  \caption{First eigenvalues of the NTK.}
-  \label{fig:NTKFirstEigval}
-\end{figure}
 
 % ===================================
 \begin{figure}[h!]
