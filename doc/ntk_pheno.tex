@@ -39,8 +39,9 @@ dynamics change as it learns the target function.
 % ===================================
 \begin{figure}[h!]
   \centering
+
   \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_arch.pdf}
-  \caption{Spectrum of the NTK for the first three architectures displayed in
+  \caption{Spectrum of the NTK for the architectures shown in
   Fig.~\ref{fig:NTKInit}. \ac{I'm thinking of removing uncertainty bands.}}
   \label{fig:NTKSpectrum}
 \end{figure}
@@ -107,6 +108,13 @@ change significantly. As a consequence, this suggests that the theory of the
 infinite-width networks during training can be applied only after the initial
 phase, when the NTK has stabilized, as discussed later in this article.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.75\textwidth]{plots/eigval_L0.png}
+  \caption{First eigenvalues of the NTK.}
+  \label{fig:NTKFirstEigval}
+\end{figure}
+
 % ===================================
 \begin{figure}[h!]
   \centering
@@ -149,7 +157,9 @@ $T\rightarrow\infty$ to be learned, which is unpractical.
   \label{fig:NTKTimeDiffArch}
 \end{figure}
 % ===================================
-Then there is the dependence on the architecture...
+
+\ldd{Then there is the dependence on the architecture... are we going to repeat this for three/four different
+architectures?}
 
 
 % ===================================
