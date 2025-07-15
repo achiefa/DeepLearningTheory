@@ -86,6 +86,10 @@ print_status "Starting plot generation..."
 # ~~~~~~~~~~~~~~~~~~~~~
 NTK_PHENO_DIR="$OUTPUT_DIR/ntk_pheno"
 mkdir -p "$NTK_PHENO_DIR"
+run_script "ntk_initialisation.py" \
+  "--n-replicas 100 --plot-dir $NTK_PHENO_DIR" \
+  "Plot of the NTK at initialisation"
+
 run_script "delta_ntk_plots.py" \
   "$CONFIG_DIR/delta_ntk.yaml --plot-dir $NTK_PHENO_DIR --filename delta_ntk.pdf" \
   "Plot of delta ntk for LO L1 and L2 data"
@@ -116,9 +120,15 @@ run_script "u_v_fluctuations.py" \
 
 # H section
 # ~~~~~~~~~~~~~~~~~~~~~
+H_MATRIX_DIR="$OUTPUT_DIR/h_matrix"
+mkdir -p "$H_MATRIX_DIR"
 run_script "eigvals_single_plot.py" \
-  "$CONFIG_DIR/h_eigvals_single_plot.yaml --plot-dir $OUTPUT_DIR --filename h_eigvals_single_plot.pdf" \
-  "Single plot of the H eigvals"
+  "$CONFIG_DIR/h_eigvals_single_plot_L0.yaml --plot-dir $H_MATRIX_DIR --filename h_eigvals_single_plot_L0.pdf" \
+  "Single plot of the H eigvals L0"
+
+run_script "eigvals_single_plot.py" \
+  "$CONFIG_DIR/h_eigvals_single_plot_L1.yaml --plot-dir $H_MATRIX_DIR --filename h_eigvals_single_plot_L1.pdf" \
+  "Single plot of the H eigvals L1"
 
 
 # Analytical evolution
@@ -142,7 +152,7 @@ run_script "pdf_plots.py" \
 
 print_success "All plots generated successfully!"
 print_status "Plots saved to: $OUTPUT_DIR"
-print_status "Files generated:"
-ls -la "$OUTPUT_DIR"
+# print_status "Files generated:"
+# ls -la "$OUTPUT_DIR"
 
 print_success "Plot generation complete! 🎉"

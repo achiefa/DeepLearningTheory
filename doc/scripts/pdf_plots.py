@@ -8,9 +8,10 @@ import functools
 
 import numpy as np
 
+from yadlt.context import FitContext
 from yadlt.distribution import Distribution
 from yadlt.evolution import EvolutionOperatorComputer
-from yadlt.model import PDFmodel
+from yadlt.model import generate_pdf_model, load_trained_model
 from yadlt.plotting import produce_distance_plot, produce_pdf_plot
 
 SEED = 1423413
@@ -18,45 +19,32 @@ WEIGHTS_TOKEN = "weights.h5"
 
 
 @functools.cache
-def load_trained_model(evolution, epoch=-1):
+def load_model(context, epoch=-1):
     # Extract the last common epoch from the ensemble of replicas
-    common_epochs = evolution.epochs
+    common_epochs = context.get_config("replicas", "common_epochs")
+    replicas_folders = context.get_config("folders", "replicas_folders")
     epoch_idx = -1 if epoch == -1 else common_epochs.index(epoch)
-
-    # Extract replicas from the fit folder
-    replicas_folders = [
-        f for f in evolution.fit_folder.iterdir() if f.is_dir() and "replica" in str(f)
-    ]
-    replicas_folders.sort()
-
-    replica_epochs_dict = {}
-    for replica_folder in replicas_folders:
-        epochs = [
-            f
-            for f in replica_folder.iterdir()
-            if f.is_file() and WEIGHTS_TOKEN in str(f)
-        ]
-        epochs.sort()
-        replica_epochs_dict[replica_folder.name] = epochs
 
     xT3_training = Distribution("xT3_training")
 
+    grid = context.load_fk_grid()
+    x = np.array(grid).reshape(1, -1, 1)
+
     for replica_path in replicas_folders:
-        replica = replica_path.name
-        epoch = replica_epochs_dict[replica][epoch_idx]
-        model = PDFmodel.load_model(replica_path / "config.json", epoch)
-        xT3_training.add(model.predict().numpy().reshape(-1))
+        epoch = common_epochs[epoch_idx]
+        model, _ = load_trained_model(replica_path, epoch)
+        xT3_training.add(model(x).numpy().reshape(-1))
 
     return xT3_training
 
 
 @functools.cache
-def load_data(evolution):
+def load_data(context: FitContext):
     # Load the data used to fit the replicas
     data_by_replica_original = Distribution("Original replicas of the data")
 
-    for rep in range(evolution.replicas):
-        data = np.load(evolution.fit_folder / f"replica_{rep+1}" / "data.npy")
+    for rep in range(context.get_property("nreplicas")):
+        data = context.get_data_by_replica(rep)
         data_by_replica_original.add(data)
     return data_by_replica_original
 
@@ -67,32 +55,35 @@ def produce_model_at_initialisation(
 ):
     """Initialise a model at random initialisation."""
     xT3_0 = Distribution("xT3 at initialisation")
+    x = np.array(fk_grid_tuple).reshape(1, -1, 1)
     for rep in range(replicas):
-        model = PDFmodel(
-            dense_layer="Dense",
-            input=np.array(fk_grid_tuple),
+        model = generate_pdf_model(
             outputs=1,
             architecture=list(architecture_tuple),
             activations=["tanh", "tanh"],
             kernel_initializer="GlorotNormal",
             user_ki_args=None,
             seed=seed + rep,
+            scaled_input=False,
+            preprocessing=False,
         )
 
-        xT3_0.add(model.predict().numpy().reshape(-1))
+        xT3_0.add(model(x).numpy().reshape(-1))
 
     return xT3_0
 
 
-def xt3_from_ref(evolution: EvolutionOperatorComputer, ref_epoch: int = 0):
+def xt3_from_ref(context: FitContext, ref_epoch: int = 0):
     """Utility function to compute the xT3 from a reference epoch
     of the training process using the boundary condition of the
     reference epoch."""
     # Load trained solution (at reference epoch)
-    xT3_ref = load_trained_model(evolution, ref_epoch)
+    xT3_ref = load_model(context, ref_epoch)
     xT3_ref.set_name(r"$\textrm{TS @ reference epoch}$")
 
-    data_by_replica_original = load_data(evolution)
+    data_by_replica_original = load_data(context)
+
+    evolution = EvolutionOperatorComputer(context)
 
     def func(t: float):
         U, V = evolution.compute_evolution_operator(ref_epoch, t)
@@ -102,15 +93,12 @@ def xt3_from_ref(evolution: EvolutionOperatorComputer, ref_epoch: int = 0):
     return func
 
 
-def xt3_from_initialisation(
-    evolution: EvolutionOperatorComputer, ref_epoch: int = 0, seed: int = SEED
-):
+def xt3_from_initialisation(context: FitContext, ref_epoch: int = 0, seed: int = SEED):
     """Utility function to compute the xT3 from a random initialisation
     using a frozen NTK specified by the reference epoch."""
-    replicas = evolution.replicas
-    fk_grid = evolution.fk_grid
-    metadata = evolution.metadata
-    arch_tuple = tuple(metadata["model_info"]["architecture"])
+    replicas = context.get_property("nreplicas")
+    fk_grid = context.load_fk_grid()
+    arch_tuple = tuple(context.get_config("metadata", "model_info")["architecture"])
 
     xT3_0 = produce_model_at_initialisation(
         replicas=replicas,
@@ -118,7 +106,9 @@ def xt3_from_initialisation(
         architecture_tuple=arch_tuple,
         seed=seed,
     )
-    data_by_replica_original = load_data(evolution)
+    data_by_replica_original = load_data(context)
+
+    evolution = EvolutionOperatorComputer(context)
 
     def func(t: float):
         # Load data
@@ -130,7 +120,7 @@ def xt3_from_initialisation(
 
 
 def plot_evolution_from_initialisation(
-    evolution: EvolutionOperatorComputer,
+    context: FitContext,
     ref_epoch: 0,
     epochs: list[int] = [0],
     seed: int = SEED,
@@ -140,22 +130,24 @@ def plot_evolution_from_initialisation(
     """Plot the PDF comparison from a random initialised
     model using the frozen NTK.
     """
-    learning_rate = evolution.learning_rate
-    metadata = evolution.metadata
-    datatype = metadata["arguments"]["data"]
+    learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
+    datatype = context.get_config("metadata", "arguments")["data"]
+    common_epochs = context.get_config("replicas", "common_epochs")
+    f_bcdms = context.load_f_bcdms()
+    fk_grid = context.load_fk_grid()
 
     # Load trained solution
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(context, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Prepare evolution from initialisation and NTK frozen
-    xT3_t = xt3_from_initialisation(evolution, ref_epoch=ref_epoch, seed=seed)
+    xT3_t = xt3_from_initialisation(context, ref_epoch=ref_epoch, seed=seed)
 
     # Evolve the solution for each epoc
     grids_list = []
     for epoch in epochs:
         if epoch == -1:
-            epoch = evolution.epochs[-1]
+            epoch = common_epochs[-1]
 
         evolution_time = epoch * learning_rate
         tmp = xT3_t(evolution_time)
@@ -164,7 +156,7 @@ def plot_evolution_from_initialisation(
 
     if show_true:
         add_grid_dict = {
-            "mean": evolution.f_bcdms,
+            "mean": f_bcdms,
             "spec": {
                 "linestyle": "--",
                 "label": r"$\textrm{True function}$",
@@ -175,7 +167,7 @@ def plot_evolution_from_initialisation(
     ax_specs_ratio = {"set_ylim": (0.5, 1.5)}
 
     produce_pdf_plot(
-        evolution.fk_grid,
+        fk_grid,
         [xT3_training, *grids_list],
         normalize_to=1,
         filename=f"pdf_plot_{filename}_{datatype}.pdf",
@@ -195,7 +187,7 @@ def plot_evolution_from_ref(evolution, ref_epoch: int = 0):
     datatype = metadata["arguments"]["data"]
 
     # Load trained solution (end of training)
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(evolution, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Load data
@@ -204,7 +196,7 @@ def plot_evolution_from_ref(evolution, ref_epoch: int = 0):
     learning_rate = evolution.learning_rate
 
     # Load trained solution (at reference epoch)
-    xT3_ref = load_trained_model(evolution, ref_epoch)
+    xT3_ref = load_model(evolution, ref_epoch)
     xT3_ref.set_name(r"$\textrm{TS @ reference epoch}$")
 
     t = (common_epochs[-1] - ref_epoch) * learning_rate
@@ -222,24 +214,23 @@ def plot_evolution_from_ref(evolution, ref_epoch: int = 0):
     )
 
 
-def plot_distance(
-    evolution: EvolutionOperatorComputer, ref_epoch: int = 0, seed: int = SEED
-):
+def plot_distance(context: FitContext, ref_epoch: int = 0, seed: int = SEED):
     """Produce a distance plot wrt the trained solution."""
-    metadata = evolution.metadata
+    metadata = context.get_config("metadata")
     datatype = metadata["arguments"]["data"]
-    learning_rate = evolution.learning_rate
-    last_epoch = evolution.epochs[-1]
+    learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
+    last_epoch = context.get_config("replicas", "common_epochs")[-1]
+    fk_grid = context.load_fk_grid()
 
     # Load trained solution at the end of training
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(context, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Prepare evolution from initialisation and NTK frozen
-    xT3_init_t = xt3_from_initialisation(evolution, ref_epoch=ref_epoch, seed=seed)
+    xT3_init_t = xt3_from_initialisation(context, ref_epoch=ref_epoch, seed=seed)
 
     # Prepare evolution from reference epoch
-    xT3_ref_t = xt3_from_ref(evolution, ref_epoch=0)
+    xT3_ref_t = xt3_from_ref(context, ref_epoch=0)
 
     # Prepare the grids
     xT3_baseline = xT3_init_t(last_epoch * learning_rate)
@@ -250,7 +241,7 @@ def plot_distance(
     xT3_lazy.set_name(r"$\textrm{AS lazy}$")
 
     produce_distance_plot(
-        evolution.fk_grid,
+        fk_grid,
         [xT3_training, xT3_baseline, xT3_bl_epochs, xT3_lazy],
         normalize_to=1,
         filename=f"distance_plot_{datatype}.pdf",
@@ -261,25 +252,27 @@ def plot_distance(
     )
 
 
-def plot_u_v_contributions(evolution, ref_epoch: int = 0, ev_epoch: int = 1000):
+def plot_u_v_contributions(context, ref_epoch: int = 0, ev_epoch: int = 1000):
     """Plot the contributions of U and V to the total operator."""
-    metadata = evolution.metadata
-    datatype = metadata["arguments"]["data"]
+    datatype = context.get_config("metadata", "arguments")["data"]
+    fk_grid = context.load_fk_grid()
 
     # Load trained solution (end of training)
-    xT3_training = load_trained_model(evolution, -1)
+    xT3_training = load_model(context, -1)
     xT3_training.set_name(r"$\textrm{TS}$")
 
     # Load data
-    data_by_replica_original = load_data(evolution)
+    data_by_replica_original = load_data(context)
 
     # Get learning rate
-    learning_rate = evolution.learning_rate
+    learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
     t = ev_epoch * learning_rate
 
     # Load trained solution (at reference epoch)
-    xT3_ref = load_trained_model(evolution, ref_epoch)
+    xT3_ref = load_model(context, ref_epoch)
     xT3_ref.set_name(rf"$\textrm{{TS @ }} T_{{\rm ref}}$")
+
+    evolution = EvolutionOperatorComputer(context)
 
     # Evolve the solution
     U, V = evolution.compute_evolution_operator(ref_epoch, t)
@@ -289,7 +282,7 @@ def plot_u_v_contributions(evolution, ref_epoch: int = 0, ev_epoch: int = 1000):
     xT3_t_v.set_name(r"$\textrm{Contribution from V}$")
 
     produce_pdf_plot(
-        evolution.fk_grid,
+        fk_grid,
         [xT3_training, xT3_t_u, xT3_t_v],
         normalize_to=1,
         filename=f"pdf_plot_u_v_{ev_epoch}_{datatype}.pdf",
@@ -324,32 +317,28 @@ def main():
 
         set_plot_dir(plot_dir)
 
-    # Compute evolution operators U and V
-    evolution = EvolutionOperatorComputer(fitname)
+    context = FitContext(fitname)
 
     # Evolution with random initialisation, at different epochs
     plot_evolution_from_initialisation(
-        evolution,
+        context,
         ref_epoch=ref_epoch,
-        epochs=[700, 5000, 100000],
+        epochs=[700, 5000, 50000],
         filename="init_epochs",
     )
     # Evolution with random initialisation, at the last epoch
     plot_evolution_from_initialisation(
-        evolution,
+        context,
         ref_epoch=ref_epoch,
         epochs=[-1],
         filename="init_last_epoch",
         show_true=True,
     )
 
-    # plot_evolution_from_ref(evolution, ref_epoch=ref_epoch)
-    # plot_evolution_from_ref(evolution, ref_epoch=0)
+    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=100)
+    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=50000)
 
-    plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=100)
-    plot_u_v_contributions(evolution, ref_epoch=ref_epoch, ev_epoch=50000)
-
-    plot_distance(evolution, ref_epoch=ref_epoch, seed=SEED)
+    plot_distance(context, ref_epoch=ref_epoch, seed=SEED)
 
 
 if __name__ == "__main__":

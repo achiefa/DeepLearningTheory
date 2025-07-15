@@ -9,81 +9,73 @@ rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
 rc("text", usetex=True)
 
 from argparse import ArgumentParser
-import importlib.resources as pkg_resources
 from pathlib import Path
+import pickle
 
 import tensorflow as tf
 
-from yadlt import data
+from yadlt import load_data
 from yadlt.distribution import Distribution
-from yadlt.model import PDFmodel, compute_ntk_static
+from yadlt.model import compute_ntk_static, generate_pdf_model
+from yadlt.plotting import FONTSIZE, LABELSIZE, LEGENDSIZE, TICKSIZE
 
-PLOT_DIR = Path(__file__).parent / "../plots"
-FIT_PATH = Path(__file__).parent / "../../Results/fits"
+SERIALIZATION_FOLDER = Path(__file__).parent / "serialization"
 
 # Load Tommaso's file
-data_path = Path(pkg_resources.files(data) / "BCDMS_data")
-fk_grid = np.load(data_path / "fk_grid.npy")
+fk_grid = load_data.load_bcdms_grid()
+x = fk_grid.reshape(1, -1, 1)
 
 SEED = 2312441
 NREPLICAS = 100
 
 
 def compute_ntk_initialisation(n_rep, seed, architecture=[28, 20]):
-    ntk_by_reps = Distribution("NTK by replicas", shape=(), size=n_rep)
+    ntk_by_reps = Distribution(
+        "NTK byreplicas", shape=(fk_grid.shape[0], fk_grid.shape[0]), size=n_rep
+    )
     eigvals_by_reps = Distribution(
         "Eigenvalues by replicas", shape=(fk_grid.shape[0],), size=n_rep
     )
+    frob_norm_by_reps = Distribution("Frobenius Norm by replicas", shape=(), size=n_rep)
 
     for rep in range(n_rep):
-        model = PDFmodel(
-            dense_layer="Dense",
-            input=fk_grid,
+        model = generate_pdf_model(
             outputs=1,
             architecture=architecture,
             activations=["tanh" for _ in architecture],
             kernel_initializer="GlorotNormal",
             user_ki_args=None,
             seed=seed + rep,
+            scaled_input=False,
+            preprocessing=False,
         )
-        _ = model.model(tf.convert_to_tensor(fk_grid.reshape(-1, 1)))
-        ntk = compute_ntk_static(
-            tf.convert_to_tensor(fk_grid.reshape(-1, 1)), model.model, model.outputs
-        )
-        ntk_by_reps.add(np.linalg.norm(ntk.numpy()))
+        ntk = compute_ntk_static(x, model, 1)
+        ntk_by_reps.add(ntk.numpy())
+
+        frob_norm = np.linalg.norm(ntk.numpy(), ord="fro")
+        frob_norm_by_reps.add(frob_norm)
 
         eigvals = np.linalg.eigvalsh(ntk.numpy())
         eigvals = np.sort(eigvals)[::-1]  # Sort in descending order
         eigvals_by_reps.add(eigvals)
 
-    mean = ntk_by_reps.get_mean()
-    std = ntk_by_reps.get_std()
-
-    eigvals_mean = eigvals_by_reps.get_mean(axis=0)
-    eigvals_std = eigvals_by_reps.get_std(axis=0)
-
-    return (mean, std, eigvals_mean, eigvals_std)
+    return (ntk_by_reps, eigvals_by_reps, frob_norm_by_reps)
 
 
 ARCHITECTURES = [
     [10, 10],
-    [28, 20],
+    [25, 20],
     [100, 100],
     [1000, 1000],
+    # [2000, 2000],
+    # [10000, 10000],
 ]
 
 
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        "--fit_folder",
-        "-f",
-        type=str,
-        default=FIT_PATH.absolute(),
-        help="Path to the folder containing fit results",
-    )
-    parser.add_argument(
-        "--n_replicas",
+        "--n-replicas",
         "-n",
         type=int,
         default=NREPLICAS,
@@ -96,125 +88,209 @@ def main():
         default=SEED,
         help="Seed for the random number generator",
     )
+    parser.add_argument(
+        "--plot-dir",
+        type=str,
+        default=None,
+        help="Directory to save the plots. If not specified, uses the default plot directory.",
+    )
     args = parser.parse_args()
 
+    if args.plot_dir is not None:
+        from yadlt.plotting import set_plot_dir
+
+        set_plot_dir(args.plot_dir)
+
     # Lists to store results
-    means = []
-    stds = []
-    eigvals_means = []
-    eigvals_stds = []
+    group_dict = {}
 
     # Compute means and standard deviations for each architecture
     for arch in ARCHITECTURES:
-        print(f"Computing NTK for architecture {arch}")
-        mean, std, eigvals_mean, eigvals_std = compute_ntk_initialisation(
-            args.n_replicas, args.seed, architecture=arch
-        )
-        means.append(mean)
-        stds.append(std)
-        eigvals_means.append(eigvals_mean)
-        eigvals_stds.append(eigvals_std)
+        if not (
+            serialization_path := SERIALIZATION_FOLDER
+            / f"ntk_initialization_{arch[0]}.pkl"
+        ).exists():
+            print(f"Computing NTK for architecture {arch}")
+            ntk_by_reps, eigvals_by_reps, frob_norm_by_reps = (
+                compute_ntk_initialisation(
+                    args.n_replicas, args.seed, architecture=arch
+                )
+            )
+            pickle.dump(
+                ntk_by_reps,
+                open(SERIALIZATION_FOLDER / f"ntk_initialization_{arch[0]}.pkl", "wb"),
+            )
+            pickle.dump(
+                eigvals_by_reps,
+                open(
+                    SERIALIZATION_FOLDER / f"eigvals_initialization_{arch[0]}.pkl", "wb"
+                ),
+            )
+            pickle.dump(
+                frob_norm_by_reps,
+                open(
+                    SERIALIZATION_FOLDER / f"frob_norm_initialization_{arch[0]}.pkl",
+                    "wb",
+                ),
+            )
+            print(f"Results saved to {serialization_path}")
+        else:
+            print(f"Loading NTK for architecture {arch} from {serialization_path}")
+            ntk_by_reps = pickle.load(
+                open(SERIALIZATION_FOLDER / f"ntk_initialization_{arch[0]}.pkl", "rb")
+            )
+            eigvals_by_reps = pickle.load(
+                open(
+                    SERIALIZATION_FOLDER / f"eigvals_initialization_{arch[0]}.pkl", "rb"
+                )
+            )
+            frob_norm_by_reps = pickle.load(
+                open(
+                    SERIALIZATION_FOLDER / f"frob_norm_initialization_{arch[0]}.pkl",
+                    "rb",
+                )
+            )
+
+        group_dict[tuple(arch)] = {
+            "ntk": ntk_by_reps,
+            "eigvals": eigvals_by_reps,
+            "frob_norm": frob_norm_by_reps,
+        }
 
     # ========== Plot of Frobenius Norm of NTK at Initialization ==========
     # Create a figure with two subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
     # Calculate relative uncertainties (coefficient of variation)
-    rel_uncertainties = [s / m for s, m in zip(stds, means)]
+    # rel_uncertainties = [s / m for s, m in zip(stds, means)]
+    mean_values = [arch["frob_norm"].get_mean() for arch in group_dict.values()]
+    uncertainties = [arch["frob_norm"].get_std() for arch in group_dict.values()]
+    rel_uncertainties = [
+        arch["frob_norm"].get_std() / np.abs(arch["frob_norm"].get_mean())
+        for arch in group_dict.values()
+    ]
+
     # X-axis labels for architectures
-    x_labels = [rf"$[{a[0]},{a[1]}]$" for a in ARCHITECTURES]
-    x_positions = np.arange(len(ARCHITECTURES))
+    x_labels_ax1 = [rf"$[{a[0]},{a[1]}]$" for a in ARCHITECTURES]
+    x_positions_ax1 = np.arange(len(ARCHITECTURES))
 
     # NTK Norm
     ax1.errorbar(
-        x_positions,
-        means,
-        yerr=stds,
+        x_positions_ax1,
+        mean_values,
+        yerr=uncertainties,
         fmt="o",
         capsize=5,
         markersize=8,
         elinewidth=2,
         label="NTK Norm",
+        color="C0",
     )
 
     # Add a subtle shaded area for the error bands
-    for i, (m, s) in enumerate(zip(means, stds)):
-        ax1.fill_between([i - 0.1, i + 0.1], [m - s, m - s], [m + s, m + s], alpha=0.2)
+    # for i, (m, s) in enumerate(zip(mean_values, uncertainties)):
+    #     ax1.fill_between([i - 0.1, i + 0.1], [m - s, m - s], [m + s, m + s], alpha=0.2)
 
-    ax1.set_xlabel(r"${\rm Architecture}$", fontsize=14)
-    ax1.set_ylabel(r"$\textrm{NTK Norm}$", fontsize=14)
-    ax1.set_title(r"$\textrm{Neural Tangent Kernel Norm}$", fontsize=16)
-    ax1.set_xticks(x_positions)
-    ax1.set_xticklabels(x_labels, rotation=45)
-    ax1.grid(True, linestyle="--", alpha=0.7)
+    ax1.set_xlabel(r"${\rm Architecture}$", fontsize=LABELSIZE)
+    ax1.set_ylabel(r"$\textrm{NTK Norm}$", fontsize=LABELSIZE)
+    ax1.set_title(r"$\textrm{Neural Tangent Kernel Norm}$", fontsize=FONTSIZE)
+    ax1.set_xticks(x_positions_ax1)
+    ax1.set_xticklabels(x_labels_ax1, rotation=45, fontsize=TICKSIZE)
+    # ax1.grid(True, linestyle="--", alpha=0.7)
 
     # Uncertainty Trend
+    x_positions_ax2 = [a[0] for a in ARCHITECTURES]
     ax2.plot(
-        x_positions, rel_uncertainties, "o-", markersize=8, linewidth=2, color="green"
+        x_positions_ax2, rel_uncertainties, "o-", markersize=8, linewidth=2, color="C0"
     )
     ax2.plot()
-    ax2.set_xlabel(r"${\rm Architecture}$", fontsize=14)
-    ax2.set_ylabel(r"$\textrm{Relative Uncertainty}$", fontsize=14)
-    ax2.set_title(r"$\textrm{Uncertainty vs. Architecture Size}$", fontsize=16)
-    ax2.set_xticks(x_positions)
-    ax2.set_xticklabels(x_labels, rotation=45)
-    ax2.grid(True, linestyle="--", alpha=0.7)
-
-    plt.tight_layout()
+    ax2.set_xlabel(r"${\rm Architecture}$", fontsize=LABELSIZE)
+    ax2.set_ylabel(r"$\textrm{Relative Uncertainty}$", fontsize=LABELSIZE)
+    ax2.set_title(r"$\textrm{Uncertainty vs. Architecture Size}$", fontsize=FONTSIZE)
+    ax2.set_xticks(x_positions_ax2)
+    ax2.set_xscale("log")
+    ax2.set_yscale("log")
+    fig.tight_layout()
 
     # Save the combined plot
-    output_path = PLOT_DIR / "ntk_initialization_with_uncertainty.pdf"
-    PLOT_DIR.mkdir(exist_ok=True, parents=True)
+    output_path = Path(args.plot_dir) / "ntk_initialization_with_uncertainty.pdf"
     fig.savefig(output_path)
     print(f"Plot saved to {output_path}")
-    plt.show()
 
     # ========== Plot of Eigenvalues of NTK at Initialization ==========
-    fig, ax = plt.subplots(1, 1, figsize=(15, 6))
+    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
 
-    # Colors for different architectures
-    colors = ["blue", "red", "green", "purple", "orange"]
+    # # Colors for different architectures
+    # colors = ["blue", "red", "green", "purple", "orange"]
 
     # Compute and plot eigenvalues for each architecture
-    for i, arch in enumerate(ARCHITECTURES):
-        print(f"Computing NTK eigenvalues for architecture {arch}")
+    mean_eigvals_by_arch = []
+    std_eigvals_by_arch = []
+    for arch in group_dict.values():
+        eigvals = arch["eigvals"]
+        tmp_mean = [mean for mean in eigvals.get_mean()[:5]]
+        tmp_std = [std for std in eigvals.get_std()[:5]]
+        mean_eigvals_by_arch.append(tmp_mean)
+        std_eigvals_by_arch.append(tmp_std)
 
-        # Get means and standard deviations
-        means = eigvals_means[i]
-        stds = eigvals_stds[i]
+    mean_eigvals_by_arch = np.array(mean_eigvals_by_arch)  # [arch, eigvals]
+    std_eigvals_by_arch = np.array(std_eigvals_by_arch)  # [arch, eigvals]
 
-        # Plot only the first 30 eigenvalues (or adjust as needed)
-        max_eigvals = min(30, len(means))
-        x = np.arange(max_eigvals)
+    # Store handles for legend
+    handles = []
+    labels = []
 
-        ax.errorbar(
-            x,
-            means[:max_eigvals],
-            yerr=stds[:max_eigvals],
-            fmt="o-",
-            capsize=3,
-            markersize=5,
-            color=colors[i % len(colors)],
-            label=f"Architecture {arch}",
+    for idx in range(mean_eigvals_by_arch.shape[1]):
+        means = mean_eigvals_by_arch[:, idx]
+        stds = std_eigvals_by_arch[:, idx]
+
+        # Plot the eigenvalues with error bars
+        line = ax.errorbar(
+            x_positions_ax1,
+            means,
+            yerr=stds,
+            fmt="o",
+            capsize=2,
+            markersize=4,
+            label=rf"$\lambda^{{{idx + 1}}}$",
+            color=f"C{idx}",
         )
 
-    # Use log scale for y-axis
-    ax.set_yscale("log")
+        handles.append(line)
+        labels.append(rf"$\lambda^{{{idx + 1}}}$")
 
-    # Customize plot
-    ax.set_xlabel(r"$\textrm{Eigenvalue Index}$", fontsize=14)
-    ax.set_ylabel(r"$\textrm{Eigenvalue Magnitude}$", fontsize=14)
-    ax.set_title(r"$\textrm{NTK Eigenvalue Spectrum by Architecture}$", fontsize=16)
-    ax.grid(True, linestyle="--", alpha=0.7)
-    ax.legend()
+        for i, (m, s) in enumerate(zip(means, stds)):
+            ax.fill_between(
+                [i - 0.1, i + 0.1],
+                [m - s, m - s],
+                [m + s, m + s],
+                alpha=0.2,
+                color=f"C{idx}",
+            )
 
-    # Save and show plot
-    output_path = PLOT_DIR / "ntk_eigenvalue_spectrum.pdf"
-    PLOT_DIR.mkdir(exist_ok=True, parents=True)
+        # Plot horizontal line for last architecture
+        ax.axhline(
+            y=mean_eigvals_by_arch[-1, 1],
+            color=f"black",
+            linestyle="--",
+            linewidth=0.8,
+            alpha=0.5,
+        )
+
+        ax.set_xlabel(r"${\rm Architecture}$", fontsize=LABELSIZE)
+        ax.set_ylabel(r"$\textrm{NTK eigenvalues}$", fontsize=LABELSIZE)
+        ax.set_title(r"$\textrm{NTK with different architectures}$", fontsize=FONTSIZE)
+        ax.set_xticks(x_positions_ax1)
+        ax.set_xticklabels(x_labels_ax1, rotation=45, fontsize=TICKSIZE)
+        ax.set_yscale("log")
+
+    ax.legend(handles, labels, fontsize=LEGENDSIZE)
+
+    # Save the combined plot
+    output_path = Path(args.plot_dir) / "ntk_initialization_arch.pdf"
+    fig.tight_layout()
     fig.savefig(output_path)
     print(f"Plot saved to {output_path}")
-
-    plt.show()
 
 
 if __name__ == "__main__":

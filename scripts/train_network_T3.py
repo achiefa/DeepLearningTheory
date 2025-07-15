@@ -4,19 +4,24 @@ This script trains a neural network and saves the evolution in pickle format.
 
 from argparse import ArgumentParser
 from datetime import datetime
-import importlib.resources as pkg_resources
 import logging
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
+import tensorflow as tf
 import yaml
 
-from yadlt import data
+from yadlt.callback import LoggingCallback, NaNCallback, WeightStorageCallback
+from yadlt.layers import Convolution
+from yadlt.load_data import (
+    load_bcdms_cov,
+    load_bcdms_data,
+    load_bcdms_fk,
+    load_bcdms_grid,
+    load_bcdms_pdf,
+)
 from yadlt.log import MyHandler
-from yadlt.model import PDFmodel, generate_mse_loss
-
-data_path = Path(pkg_resources.files(data) / "BCDMS_data")
+from yadlt.model import Chi2, generate_pdf_model
 
 log = logging.getLogger()
 log.addHandler(MyHandler())
@@ -34,20 +39,19 @@ def save_metadata(args, save_dir):
         "arguments": {
             "seed": int(args.seed),
             "data": args.data,
-            "tolerance": args.tolerance,
             "max_iterations": int(args.max_iterations),
             "learning_rate": args.learning_rate,
-            "callback_rate": args.callback_rate,
+            "callback_freq": args.callback_freq,
             "optimizer": args.optimizer,
             "log_level": args.log_level,
-            "profiler": args.profiler,
         },
         "model_info": {
-            "architecture": args.layers,
+            "architecture": args.architecture,
             "activations": args.activation,
             "kernel_initializer": "GlorotNormal",
-            "dense_layer": "Dense",
             "outputs": 1,
+            "use_scaled_input": args.use_scaled_input,
+            "use_preprocessing": args.use_preprocessing,
         },
     }
 
@@ -89,9 +93,6 @@ def parse_args():
         choices=["real", "L0", "L1", "L2"],
     )
     parser.add_argument(
-        "--tolerance", "-t", type=float, default=0.0, help="Tolerance for convergence"
-    )
-    parser.add_argument(
         "--max_iterations", type=int, default=1e6, help="Maximum number of iterations"
     )
     parser.add_argument(
@@ -101,11 +102,11 @@ def parse_args():
         help="Learning rate for the optimizer",
     )
     parser.add_argument(
-        "--callback_rate",
+        "--callback_freq",
         "-r",
         type=int,
         default=100,
-        help="Callback rate for the optimizer",
+        help="Callback frequency",
     )
     parser.add_argument(
         "--optimizer",
@@ -121,10 +122,7 @@ def parse_args():
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
     )
     parser.add_argument(
-        "--profiler", action="store_true", help="Enable memory profiler", default=False
-    )
-    parser.add_argument(
-        "--layers",
+        "--architecture",
         help="Architecture of the network",
         type=int,
         nargs="+",
@@ -132,6 +130,16 @@ def parse_args():
     )
     parser.add_argument(
         "--activation", help="Activation function", type=str, default="tanh"
+    )
+    parser.add_argument(
+        "--use_scaled_input",
+        action="store_true",
+        help="Use scaled input (default: False)",
+    )
+    parser.add_argument(
+        "--use_preprocessing",
+        action="store_true",
+        help="Use preprocessing (default: False)",
     )
 
     args = parser.parse_args()
@@ -169,18 +177,11 @@ def main():
 
     log.setLevel(getattr(logging, args.log_level))
 
-    # Activate profiler if requested
-    if args.profiler:
-        log.info("Starting memory profiler")
-        import tracemalloc
-
-        tracemalloc.start()
-
     # Make save directories
     if args.config:
         root_dir = Path(args.config.removesuffix(".yaml"))
     else:
-        root_dir = args.savedir
+        root_dir = Path(args.savedir)
 
     replica_save_dir = root_dir / f"replica_{str(args.replica)}"
     replica_save_dir.mkdir(parents=True, exist_ok=True)
@@ -192,22 +193,14 @@ def main():
         save_metadata(args, root_dir)
 
     # Collect Tommaso's data
-    fk_grid = np.load(data_path / "fk_grid.npy")
-    data = np.load(data_path / "data.npy")
-    FK = np.load(data_path / "FK.npy")
-    f_bcdms = np.load(data_path / "f_bcdms.npy")
-    Cy = np.load(data_path / "Cy.npy")
-    # noise = np.load(data_path / "L1_noise_BCDMS.npy')
+    fk_grid = load_bcdms_grid()
+    data = load_bcdms_data()
+    FK = load_bcdms_fk()
+    f_bcdms = load_bcdms_pdf()
+    Cy = load_bcdms_cov()
 
-    # Prepare index for covariance matrix
-    arrays = [
-        ["T3" for _ in range(Cy.shape[0])],
-        ["BCDMS" for _ in range(Cy.shape[0])],
-    ]
-    multi_index = pd.MultiIndex.from_arrays(arrays, names=("group", "dataset"))
-    Cinv = pd.DataFrame(np.linalg.inv(Cy), index=multi_index, columns=multi_index)
+    # Generate data
     replica_seed = int(args.seed) + int(args.replica)
-
     rng_replica = np.random.default_rng(replica_seed)
     rng_l1 = np.random.default_rng(int(args.seed))
 
@@ -233,50 +226,67 @@ def main():
         log.error("Please specify --realdata, --L0, --L1 or --L2")
         raise ValueError()
 
-    # ========== Model ==========
-    mse_loss = generate_mse_loss(Cinv)
-    pdf = PDFmodel(
-        dense_layer="Dense",
-        input=fk_grid,
+    # Save the data
+    np.save(replica_save_dir / "data.npy", y)
+
+    # Prepare the loss function
+    chi2 = Chi2(Cy)
+
+    # Prepare the PDF model
+    log.info("Generating PDF model")
+    pdf_model = generate_pdf_model(
         outputs=1,
-        architecture=args.layers,
-        activations=[args.activation for _ in range(len(args.layers))],
+        architecture=args.architecture,
+        activations=[args.activation for _ in range(len(args.architecture))],
         kernel_initializer="GlorotNormal",
+        bias_initializer="zeros",
         user_ki_args=None,
         seed=replica_seed,
+        scaled_input=args.use_scaled_input,
+        preprocessing=args.use_preprocessing,
     )
-    pdf.model.summary()
+    pdf_model.summary()
+    pdf_model.get_layer("pdf_raw").summary()
+    model_input = pdf_model.input
 
-    central_data_dict = {"BCDMS": y}
-    fk_dict = {"BCDMS": FK}
+    # Prepare convolution layer
+    FK = FK.reshape(FK.shape[0], 1, FK.shape[1])
+    convolution = Convolution(FK, basis=[0], nfl=1, name="BCDMS_convolution")
 
-    # Train the network
-    log.info(f"Chi2 tolerance: {args.tolerance}")
-    log.info(f"Maximum iterations: {int(args.max_iterations)}")
-    log.info(f"Learning rate: {args.learning_rate}")
-    log.info(f"Callback rate: {args.callback_rate}")
-    log.info("Starting training...")
-    pdf.train_network_gd(
-        data=central_data_dict,
-        FK_dict=fk_dict,
-        loss_func=mse_loss,
-        learning_rate=args.learning_rate,
-        tol=args.tolerance,
-        logging=True,
-        callback=True,
-        max_epochs=int(args.max_iterations),
-        log_fr=args.callback_rate,
-        savedir=replica_save_dir,
-        optimizer=args.optimizer,
+    # Construct observable model
+    obs = tf.keras.models.Sequential([pdf_model, convolution], name="Observable")
+
+    # Define trainable model
+    train_model = tf.keras.models.Model(inputs=model_input, outputs=obs(model_input))
+    if args.optimizer == "SGD":
+        optimizer = tf.keras.optimizers.SGD(learning_rate=float(args.learning_rate))
+    elif args.optimizer == "Adam":
+        optimizer = tf.keras.optimizers.Adam(learning_rate=float(args.learning_rate))
+    else:
+        raise ValueError(f"Unknown optimizer: {args.optimizer}")
+    train_model.compile(optimizer=optimizer, loss=[chi2])
+
+    # Train the model
+    log_cb = LoggingCallback(log_frequency=args.callback_freq, ndata=data.size)
+    save_cb = WeightStorageCallback(
+        storage_frequency=args.callback_freq, storage_path=replica_save_dir
+    )
+    nan_cb = NaNCallback()
+
+    data = y.reshape(1, -1)
+    x = fk_grid.reshape(1, -1, 1)
+    _ = train_model.fit(
+        x,
+        data,
+        epochs=int(args.max_iterations),
+        verbose=0,
+        callbacks=[log_cb, save_cb, nan_cb],
     )
 
-    if args.profiler:
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics("lineno")
-
-        print("[ Top 10 Memory Consuming Lines ]")
-        for stat in top_stats[:10]:
-            print(stat)
+    log.info("Training completed")
+    log.info(f"Model saved to {replica_save_dir}")
+    log.info("Saving training history")
+    save_cb.save_history()
 
 
 if __name__ == "__main__":

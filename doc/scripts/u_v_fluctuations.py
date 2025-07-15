@@ -27,37 +27,17 @@ rc("text", usetex=True)
 
 from pdf_plots import SEED, load_data, produce_model_at_initialisation
 
+from yadlt.context import FitContext
 from yadlt.distribution import Distribution
 from yadlt.evolution import EvolutionOperatorComputer
 from yadlt.plotting import FONTSIZE, TICKSIZE, get_plot_dir, produce_plot
+from yadlt.utils import gibbs_fn
 
 # Define GP kernel parameters
 SIGMA = 0.25
 L0 = 1.7
 DELTA = 1.0e-9
 ALPHA = -0.1
-
-
-def gibbs_fn(fk_grid, i1, i2, rescl=False):
-    """
-    Compute the (i1, i2) entry of the Gibbs kernel for the given grid.
-    """
-    x1 = fk_grid[i1]
-    x2 = fk_grid[i2]
-
-    def l(x):
-        return L0 * (x + DELTA)
-
-    tmp = (
-        SIGMA**2
-        * np.sqrt(2 * l(x1) * l(x2) / (np.power(l(x1), 2) + np.power(l(x2), 2)))
-        * np.exp(-np.power(x1 - x2, 2) / (np.power(l(x1), 2) + np.power(l(x2), 2)))
-    )
-
-    if rescl:
-        return np.power(x1, ALPHA) * np.power(x2, ALPHA) * tmp
-
-    return tmp * x1 * x2
 
 
 def produce_mat_plot(
@@ -168,11 +148,12 @@ def main():
         )
 
     # Generate model at initialisation
-    evolution = EvolutionOperatorComputer(fitnames[0])
+    context = FitContext.get_instance(fitnames[0])
+    evolution = EvolutionOperatorComputer(context)
     xT3_init = produce_model_at_initialisation(
-        evolution.replicas,
-        tuple(evolution.fk_grid),
-        tuple(evolution.metadata["model_info"]["architecture"]),
+        context.get_property("nreplicas"),
+        tuple(context.load_fk_grid()),
+        tuple(context.get_config("metadata", "model_info")["architecture"]),
         seed=seed,
     )
     f0_mean = xT3_init.get_mean()
@@ -188,12 +169,15 @@ def main():
         cov_f0.add(cov)
 
     # Produce comparison with Gibbs kernel
-    gibbs_fn_partial = partial(gibbs_fn, evolution.fk_grid, rescl=False)
-    gp_kernel_rscl = np.fromfunction(
-        gibbs_fn_partial, (evolution.fk_grid.size, evolution.fk_grid.size), dtype=int
+    fk_grid = context.load_fk_grid()
+    gibbs_kernel = np.fromfunction(
+        lambda i, j: gibbs_fn(fk_grid[i], fk_grid[j], DELTA, SIGMA, L0),
+        (fk_grid.size, fk_grid.size),
+        dtype=int,
     )
+
     produce_mat_plot(
-        matrices=[gp_kernel_rscl, cov_f0.get_mean()],
+        matrices=[gibbs_kernel, cov_f0.get_mean()],
         titles=[r"$\textrm{Gibbs}$", r"$\textrm{Cov}[f_0, f_0]$"],
         save=True,
         filename=f"gibbs_comparison_no_low_x.pdf",
@@ -201,10 +185,12 @@ def main():
 
     for fitname in fitnames:
         # Compute evolution operators U and V
-        evolution = EvolutionOperatorComputer(fitname)
-        learning_rate = evolution.learning_rate
-        data_type = evolution.metadata["arguments"]["data"]
-        data = load_data(evolution)
+        context = FitContext.get_instance(fitname)
+        evolution = EvolutionOperatorComputer(context)
+
+        learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
+        data_type = context.get_config("metadata", "arguments")["data"]
+        data = load_data(context)
 
         U_fluctuations_by_epochs = []
         V_fluctuations_by_epochs = []
@@ -262,7 +248,7 @@ def main():
 
             # Produce plots of the expectation value of U f0
             produce_plot(
-                evolution.fk_grid,
+                context.load_fk_grid(),
                 [Uf0],
                 additional_grids=[add_grid_dict],
                 ylabel="$U f_0$",

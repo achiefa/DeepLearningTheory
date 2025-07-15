@@ -1,0 +1,15 @@
+arguments:
+  seed: 2143141
+  data: L1
+  max_iterations: 60000
+  learning_rate: 5e-6
+  callback_freq: 500
+  optimizer: SGD
+  log_level: INFO
+model_info:
+  architecture:
+    - 25
+    - 20
+  activation: tanh
+  use_scaled_input: true
+  use_preprocessing: true
