@@ -152,7 +152,7 @@ run_script "pdf_plots.py" \
 
 print_success "All plots generated successfully!"
 print_status "Plots saved to: $OUTPUT_DIR"
-print_status "Files generated:"
-ls -la "$OUTPUT_DIR"
+# print_status "Files generated:"
+# ls -la "$OUTPUT_DIR"
 
 print_success "Plot generation complete! 🎉"
