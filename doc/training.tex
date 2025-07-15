@@ -117,7 +117,9 @@ complement, hence we introduce the notation
     \]
 }
 \begin{align}
+    \label{eq:ParallelCompnents}
     &f^\parallel_{t,k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda_{(k)} = 0\, , \\
+    \label{eq:OrthogonalComponents}
     &f^\perp_{t,k} = \frac{1}{\sqrt{\lambda^{(k)}}} \left(z^{(k)}, f_t\right)\, , \quad
         \text{if}\ \lambda^{(k)} \neq 0\, .
 \end{align}
@@ -212,7 +214,7 @@ Collecting all terms yields a simple (and useful!) expression,
         = U(t)_{\alpha\alpha'} f_{0,\alpha'} + V(t)_{\alpha I} Y_{I}\, .
 \end{align}
 The two evolution operators $U(t)$ and $V(t)$ have lengthy, yet explicit, expressions, which we
-summarise here or move to an appendix: 
+summarise here: 
 \begin{align}
     U(t)_{\alpha\alpha'} = \hat{U}^\perp(t)_{\alpha\alpha'}
         + \check{U}^\perp(t)_{\alpha\alpha'} + U^\parallel_{\alpha\alpha'}\, ,
@@ -222,7 +224,7 @@ where
     \hat{U}^\perp(t)_{\alpha\alpha'}
         = \sum_{k,k'\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha 
             \left[\sum_i w^{(i)}_{k} e^{-h^{(i)}t} w^{(i)}_{k'}\right]
-            z^{(k')}_{\alpha'} \sqrt{\lambda^{(k')}}\, ,
+            z^{(k')}_{\alpha'} \frac{1}{\sqrt{\lambda^{(k')}}}\, ,
 \end{align}
 and
 \begin{align}
@@ -237,7 +239,7 @@ introducing the operator
         = \sum_{k,k'\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha 
             \left[\sideset{}{'}\sum_{i} w^{(i)}_{k} \frac{1}{h^{(i)}}\, 
             \left( 1- e^{-h^{(i)}t}\right) w^{(i)}_{k'}\right]
-            z^{(k')}_{\alpha'} \sqrt{\lambda^{(k')}}\,. 
+            z^{(k')}_{\alpha'} \frac{1}{\sqrt{\lambda^{(k')}}}\,. 
 \end{align}
 Then, we can write
 \begin{align}
@@ -266,7 +268,7 @@ kernel of the NTK.
     \begin{align}
         \label{eq:DataCorrectedInference}
         \check{U}^{\perp}(t) f_{0} + V(t) Y 
-            = \mathcal{M}\; \FKtabT C_Y^{-1} \left[Y - \FKtab f_{0}^{\parallel}\right]\, .
+            = \mathcal{M}(t)\; \FKtabT C_Y^{-1} \left[Y - \FKtab f_{0}^{\parallel}\right]\, .
     \end{align}
     The parallel component of the initial condition $f_{0}^{\parallel}$ does not evolve during training, and therefore it yields
     a contribution $\FKtab f_{0}^{\parallel}$ to the theoretical prediction of the data points at all times $t$. This is 
@@ -362,45 +364,61 @@ of each data point to the central value of the
 trained fields at each value of $x_{\alpha}$. It is worthwhile remarking that in this limit, the central value
 from the set of trained network is a linear combination of the data points, with coefficients given by the
 evolution operator $V(t)_{\alpha I}$. In this respect, the trained NNs behave like other well-known linear methods for 
-solving inverse problems, like \eg\ Backus-Gilbert or Gaussian processes. It is interesting to compare the matrix $V(t)$ with 
-the corresponding linear operators that enter in Backus-Gilbert or Gaussian processes solutions. 
+solving inverse problems, like \eg\ Backus-Gilbert or Gaussian Processes. It is interesting to compare the matrix $V(t)$ with 
+the corresponding linear operators that enter in Backus-Gilbert or Gaussian Processes solutions. 
 
 \paragraph{Central value at infinite training time.}
 
-In the limit of infinite training time, the evolution operators $U(t)$ and $V(t)$ simplify to
+In the limit of infinite training time, the evolution operators $U(t)$ and $V(t)$ simplify and yield an 
+elegant interpretation of the minimum of the cost function. For large training times, we have
 \begin{align}
+    \label{eq:UhatInfty}
     \hat{U}^\perp_{\infty, \alpha\alpha'}
         &= \lim_{t\to\infty}\hat{U}^\perp(t)_{\alpha\alpha'} = 0\, \\
-    \check{U}^\perp_{\infty,\alpha\alpha'}
-        &= \lim_{t\to\infty}\check{U}^\perp(t)_{\alpha\alpha'}
-            = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{Z}^{(i)}_{\alpha'}\, , \\
-    V_{\infty,\alpha I}
-        &= \lim_{t\to\infty}V(t)_{\alpha I}
-            = \sideset{}{'}\sum_{i} Z^{(i)}_{\alpha} \frac{1}{h^{(i)}} \tilde{T}^{(i)}_{I}\, .
+    \label{eq:MOperatorInfty}
+    \mathcal{M}_{\infty, \alpha\alpha'} 
+        &= \lim_{t\to\infty}\mathcal{M}(t)_{\alpha\alpha'} = \sum_{k,k'\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha 
+        \left[\sideset{}{'}\sum_{i} w^{(i)}_{k} \frac{1}{h^{(i)}}\, 
+        w^{(i)}_{k'}\right] z^{(k')}_{\alpha'} \frac{1}{\sqrt{\lambda^{(k')}}}\, ,
 \end{align}
-Using the operator $\mathcal{M}$, introduced in Eq.~\eqref{eq:MOperatorDef},
-the evolution operators at infinite training time are
-\begin{align}
-    \label{eq:UcheckInfty}
-    \check{U}^\perp_{\infty,\alpha\alpha'}
-        &= -\sum_{k,k'\in\perp} \sum_{k''\in\parallel} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'} M_{k'k''} z^{(k'')}_{\alpha'}\, , \\
-    \label{eq:VInfty}
-    V_{\infty, \alpha I}
-        &= \sum_{k,k'\in\perp} z^{(k)}_{\alpha} \mathcal{M}_{\infty,kk'}
-            \left(T^{(k') T} C_{Y}^{-1}\right)_I \, .
-\end{align}
-\ldd{To be rewritten using the expression we found in the section above. Should yield a very nice interpretation.}
+and explicit expressions for $\check{U}^\perp_{\infty}$ and $V_{\infty}$ are obtained from $\mathcal{M}_{\infty}$.
+The term in the square bracket in Eq.~\eqref{eq:MOperatorInfty} is the spectral decomposition of the pseudoinverse 
+of $H^\perp$ in $d_\perp$ orthogonal subspace. So, the operator $\mathcal{M}_{\infty}$ acts as follow on a field 
+$f_{\alpha}$:
+\begin{enumerate}
+    \item The term on the right of the square bracket computes the coordinate $f_k$ introduced in 
+    Eq.~\eqref{eq:OrthogonalComponents}. The $f_k$ are a set of coordinates for the component $f^\perp$ 
+    of the field that evolves during training, 
+    \begin{align}
+        \label{eq:RightOfTheBracket}
+        f^\perp = \sum_{k\in\perp} \sqrt{\lambda^{(k)}} f_k\, z^{(k)}\,  .
+    \end{align}
+    \item The term in the square bracket applies the pseudoinverse to the coordinates $f_k$, 
+    \begin{align}
+        \label{eq:ApplyPseudoInv}
+        f'_k = \left(H^\perp\right)^+_{kk'} f_{k'}\, .
+    \end{align}
+    \item The final term on the left of the square bracket reconstructs the full field corresponding to the modified 
+    $f'_{k}$,
+    \begin{align}
+        \label{eq:LeftOfTheBracket}
+        f^{'\perp} = \sum_{k\in\perp} \sqrt{\lambda^{(k)}} f'_{k}\, z^{(k)}\, .
+    \end{align}
+    
+\end{enumerate}
 
-A more concise form is obtained by defining the matrix
-\begin{equation}
-    \label{eq:PInftyDef}
-    P_{\infty,kk''} = \sum_{k'\in\perp} \mathcal{M}_{\infty,kk'} M_{k'k''}\, ,
-\end{equation}
-so that
-\begin{equation}
-    \label{eq:UcheckInftyV2}
-    \check{U}^\perp_{\infty,\alpha\alpha'} = -\sum_{k\in\perp} \sum_{k''\in\parallel} z^{(k)}_{\alpha} P_{\infty,kk''} z^{(k'')}_{\alpha'}\, .
-\end{equation}
+As discussed at the end of Sect.~\ref{sec:Lazy} it is convenient to 
+combine the contributions of $\check{U}^\perp_{\infty}$ and $V_{\infty}$,
+\begin{align}
+    \label{eq:DataCorrectedInferenceAtInfty}
+    \check{U}^{\perp}_{\infty} f_{0} + V_{\infty} Y 
+        = \mathcal{M}_{\infty}\; \FKtabT C_Y^{-1} \left[Y - \FKtab f_{0}^{\parallel}\right]\, .
+\end{align}
+The contribution to the observables from the parallel components of $f$ does not change during training, 
+therefore that contribujtion is subtracted to the data and the orthogonal components of $f$ are adjusted to 
+minimize the $\chi^2$ of the corrected data. The minimum of the $\chi^2$ in the orthogonal subspace is found
+applying $\mathcal{M}_{\infty}$, \ie by projecting in the orthogonal subspace, applying the pseudoinverse and 
+finally recompute the full field as detailed above. 
 
 \subsubsection{Covariance of the trained fields.}
 \label{sec:Covariance}
@@ -444,6 +462,12 @@ We report the values of $C^{(00)}$, $C^{(0Y)}$ and $C^{(YY)}$ for different valu
 Fig.\ref{fig:CovarianceContribs}.
 We see explicitly that the fluctuations of the fields at initialization yield a contribution to 
 the statistical uncertainty of the trained fields. 
+
+\begin{figure}
+    \label{fig:CovarianceContribs}
+    \caption{The various contributions to the covariance as described in the text above. 
+    \ldd{Caption will change once we have the plot.}}
+\end{figure}
 
 % % wrong limit
 % In the limit where we ignore the fluctuations 
