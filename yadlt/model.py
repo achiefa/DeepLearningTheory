@@ -183,7 +183,7 @@ def generate_pdf_model(
     return tf.keras.models.Model(input_layer, pdf_raw(input_layer), name="pdf")
 
 
-def load_trained_model(replica_dir, epoch=None):
+def load_trained_model(replica_dir, epoch=-1):
     """
     Load a trained model from the specified directory.
 
@@ -230,13 +230,13 @@ def load_trained_model(replica_dir, epoch=None):
     )
 
     # Find and load weights
-    if epoch is None or epoch == -1:
+    if epoch == -1:
         # Find the latest epoch
         weight_files = list(replica_dir.glob("epoch_*.weights.h5"))
         if not weight_files:
             raise FileNotFoundError(f"No weight files found in {replica_dir}")
 
-        epochs = [int(f.stem.split("_")[-1]) for f in weight_files]
+        epochs = [int(f.name.split(".")[0].split("_")[-1]) for f in weight_files]
         latest_epoch = max(epochs)
         weight_file = replica_dir / f"epoch_{latest_epoch}.weights.h5"
     else:
@@ -252,5 +252,4 @@ def load_trained_model(replica_dir, epoch=None):
         model = pdf_model.layers[1]
         model.load_weights(weight_file)
 
-    logger.info(f"PDF model loaded from: {weight_file}")
     return pdf_model, metadata

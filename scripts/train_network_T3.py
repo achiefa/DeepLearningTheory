@@ -11,7 +11,7 @@ import numpy as np
 import tensorflow as tf
 import yaml
 
-from yadlt.callback import LoggingCallback, WeightStorageCallback
+from yadlt.callback import LoggingCallback, NaNCallback, WeightStorageCallback
 from yadlt.layers import Convolution
 from yadlt.load_data import (
     load_bcdms_cov,
@@ -271,10 +271,16 @@ def main():
     save_cb = WeightStorageCallback(
         storage_frequency=args.callback_freq, storage_path=replica_save_dir
     )
+    nan_cb = NaNCallback()
+
     data = y.reshape(1, -1)
     x = fk_grid.reshape(1, -1, 1)
     _ = train_model.fit(
-        x, data, epochs=int(args.max_iterations), verbose=0, callbacks=[log_cb, save_cb]
+        x,
+        data,
+        epochs=int(args.max_iterations),
+        verbose=0,
+        callbacks=[log_cb, save_cb, nan_cb],
     )
 
     log.info("Training completed")

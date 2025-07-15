@@ -14,8 +14,8 @@ from argparse import ArgumentParser
 
 import yaml
 
-from yadlt.distribution import Distribution, combine_distributions
-from yadlt.evolution import EvolutionOperatorComputer
+from yadlt.context import FitContext
+from yadlt.distribution import combine_distributions
 from yadlt.plotting import produce_pdf_plot
 
 
@@ -57,12 +57,14 @@ def main():
     epochs = None
 
     for fitname in fitnames:
-        evolution = EvolutionOperatorComputer(fitname)
+        context = FitContext(fitname)
         if epochs is None:
-            epochs = evolution.epochs
+            epochs = context.get_config("replicas", "common_epochs")
         else:
-            assert epochs == evolution.epochs, "Epochs do not match across fits."
-        tmp = combine_distributions(evolution.eigvals_time)
+            assert epochs == context.get_config(
+                "replicas", "common_epochs"
+            ), "Epochs do not match across fits."
+        tmp = combine_distributions(context.eigvals_time)
         tmp.set_name(fitname)
         eigvals_by_fit.append(tmp)
 

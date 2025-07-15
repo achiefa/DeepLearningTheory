@@ -61,3 +61,10 @@ class LoggingCallback(tf.keras.callbacks.Callback):
             loss = logs.get("loss", 0)
             total_str = f"Epoch {epoch+1}: Loss: {loss}, Loss/Ndat: {loss/self.n_data}"
             logger.info(total_str)
+
+
+class NaNCallback(tf.keras.callbacks.Callback):
+    def on_batch_end(self, batch, logs=None):
+        if np.isnan(logs.get("loss")):
+            logger.error(f"NaN detected at batch {batch}")
+            self.model.stop_training = True

@@ -26,3 +26,20 @@ def compute_distance(plotting_grids, normalize_to: (int, type(None)) = 1):
         )
 
     return distances
+
+
+def gibbs_fn(x1, x2, delta, sigma, l0):
+    """
+    Gibbs kernel function for two points x1 and x2 with parameters delta, sigma, and l0.
+    """
+
+    def l(x):
+        return l0 * (x + delta)
+
+    return (
+        x1
+        * x2
+        * sigma**2
+        * np.sqrt(2 * l(x1) * l(x2) / (np.power(l(x1), 2) + np.power(l(x2), 2)))
+        * np.exp(-np.power(x1 - x2, 2) / (np.power(l(x1), 2) + np.power(l(x2), 2)))
+    )

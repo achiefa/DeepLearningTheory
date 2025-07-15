@@ -9,7 +9,6 @@ rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
 rc("text", usetex=True)
 
 from argparse import ArgumentParser
-import importlib.resources as pkg_resources
 from pathlib import Path
 import pickle
 

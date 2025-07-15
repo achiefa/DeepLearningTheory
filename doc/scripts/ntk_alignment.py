@@ -18,21 +18,21 @@ rc("text", usetex=True)
 
 from argparse import ArgumentParser
 
-from yadlt.evolution import EvolutionOperatorComputer
+from yadlt.context import FitContext
 from yadlt.plotting import FONTSIZE, LABELSIZE, TICKSIZE, get_plot_dir
 
 
 def produce_mat_plot(
-    evolution: EvolutionOperatorComputer, replica: int, epochs: list[int], filename: str
+    context: FitContext, replica: int, epochs: list[int], filename: str
 ):
     """Produce a comparison of delta NTK for different fits."""
 
-    eigvecs_time = evolution.eigvecs_time
-    common_epochs = evolution.common_epochs
-    cut_by_epoch = evolution.cut_by_epoch
+    eigvecs_time = context.eigvecs_time
+    cut_by_epoch = context.cut_by_epoch
+    common_epochs = context.get_config("replicas", "common_epochs")
 
     # Compute eigvals and eigvecs of M
-    m, W = np.linalg.eigh(evolution.M)
+    m, W = np.linalg.eigh(context.get_M())
     m = m[::-1]
     W = W[:, ::-1]
 
@@ -134,9 +134,9 @@ def main():
     replica = config["replica"]
     epochs = config["epochs"]
 
-    evolution = EvolutionOperatorComputer(fitname)
+    context = FitContext(fitname)
     produce_mat_plot(
-        evolution=evolution, replica=replica, epochs=epochs, filename=args.filename
+        context=context, replica=replica, epochs=epochs, filename=args.filename
     )
 
 

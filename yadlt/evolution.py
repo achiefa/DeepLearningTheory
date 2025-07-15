@@ -1,17 +1,11 @@
+import logging
 from pathlib import Path
-import pickle
 
 import numpy as np
-import tensorflow as tf
-import yaml
 
-from yadlt.distribution import Distribution
-from yadlt.load_data import (
-    load_bcdms_cov,
-    load_bcdms_fk,
-    load_bcdms_grid,
-    load_bcdms_pdf,
-)
+from yadlt.model import compute_ntk_static
+
+logger = logging.getLogger(__name__)
 
 MODULE_DIR = Path(__file__).parent
 FIT_FOLDER = (MODULE_DIR / "../Results/fits").resolve()
@@ -25,7 +19,7 @@ class EvolutionOperatorComputer:
     methods to compute evolution operators at different epochs and times.
     """
 
-    def __init__(self, fitname):
+    def __init__(self, context):
         """
         Initialize the computer with a specific fit folder.
 
@@ -34,86 +28,7 @@ class EvolutionOperatorComputer:
         fit_folder : str or Path
             Path to the fit folder containing serialization data
         """
-        self.fitname = fitname
-        self.fit_folder = FIT_FOLDER / self.fitname
-        # Ensure the fit folder exists
-        if not self.fit_folder.exists():
-            raise ValueError(f"Fit folder {self.fit_folder} does not exist.")
-        self.serialization_folder = self.fit_folder / "serialization"
-
-        # Load essential data
-        self._load_data()
-        self._load_bcdms_data()
-
-    def _load_data(self):
-        """Load serialized data from disk."""
-        try:
-            # Load all necessary serialized data
-            self.NTK_time = pickle.load(
-                open(self.serialization_folder / "NTK_time.pickle", "rb")
-            )
-            self.eigvals_time = pickle.load(
-                open(self.serialization_folder / "eigvals_time.pickle", "rb")
-            )
-            self.eigvecs_time = pickle.load(
-                open(self.serialization_folder / "eigvecs_time.pickle", "rb")
-            )
-            self.Q_by_epoch = pickle.load(
-                open(self.serialization_folder / "Q_by_epoch.pickle", "rb")
-            )
-            self.Qinv_by_epoch = pickle.load(
-                open(self.serialization_folder / "Qinv_by_epoch.pickle", "rb")
-            )
-            self.h_by_epoch = pickle.load(
-                open(self.serialization_folder / "h_by_epoch.pickle", "rb")
-            )
-            self.hinv_by_epoch = pickle.load(
-                open(self.serialization_folder / "hinv_by_epoch.pickle", "rb")
-            )
-            self.P_parallel_by_epoch = pickle.load(
-                open(self.serialization_folder / "P_parallel_by_epoch.pickle", "rb")
-            )
-            self.P_perp_by_epoch = pickle.load(
-                open(self.serialization_folder / "P_perp_by_epoch.pickle", "rb")
-            )
-            self.cut_by_epoch = pickle.load(
-                open(self.serialization_folder / "cut.pickle", "rb")
-            )
-            self.common_epochs = pickle.load(
-                open(self.serialization_folder / "common_epochs.pickle", "rb")
-            )
-
-            # Load metadata for learning rate
-            try:
-                with open(self.fit_folder / "metadata.yaml", "r") as f:
-                    self._metadata = yaml.safe_load(f)
-            except FileNotFoundError:
-                print("Metadata file not found. Using default learning rate.")
-                self._metadata = {"arguments": {"learning_rate": 1.0e-5}}
-
-            # Load number of replicas
-            replicas_folders = [
-                f
-                for f in self.fit_folder.iterdir()
-                if f.is_dir() and "replica" in str(f)
-            ]
-            replicas_folders.sort()
-            self.replicas = len(replicas_folders)
-
-        except FileNotFoundError as e:
-            raise RuntimeError(
-                f"Could not load serialized data from {self.serialization_folder}. "
-                f"Make sure the data has been serialized first. Error: {e}"
-            )
-
-    def _load_bcdms_data(self):
-        """Load BCDMS data required for evolution operator computation."""
-        self.fk_grid = load_bcdms_grid()
-        self.FK = load_bcdms_fk()
-        self.f_bcdms = load_bcdms_pdf()
-        self.Cy = load_bcdms_cov()
-        self.Cinv = np.linalg.inv(self.Cy)
-        self.M = self.FK.T @ self.Cinv @ self.FK
+        self.context = context
 
     def compute_evolution_operator(self, reference_epoch, t):
         """
@@ -134,23 +49,27 @@ class EvolutionOperatorComputer:
             Second operator V needed for the full solution
         """
         # Extract index of the reference epoch
-        if reference_epoch not in self.common_epochs:
+        if reference_epoch not in self.context.common_epochs:
             raise ValueError(
                 f"Reference epoch {reference_epoch} not in common epochs. "
-                f"Available epochs: {self.common_epochs}"
+                f"Available epochs: {self.context.common_epochs}"
             )
 
-        epoch_index = self.common_epochs.index(reference_epoch)
+        epoch_index = self.context.common_epochs.index(reference_epoch)
+        M = self.context.get_M()
+        Cy = self.context.load_bcdms_cov()
+        Cinv = np.linalg.inv(Cy)
+        FK = self.context.load_fk_table()
 
-        Q = self.Q_by_epoch[epoch_index]
-        Qinv = self.Qinv_by_epoch[epoch_index]
-        P_parallel = self.P_parallel_by_epoch[epoch_index]
-        h = self.h_by_epoch[epoch_index]
-        hinv = self.hinv_by_epoch[epoch_index].make_diagonal()
+        Q = self.context.Q_by_epoch[epoch_index]
+        Qinv = self.context.Qinv_by_epoch[epoch_index]
+        P_parallel = self.context.P_parallel_by_epoch[epoch_index]
+        h = self.context.h_by_epoch[epoch_index]
+        hinv = self.context.hinv_by_epoch[epoch_index].make_diagonal()
 
         Qt = Q.transpose()
-        Qtilde = Qt @ self.M @ P_parallel
-        T_tilde = Qt @ self.FK.T @ self.Cinv
+        Qtilde = Qt @ M @ P_parallel
+        T_tilde = Qt @ FK.T @ Cinv
 
         exp_ht = h.apply_operator(
             b=t,
@@ -190,21 +109,25 @@ class EvolutionOperatorComputer:
             Second operator V at infinity
         """
         # Extract index of the reference epoch
-        if reference_epoch not in self.common_epochs:
+        if reference_epoch not in self.context.common_epochs:
             raise ValueError(
                 f"Reference epoch {reference_epoch} not in common epochs. "
-                f"Available epochs: {self.common_epochs}"
+                f"Available epochs: {self.context.common_epochs}"
             )
 
-        epoch_index = self.common_epochs.index(reference_epoch)
+        epoch_index = self.context.common_epochs.index(reference_epoch)
+        M = self.context.get_M()
+        Cy = self.context.load_bcdms_cov()
+        Cinv = np.linalg.inv(Cy)
+        FK = self.context.load_fk_table()
 
-        Q = self.Q_by_epoch[epoch_index]
-        P_parallel = self.P_parallel_by_epoch[epoch_index]
-        hinv = self.hinv_by_epoch[epoch_index].make_diagonal()
+        Q = self.context.Q_by_epoch[epoch_index]
+        P_parallel = self.context.P_parallel_by_epoch[epoch_index]
+        hinv = self.context.hinv_by_epoch[epoch_index].make_diagonal()
 
         Qt = Q.transpose()
-        Qtilde = Qt @ self.M @ P_parallel
-        T_tilde = Qt @ self.FK.T @ self.Cinv
+        Qtilde = Qt @ M @ P_parallel
+        T_tilde = Qt @ FK.T @ Cinv
 
         U_check = Q @ hinv @ Qtilde
         V = Q @ hinv @ T_tilde
@@ -281,3 +204,96 @@ def compute_evolution_operator_at_inf(fitname, reference_epoch):
     """
     computer = EvolutionOperatorComputer(fitname)
     return computer.compute_evolution_operator_at_inf(reference_epoch)
+
+
+def process_model(model, grid, M):
+    """
+    Helper function to process a single replica at a given epoch.
+    """
+    # Compute the NTK for the current replica and epoch
+    if len(grid.shape) == 1:
+        x = grid.reshape(1, -1, 1)
+
+    ntk = compute_ntk_static(x, model, 1)
+    size = ntk.shape[0]
+
+    # Compute eigenvalues and eigenvectors of the NTK
+    Z, eigenvalues, ZrT = np.linalg.svd(ntk, hermitian=True)
+
+    # Compute frobenius norm
+    frob_norm = np.sqrt(np.sum([s**2 for s in eigenvalues]))
+
+    for idx in range(len(eigenvalues)):
+        if not np.allclose(Z[:, idx], ZrT.T[:, idx]):
+            cut = idx
+            break
+
+    for i in range(cut, 0, -1):
+        if eigenvalues[i] / eigenvalues[0] > 1.0e-7:
+            cut = np.int64(i + 1)
+            break
+
+    perp_mask = [True] * cut + [False] * (size - cut)
+    parallel_mask = ~np.array(perp_mask)
+
+    Lambda_perp = eigenvalues[perp_mask]
+    Z_perp = Z[:, perp_mask]
+    Z_parallel = Z[:, parallel_mask]
+
+    # Parallel projector
+    P_parallel = np.empty((size, size))
+    P_perp = np.empty((size, size))
+    P_parallel = np.dot(Z_parallel, Z_parallel.T)
+    P_perp = np.dot(Z_perp, Z_perp.T)
+
+    # Compute similarity transformation
+    Lambda_perp_sqrt = np.sqrt(Lambda_perp)
+    Lambda_perp_sqrt_inv = 1.0 / Lambda_perp_sqrt
+    P = np.diag(Lambda_perp_sqrt_inv) @ Z_perp.T
+    P_inv = Z_perp @ np.diag(Lambda_perp_sqrt)
+
+    # Symmetric operator
+    H_perp = (
+        np.diag(Lambda_perp_sqrt) @ Z_perp.T @ M @ Z_perp @ np.diag(Lambda_perp_sqrt)
+    )
+
+    # Eigendecomposition of H_perp
+    h, W = np.linalg.eigh(H_perp)
+    # Sort eigenvalues and eigenvectors in descending order
+    idx = np.argsort(h)[::-1]
+    h, W = h[idx], W[:, idx]
+
+    hinv = 1 / h
+
+    # Compute Q and its inverse
+    Q = P_inv @ W
+    Qinv = W.T @ P
+
+    # Pad quantities to ensure they are square matrices
+    Q = np.pad(
+        Q, ((0, 0), (0, Q.shape[0] - Q.shape[1])), mode="constant", constant_values=0
+    )
+    Qinv = np.pad(
+        Qinv,
+        ((0, Qinv.shape[1] - Qinv.shape[0]), (0, 0)),
+        mode="constant",
+        constant_values=0,
+    )
+    hinv = np.pad(
+        hinv, (0, Q.shape[0] - hinv.shape[0]), mode="constant", constant_values=0
+    )
+    h = np.pad(h, (0, Q.shape[0] - h.shape[0]), mode="constant", constant_values=0)
+
+    return {
+        "NTK": ntk,
+        "Z": Z,
+        "frob_norm": frob_norm,
+        "eigenvalues": eigenvalues,
+        "P_parallel": P_parallel,
+        "P_perp": P_perp,
+        "Q": Q,
+        "Qinv": Qinv,
+        "h": h,
+        "hinv": hinv,
+        "cut": cut,
+    }

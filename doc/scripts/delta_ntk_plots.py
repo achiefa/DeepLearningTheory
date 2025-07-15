@@ -3,8 +3,8 @@ from argparse import ArgumentParser
 import numpy as np
 import yaml
 
+from yadlt.context import FitContext
 from yadlt.distribution import Distribution, combine_distributions
-from yadlt.evolution import EvolutionOperatorComputer
 from yadlt.plotting import produce_plot
 
 
@@ -45,11 +45,12 @@ def main():
     epochs = None
 
     for idx, fitname in enumerate(fitnames):
-        evolution = EvolutionOperatorComputer(fitname)
-        data_type = evolution.metadata["arguments"]["data"]
-        replicas = evolution.replicas
+        context = FitContext(fitname)
 
-        ntk_by_time = evolution.NTK_time
+        data_type = context.get_config("metadata", "arguments")["data"]
+        replicas = context.get_property("nreplicas")
+
+        ntk_by_time = context.NTK_time
 
         delta_ntk_t = []
         for i in range(len(ntk_by_time) - 1):
@@ -62,10 +63,10 @@ def main():
             delta_ntk_t.append(delta_ntk_dist)
 
         if epochs is None:
-            epochs = evolution.epochs
+            epochs = context.get_config("replicas", "common_epochs")
         else:
             assert np.array_equal(
-                epochs, evolution.epochs
+                epochs, context.get_config("replicas", "common_epochs")
             ), "Epochs do not match across fits."
 
         delta_ntk_distribution_by_epoch = combine_distributions(delta_ntk_t)
