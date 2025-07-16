@@ -256,6 +256,15 @@ def main():
             color=f"C{idx}",
         )
 
+        # Plot horizontal line for last architecture
+        ax.axhline(
+            y=mean_eigvals_by_arch[-1, idx],
+            color=line[0].get_color(),
+            linestyle="--",
+            linewidth=0.8,
+            alpha=0.5,
+        )
+
         handles.append(line)
         labels.append(rf"$\lambda^{{{idx + 1}}}$")
 
@@ -267,15 +276,6 @@ def main():
                 alpha=0.2,
                 color=f"C{idx}",
             )
-
-        # Plot horizontal line for last architecture
-        ax.axhline(
-            y=mean_eigvals_by_arch[-1, 1],
-            color=f"black",
-            linestyle="--",
-            linewidth=0.8,
-            alpha=0.5,
-        )
 
         ax.set_xlabel(r"${\rm Architecture}$", fontsize=LABELSIZE)
         ax.set_ylabel(r"$\textrm{NTK eigenvalues}$", fontsize=LABELSIZE)
