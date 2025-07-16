@@ -1,43 +1,76 @@
 \ac{General comments: the paging of the figuers is all messed up, but I will fix
-it once we know what we want to keep (and discard).} The NTK, introduced in
-Sec.~\ref{sec:GradFlow}, provides a powerful framework for understanding neural
+it once we know what we want to keep (and discard).} 
+
+The NTK, introduced in Sec.~\ref{sec:GradFlow}, provides a powerful framework for understanding neural
 network dynamics during training. Originally developed by Jacot et
-al.~\cite{jacot2018neural} to analyze infinite-width feed-forward networks, the
+al.~\cite{jacot2018neural} to analyse infinite-width feed-forward networks, the
 NTK theory has since been extended to diverse architectures including
 convolutional networks~\cite{arora2019exact} and recurrent
 networks~\cite{alemohammad2021recurrent}. This theoretical framework has proven
 invaluable for characterizing learning dynamics and generalization properties
 across various network designs.
 
-From Eq.~\eqref{eq:FlowEquationNoIndices}, we observe that the NTK encodes the
+From Eqa.~\eqref{eq:NTKDef} and~\eqref{eq:FlowEquationNoIndices}, we observe that the NTK encodes the
 dependence on the architecture of the network and governs its training dynamics.
-The analysis of the NTK properties is thus crucial for understanding the network
-behaviour during training. We first show the properties of the NTK at
+The analysis of the NTK properties is thus crucial for understanding the 
+behaviour of the network during training. We first discuss the properties of the NTK at
 initialisation, before moving to the training phase, where we provide a detailed
 study of the NTK in the context of the NNPDF methodology. To this end, we
 performed a fit of $T_3$ using the NNPDF methodology with the dataset described
-in Sec.~???. We initialized an ensemble of $N_{\rm Rep} = 100$ replicas with
+in Sec.~\ref{sec:DataSet}. We initialized an ensemble of $N_{\rm Rep} = 100$ replicas with
 identical architecture, training each replica independently using gradient
 descent (GD) optimization. As our focus here is on NTK properties rather than
 physical predictions, we use synthetic data with controlled noise
-characteristics, namely L0, L1, and L2 data generations. Throughout training, we
-track the evolution of the NTK to understand how the network's effective
+characteristics, namely L0, L1, and L2 data generations. Throughout the training process, 
+we track the evolution of the NTK to understand how the network's effective
 dynamics change as it learns the target function.
 
+\subsection{NTK at Initialization}
+\label{sec:NTKAtInit}
+We first discuss the properties of the NTK at initialisation, that is when the
+network is blind to data. We remind that, at this stage, the NTK depends on the
+$x$-grid of input and on the architecture. It is argued in the literature that,
+in the large-width limit, the variance of the NTK over the set of replicas tends to zero 
+with the width of the hidden layers (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to
+quantify the variation of the NTK, we start by computing the Frobenius norm of the NTK over
+an ensemble of networks for different architectures. For each architecture, we
+consider the mean value and standard deviation of the norm as statistical estimators of the
+variations of the NTK. The result is displayed in Fig.~\ref{fig:NTKInit}. Even though the 
+Frobenius norm is a coaarse indicator of the variations of the NTk,
+the figure shows clearly that the variance of the norm becomes smaller with the size of the
+network, which is consistent with the theoretical expectation that the NTK should not 
+fluctuate for infinite-width networks. Note that, in addition to the scaling $\mathcal{O}(1/n)$ theoretically
+predicted for large networks, the uncertainty bands include bootstrap errors
+due to the finite size of the ensemble. \ac{I can say something more here.}
+\ldd{Yes, you need to be more quantitative}
+
 % ===================================
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering
   \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_with_uncertainty.pdf}
   \caption{Frobenius norm of the NTK at initialisation, $\lVert \Theta_0
-  \rVert$, in function of the width of the network. On the left, central values
-  and uncertainty bands are obtained as mean and one-sigma deviation of the
-  ensemble of networks (left). The relative uncertainty is also shown (right)}
+  \rVert$, in function of the width of the network. On the left, the central values
+  and uncertainty bands are obtained as the mean and one-sigma deviation of the
+  ensemble of networks. The plot on the right shows the relative uncertainty }
   \label{fig:NTKInit}
 \end{figure}
 % ===================================
 
+In order to get a more quantitative understanding of the fluctuations 
+at initialization, the spectrum of the NTK is shown in Fig.~\ref{fig:NTKSpectrum} for four different architectures. 
+As debated in the
+literature, the spectrum of the NTK is heavily hierarchical, and only few
+eigenvalues are actually non-zero\footnote{Note that, due to the large
+difference in magnitude of the eigenvalues, the finite precision used in our
+codes introduces noise in the decomposition, so that small eigenvalues
+should be effectively considered zero. We discuss the cut-off tolerance
+later, when we discuss the training process in more details.}. This means that
+only a small subset of active directions can inform the network during training,
+as it will be discussed later. Note that, at least at initialisation, these
+observations do not depend on the architecture.
+
 % ===================================
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering
 
   \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_arch.pdf}
@@ -46,34 +79,11 @@ dynamics change as it learns the target function.
   \label{fig:NTKSpectrum}
 \end{figure}
 % ===================================
-We first discuss the properties of the NTK at initialisation, that is when the
-network is blind to data. We remind that, at this stage, the NTK depends on the
-$x$-grid of input and on the architecture. It is argued in the literature that,
-in the large-width limit, the variance of the NTK tends to zero with the size of
-the architecture (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to
-assess this property of the NTK, we compute the Frobenius norm of the NTK over
-an ensemble of networks for different architectures. For each architecture, we
-take mean value and standard deviation as statistical estimators of the
-ensemble. The result is displayed in Fig.~\ref{fig:NTKInit}. From this figure,
-we can confirm that the variance of the NTK becomes smaller with the size of the
-network. Note that, in addition to the scaling $\mathcal{O}(1/n)$ theoretically
-predicted in the large networks, the uncertainty bands include bootstrap errors
-due to the finite size of the ensemble. \ac{I can say something more here.}
 
-Another feature of the NTK is shown in Fig.~\ref{fig:NTKSpectrum}, where the
-spectrum of the NTK is shown for four different architectures. As debated in the
-literature, the spectrum of the NTK is heavily hierarchical, and only few
-eigenvalues are actually non-zero\footnote{Note that, due to the large
-difference in magnitude of the eigenvalues, the relative precision of the
-machine introduces noise noise in the decomposition, so that small eigenvalues
-should be effectively considered zero. We will discuss the cut-off tolerance
-later, when will discuss the training process in more details.}. This means that
-only a small subset of active directions can inform the network during training,
-as it will be discussed later. Note that, at least at initialisation, these
-observations do not depend on the architecture.
+
 
 % ===================================
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering
   \includegraphics[width=0.6\textwidth]{../plots/ntk_pheno/delta_ntk.pdf}
   \caption{Relative variation of the NTK during training for L0, L1, and L2
@@ -109,7 +119,7 @@ infinite-width networks during training can be applied only after the initial
 phase, when the NTK has stabilized, as discussed later in this article.
 
 % ===================================
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering
   \includegraphics[width=0.48\textwidth]{../plots/ntk_pheno/ntk_eigvals_L0_L1_L2_n_1.pdf}
   \includegraphics[width=0.48\textwidth]{../plots/ntk_pheno/ntk_eigvals_L0_L1_L2_n_2.pdf}
@@ -139,7 +149,7 @@ non-zero, they can be learned in a finite time and not require
 $T\rightarrow\infty$ to be learned, which is unpractical.
 
 % ===================================
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering
   \includegraphics[width=0.45\textwidth]{../plots/ntk_pheno/delta_ntk_arch.pdf}
   \includegraphics[width=0.45\textwidth]{../plots/ntk_pheno/ntk_eigvals_single_plot_arch.pdf}
@@ -156,7 +166,7 @@ architectures?}
 
 
 % ===================================
-\begin{figure}[h!]
+\begin{figure}[ht!]
   \centering
   \includegraphics[width=1\textwidth]{plots/ntk_pheno/ntk_alignment.pdf}
   \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L1 data and for a

@@ -71,8 +71,10 @@ where
 \end{align}
 For clarity, we often omit indices and write
 \begin{align}
+    \label{eq:dTdfForLinearObs}
     \left(\frac{\partial T}{\partial f}\right)_t
         &= \FKtab\, , \\
+    \label{eq:NTKDef}
     \Theta_t
         &= \left(\nabla_\mu f_t\right) \left(\nabla_\mu f_t\right)^T\, , \\
     \label{eq:FlowEquationNoIndices}
@@ -449,7 +451,7 @@ where
         &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
         - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[f_0^T U(t)^T\right]\, ,\\
     C^{(0Y)}
-        &= \quad + \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
+        &= \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
         - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[Y^T V(t)^T\right] \nonumber \\
         \label{eq:C0Yterm}
         &\quad + \mathbb{E}\left[V(t) Y f_0^T U(t)^T\right]
@@ -458,10 +460,12 @@ where
         &= \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
         - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right]\, .
 \end{align}
-We report the values of $C^{(00)}$, $C^{(0Y)}$ and $C^{(YY)}$ for different values in 
+We report the values of $C^{(00)}$, $C^{(0Y)}$ and $C^{(YY)}$ for different values of $t$ in 
 Fig.\ref{fig:CovarianceContribs}.
-We see explicitly that the fluctuations of the fields at initialization yield a contribution to 
-the statistical uncertainty of the trained fields. 
+\ldd{Here we need plots at many values of $t$, in order to figure out what is actually going on with these three 
+contributions along training. Hoepfully we see explicitly that the fluctuations of the fields at initialization yield a 
+contribution to the statistical uncertainty of the trained fields at early times, and that contribution
+decreases.}
 
 \begin{figure}
     \label{fig:CovarianceContribs}
@@ -479,6 +483,8 @@ the statistical uncertainty of the trained fields.
 % \end{align}
 % where we used the fact that the fluctuations of the data $Y$ are statistically independent from 
 % the fluctations of the fields at initialization. 
+
+\ldd{To be rewritten when we have the plots mentioned above.}
 
 An important criterion that we want to put forward at this point is that the covariance of the trained
 fields should be dominated by the statistical error on the data. This is the case towards the end of
