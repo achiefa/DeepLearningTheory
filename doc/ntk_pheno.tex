@@ -74,13 +74,26 @@ observations do not depend on the architecture.
   \centering
 
   \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_arch.pdf}
-  \caption{Spectrum of the NTK for the architectures shown in
-  Fig.~\ref{fig:NTKInit}. \ac{I'm thinking of removing uncertainty bands.}}
+  \caption{Spectrum of the NTK at initialization for the architectures shown in
+  Fig.~\ref{fig:NTKInit}. }
   \label{fig:NTKSpectrum}
 \end{figure}
 % ===================================
 
+\subsection{NTK During Training}
+Having established the properties of the NTK at initialisation, we now discuss
+its behaviour during training. In the machine learning literature, it is argued
+that the NTK remains constant during training provided that the width of the
+network is large enough. Here we show that this is not the case, at least for
+the NNPDF methodology. 
 
+\paragraph{Onset of lazy training.} In Fig.~\ref{fig:NTKTime}, we show the Frobenius norm of the variation
+of the NTK during training, normalized by the Frobenius norm of the NTK itself, 
+\begin{equation}
+\delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
+\label{eq:DeltaNTK}
+\end{equation}
+for three different datasets, L0, L1, and L2. 
 
 % ===================================
 \begin{figure}[ht!]
@@ -92,31 +105,52 @@ observations do not depend on the architecture.
   \label{fig:NTKTime}
 \end{figure}
 % ===================================
-Having established the properties of the NTK at initialisation, we now discuss
-its behaviour during training. In the machine learning literature, it is argued
-that the NTK remains constant during training provided that the width of the
-network is large enough. Here we show that this is not the case, at least for
-the NNPDF methodology. In Fig.~\ref{fig:NTKTime}, we show the relative variation
-of the Frobenius norm of the NTK
-\begin{equation}
-\delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
-\label{eq:DeltaNTK}
-\end{equation}
-during training for three different datasets, L0, L1, and L2. We observe that
-the NTK does not remain constant during training, but rather it tends to change
-with time. In the figure, we can identify two different phases. The first one
+
+It is clear from our data that the NTK does not remain constant during training. 
+Two different phases can be distinguished in the figure. The first one
 covers the initial part of the training. From Fig.~\ref{fig:NTKTime}, we see
-that the is rather sensitive to the evolution, in strong contrast with the
-observations argued in the machine learning literature. Note also that this
+that the norm of the NTK varies significantly in the early stages of the evolution, in strong contrast with 
+the predictions obtained in the infinite-width limit. Note also that this
 initial peak is more pronounced for L2 data. This is consistent with the fact
-that the NTK (\textit{i.e.}, the architecture) needs to accommodate the noise in
+that the NTK (\ie\ the architecture) needs to accommodate the noise in
 the data, thus leading to a larger variation of the NTK. On the other hand,
-after this initial phase, the NTK tends to stabilize. We will refer to this
+after this initial phase -- corresponding approximately to the first 20,000 epochs in our experiment --
+the NTK tends to stabilize. As discussed in the previous Section, we refer to this
 second phase as the \textit{lazy training}, in keeping with the terminology
 adopted in the literature. We conclude that, in this phase, the NTK does not
-change significantly. As a consequence, this suggests that the theory of the
-infinite-width networks during training can be applied only after the initial
-phase, when the NTK has stabilized, as discussed later in this article.
+change significantly. As a consequence, this suggests that a description of 
+the training using a constant NTK, as predicted by the theory of the
+infinite-width networks, can only be applied after the initial
+phase, \ie\ after the NTK has stabilized. 
+
+\FloatBarrier
+
+\paragraph{Eigensystem of the NTK.}
+Further insight on the evolution of the NTK can be obtained by studying its eigensystem as 
+a function of the training time. 
+In Fig.~\ref{fig:EigvalL0Training} we report the variation of the first five eigenvalues 
+of the NTK, using the standard NNPDF architecture and L0 data. We see that the hierachical
+structure observed at initialization is preserved, but the size of the subdominant eigenvalues
+increases significantly in the early stages of training -- by one or two orders of magnitude depending on the 
+specific eigenvalues. 
+% ===================================
+\begin{figure}[ht!]
+  \centering  
+  \includegraphics[width=0.78\textwidth]{plots/eigval_L0.png}  
+  \caption{Evolution during training of the first five eigenvalues of the NTK.}
+  \label{fig:EigvalL0Training}
+\end{figure}
+% ===================================
+In Fig.~\ref{fig:EigvalsComparison}, the same first five eigenvalues of the NTK
+are displayed for L0, L1, and L2 data. We can make a few observations upon
+inspecting these plots. First, we notice that the way in which data is generated
+has an impact on the eigenvalues of the NTK. In general, the uncertainty bands
+for L2 data are larger than those for L1 and L0 data, indicating that the NTK is
+more sensitive to the noise in the data. This is consistent with the observation
+made in Fig.~\ref{fig:NTKTime}. 
+The eigenvalues reach a plateau and do not change significantly once 
+the network enters the lazy training regime. This fact, combined with the analysis of Eq.~\eqref{eq:FlowSolution}, 
+suggests that more ``physical'' features become learnable before lazy training sets in. 
 
 % ===================================
 \begin{figure}[ht!]
@@ -132,22 +166,23 @@ phase, when the NTK has stabilized, as discussed later in this article.
   \label{fig:EigvalsComparison}
 \end{figure}
 % ===================================
-One may ask how the eigenvalues of the NTK contribute to the variation of the
-NTK. In Fig.~\ref{fig:EigvalsComparison}, the first five eigenvalues of the NTK
-are displayed for L0, L1, and L2 data. We can make a few observations upon
-inspecting these plots. First, we notice that the way in which data is generated
-has an impact on the eigenvalues of the NTK. In general, the uncertainty bands
-for L2 data are larger than those for L1 and L0 data, indicating that the NTK is
-more sensitive to the noise in the data. This is consistent with the observation
-made in Fig.~\ref{fig:NTKTime}. Second, we observe that the initial hierarchy of
-the eigenvalues, Fig.~\ref{fig:NTKSpectrum}, is not preserved during training.
-While the first eigenvalue remains dominant, the other eigenvalues grow with
-time. This fact, combined with the analysis of Eq.~\eqref{eq:FlowSolution}
-\ac{(this reference will be likely changed)}, suggests that more ``physical''
-features become learnable during training. Most importantly, being these values
-non-zero, they can be learned in a finite time and not require
-$T\rightarrow\infty$ to be learned, which is unpractical.
 
+\FloatBarrier
+
+\paragraph{Dependence on the architecture.}
+In order to learn more about the onset of lazy training, it is interesting to consider what happens to 
+the picture sketched so far as the architecture of the neural networks is varied. In Fig.~\ref{fig:NTKTimeDiffArch}
+we compare the time depepndence of the Frobenius norm of the NTK and the variation of the first three eigenvalues
+for two different architectures. The smaller network is the $[28,20]$ used in the standard NNPDF
+analyses and in this work, while the large one is a $[100,100]$ network, which is closer to the infinite-width
+limit. For illustration purposes we focus in this plot of L1 data and only three eigenvalues rather than the five
+we examined above. The quantitative features are exactly the same for L0 and L2 data, and adding the fourth 
+and fifth eigenvalues does not add unexpected behaviours compared to what we observe in Figs.~\ref{fig:NTKTime} 
+and~\ref{fig:EigvalL0Training}. It is interesting to remark that the onset of lazy training is slower 
+for the larger network. This is to be expected if we interpret the onset of lazy training as a phase where 
+the network identifies the learnable features in the space of functions that it can parametrize. For a 
+larger network, the space of parametrized functions is larger and the identification of the physical 
+features takes a larger number of epochs. 
 % ===================================
 \begin{figure}[ht!]
   \centering
@@ -161,10 +196,30 @@ $T\rightarrow\infty$ to be learned, which is unpractical.
 \end{figure}
 % ===================================
 
-\ldd{Then there is the dependence on the architecture... are we going to repeat this for three/four different
-architectures?}
+\FloatBarrier
 
-
+\paragraph{Alignment of the NTK.}
+It has been argued before that there is a non-trivial interplay between the
+eigenspace of the NTK and that of the matrix $M$. Indeed, the former encodes the
+model dependence, while the latter brings physical information. Of course the
+two matrices are independent at initialisation, and we do not expect any
+alignment patter between the two. However, this picture does change during
+training, as the NTK evolves and the model learns the target function. To
+quantify this alignment, we define the matrix $A$, 
+\begin{equation}
+  \label{eq:MatrixA}
+  A_{kk'} = \left( \left< z^{(k)}, v^{(k')}\right> \right)^2 = \cos^2(\theta_{kk'}) \;,
+\end{equation}
+where $z^{(k)}$ and $v^{(k')}$ are the $k$-th and $k'$-th eigenvectors of the
+NTK and $M$, respectively. The matrix $A$ is thus a measure of the alignment
+between the eigenspaces of the two matrices. The rows of the matrix correspond to 
+the eigenvectors of the NTK, ordered by the value of the corresponding eigenvalues, 
+with the eigenvectors corresponding to the larger 
+eigenvalues at the top of the matrix. The columns correspond to eigenvectors 
+of the matrix $M$, also ordered by the values of the corresponding eigenvalues, 
+with the largest eigenvalues to the left in this case. In Fig.~\ref{fig:NtkMAlign}, we
+show the matrix $A$ at different epochs of the training for L2 data and a
+single NTK replica. 
 % ===================================
 \begin{figure}[ht!]
   \centering
@@ -177,22 +232,17 @@ architectures?}
   \label{fig:NtkMAlign}
 \end{figure}
 % ===================================
-It has been argued before that there is a non-trivial interplay between the
-eigenspace of the NTK and that of the matrix $M$. Indeed, the former encodes the
-model dependence, while the latter brings physical information. Of course the
-two matrices are independent at initialisation, and we do not expect any
-alignment patter between the two. However, this picture might change during
-training, as the NTK evolves and the model learns the target function. To
-quantify this alignment, we define the matrix $A$ as
-\begin{equation}
-  A_{kk'} = \left( \left< z^{(k)}, v^{(k')}\right> \right)^2 = \cos^2(\theta_{kk'}) \;,
-  \label{eq:MatrixA}
-\end{equation}
-where $z^{(k)}$ and $v^{(k')}$ are the $k$-th and $k'$-th eigenvectors of the
-NTK and $M$, respectively. The matrix $A$ is thus a measure of the alignment
-between the eigenspaces of the two matrices. In Fig.~\ref{fig:NtkMAlign}, we
-show the matrix $A$ at different epochs of the training for L2 data and for a
-single NTK replica.
-
+The blue rectangle in the top right corner of the matrix shows that the eigenvectors
+of the NTK corresponding to the largest eigenvalues are orthogonal to the eigenvectors
+of $M$ that are in the kernel of $M$, \ie\ the directions that do not contribute to the 
+observables. It is useful to remember that the largest eigenvalues of the NTK correspond 
+to the directions that are orthogonal to $\ker\Theta$, \ie\ the directions that are learnable
+during the training process. In order to have a robust training process, we expect these 
+learnable directions to align with the directions that actually contribute to the loss 
+functions, \ie\ the ones corresponding to the largest eigenvalues of $M$. Consistently with 
+this intuition, we see that the size of this blue rectangle increases with training time. 
+In particular, it is clear from our plot that it becomes deeper by the onset of the lazy 
+training regime: more of the learnable directions -- the {\it features}\ that the network 
+can learn -- are aligned with the directions that contribute most to the observables. 
 
 \FloatBarrier

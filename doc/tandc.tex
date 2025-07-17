@@ -1,8 +1,8 @@
-The analytical solution in \eqref{eq:AnalyticSol} can shed a new light onto the
+The analytical solution in Eq.~\eqref{eq:AnalyticSol} sheds a new light onto the
 behaviour of the numerical neural network training. In order to study the
 training process, the NNPDF collaboration has successfully developed so-called
 {\em closure tests}. A closure test uses synthetic data, generated using a known
-set of PDFs, to train the neural network. The PDFs used for genrating the data
+set of PDFs, to train the neural network. The PDFs used for generating the data
 are called here {\em input}\ PDFs. The results of the training are then compared
 to the known input PDFs; the performance of the training algorithm and the NN
 architecture are assessed by quantifying the comparison between trained PDFs and
@@ -12,7 +12,7 @@ of the data used to train the NNs. We use the standard NNPDF nomenclature and
 refer to these three levels as level-0 (L0), level-1 (L1), and level-2 (L2)
 closure tests and we denote the input PDFs used to generate the data as $\fin$.
 
-Let us start by discussing the case of L0 tests. In this case, the data are
+Let us start by discussing the case of L0 closure tests. In this case, the data are
 given by
 \begin{equation}
     \label{eq:DataL0}
@@ -26,6 +26,7 @@ or equivalently, suppressing the indices,
 \end{equation}
 Using L0 data in the analytical expression for the trained network in
 Eq.~\eqref{eq:AnalyticSol} allows a simplification of the second term,
+\ldd{will type correct formulae here}
 \begin{align}
     \label{eq:L0ClosureTrained}
     V(t) Y = \sumprime_{i} Z^{(i)} \left(1 - e^{-h^{(i)}t}\right)
@@ -40,6 +41,10 @@ and therefore the $V$ component of the trained solution reproduces exactly the
 component of the PDF that lies in  the subspace orthogonal to the kernel of
 $\Theta$.
 
+\ldd{we need to compute the the scalar product $(z^{k},f^\textin)$ for all values of 
+$k$ at different training times between $t=0$ and $T_{\mathrm{ref}}=20,000$. We may be 
+able to see explicitly that the eigenvectors of the NTK really align with the 'true' 
+solution.}
 
 Distance between the numerical minimization and the analytical formula as a
 function of training time $t$
@@ -53,7 +58,7 @@ using L0 data}
 \input{training_and_closure.tex}
 
 % L0 data
-\begin{figure}[h]
+\begin{figure}[ht!]
     \centering
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_last_epoch_L0.pdf}
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_epochs_L0.pdf}
@@ -66,7 +71,7 @@ using L0 data}
     \label{fig:xT3_analytical_init_L0}
   \end{figure}
   % ===================================
-  \begin{figure}[h]
+  \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_L0.pdf}
     \caption{PDF distance, as defined in Ref.~\cite{NNPDF:2021njg}, with respect to
@@ -77,7 +82,7 @@ using L0 data}
   % ===================================
 
   % L2 data
-\begin{figure}[h]
+\begin{figure}[ht!]
     \centering
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_last_epoch_L2.pdf}
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_epochs_L2.pdf}
@@ -85,7 +90,7 @@ using L0 data}
     \label{fig:xT3_analytical_init_L2}
   \end{figure}
   % ===================================
-  \begin{figure}[h]
+  \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_L2.pdf}
     \caption{Same as Fig.~\ref{fig:xT3_distance_L0}, but using L2 data.}
@@ -94,7 +99,7 @@ using L0 data}
   % ===================================
 
 
-\begin{figure}[h]
+\begin{figure}[ht!]
     \centering
     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_100_L0.pdf}
     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_50000_L0.pdf}
@@ -106,7 +111,7 @@ using L0 data}
   \end{figure}
   % ===================================
 
-  \begin{figure}[h]
+  \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_100_L2.pdf}
     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/pdf_plot_u_v_50000_L2.pdf}
