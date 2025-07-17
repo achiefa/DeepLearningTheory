@@ -267,14 +267,16 @@ def main():
     train_model.compile(optimizer=optimizer, loss=[chi2])
 
     # Train the model
+    x = tf.constant(fk_grid.reshape(1, -1, 1), dtype=tf.float32)
     log_cb = LoggingCallback(log_frequency=args.callback_freq, ndata=data.size)
     save_cb = WeightStorageCallback(
-        storage_frequency=args.callback_freq, storage_path=replica_save_dir
+        storage_frequency=args.callback_freq,
+        storage_path=replica_save_dir,
+        training_data=(x, data.reshape(1, -1)),
     )
     nan_cb = NaNCallback()
 
     data = y.reshape(1, -1)
-    x = fk_grid.reshape(1, -1, 1)
     _ = train_model.fit(
         x,
         data,

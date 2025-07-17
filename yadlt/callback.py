@@ -10,15 +10,33 @@ logger = logging.getLogger(__name__)
 class WeightStorageCallback(tf.keras.callbacks.Callback):
     """Callback to store model weights every f epochs"""
 
-    def __init__(self, storage_frequency=100, storage_path=None):
+    def __init__(self, storage_frequency=100, storage_path=None, training_data=None):
         super().__init__()
         self.storage_frequency = storage_frequency
         self.storage_path = storage_path or "model_weights"
         self.epoch_checkpoints = []
         self.loss_checkpoints = []
+        self.training_data = training_data
 
         # Create storage directory
         Path(self.storage_path).mkdir(exist_ok=True)
+
+    def on_train_begin(self, logs=None):
+        """Save initial weights before training starts"""
+        self.epoch_checkpoints.append(0)
+
+        # Evaluate loss at initial state
+        x_train, y_train = self.training_data
+        initial_loss = self.model.evaluate(x_train, y_train, verbose=0)
+        self.loss_checkpoints.append(initial_loss)
+        logger.info(f"Initial loss: {initial_loss}")
+
+        # Get PDF model weights
+        pdf_model = self.model.get_layer("Observable").get_layer("pdf")
+
+        # Save weights to file
+        weight_filename = f"{self.storage_path}/epoch_0.weights.h5"
+        pdf_model.save_weights(weight_filename)
 
     def on_epoch_end(self, epoch, logs=None):
         if (epoch + 1) % self.storage_frequency == 0:

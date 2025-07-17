@@ -15,6 +15,7 @@ import threading
 from typing import Any, Dict
 
 import numpy as np
+import tensorflow as tf
 import yaml
 
 from yadlt.distribution import Distribution
@@ -25,12 +26,12 @@ from yadlt.load_data import (
     load_bcdms_grid,
     load_bcdms_pdf,
 )
-from yadlt.model import load_trained_model
+from yadlt.model import load_trained_model, load_weights
+
+logger = logging.getLogger(__name__)
 
 MODULE_DIR = Path(__file__).parent
 FIT_FOLDER = (MODULE_DIR / "../Results/fits").resolve()
-
-logger = logging.getLogger(__name__)
 
 
 class Context(ABC):
@@ -67,7 +68,6 @@ class Context(ABC):
             self._initialized = True
             self._properties: Dict[str, Any] = {}
             self._config: Dict[str, Any] = {}
-            self._logger = logging.getLogger(__name__ + f".{context_name}")
             self.context_name = context_name
 
     @classmethod
@@ -93,7 +93,7 @@ class Context(ABC):
             value: Property value
         """
         self._properties[key] = value
-        self._logger.debug(f"Property '{key}' set to: {value}")
+        logger.debug(f"Property '{key}' set to: {value}")
 
     def get_property(self, key: str, default: Any = None) -> Any:
         """
@@ -132,7 +132,7 @@ class Context(ABC):
         """
         if key in self._properties:
             del self._properties[key]
-            self._logger.debug(f"Property '{key}' removed")
+            logger.debug(f"Property '{key}' removed")
             return True
         return False
 
@@ -158,7 +158,7 @@ class Context(ABC):
         if section not in self._config:
             self._config[section] = {}
         self._config[section][key] = value
-        self._logger.debug(f"Config '{section}.{key}' set to: {value}")
+        logger.debug(f"Config '{section}.{key}' set to: {value}")
 
     def get_config(self, section: str, key: str = None, default: Any = None) -> Any:
         """
@@ -187,7 +187,7 @@ class Context(ABC):
         if section not in self._config:
             self._config[section] = {}
         self._config[section].update(config_dict)
-        self._logger.debug(f"Config section '{section}' updated")
+        logger.debug(f"Config section '{section}' updated")
 
     def get_config_keys(self):
         """
@@ -207,7 +207,7 @@ class Context(ABC):
         self._properties.clear()
         self._config.clear()
         self._init_default_properties()
-        self._logger.info("Context reset to default state")
+        logger.info("Context reset to default state")
 
     def load_from_dict(self, data: Dict[str, Any]) -> None:
         """
@@ -220,7 +220,7 @@ class Context(ABC):
             self._properties.update(data["properties"])
         if "config" in data:
             self._config.update(data["config"])
-        self._logger.info("Context loaded from dictionary")
+        logger.info("Context loaded from dictionary")
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -261,7 +261,7 @@ class FitContext(Context):
         if not self.fit_folder.exists():
             raise ValueError(f"Fit folder {self.fit_folder} does not exist.")
 
-        self._logger.info(f"FitContext initialized for fit: {self.fit_name}")
+        logger.info(f"FitContext initialized for fit: {self.fit_name}")
 
         # Initialize serialization folder if it doesn't exist
         serialization_folder = self.fit_folder / "serialization"
@@ -287,7 +287,7 @@ class FitContext(Context):
             with open(metadata_file, "r") as f:
                 metadata = yaml.safe_load(f)
             self.update_config("metadata", metadata)
-            self._logger.info("Metadata loaded from file")
+            logger.info("Metadata loaded from file")
 
         self._init_default_properties()
         self._init_replicas()
@@ -443,7 +443,10 @@ class FitContext(Context):
         fk_grid = self.load_fk_grid()
         common_epochs = self.get_config("replicas", "common_epochs", [])
         serialization_folder = self.get_config("folders", "serialization_folder")
+        replica_folders = self.get_config("folders", "replicas_folders")
         logger.info(f"Serializing data to {serialization_folder}...")
+
+        x = tf.constant(fk_grid.reshape(1, -1, 1), dtype=tf.float32)
 
         # Initialize distributions for serialization
         NTK_time = [
@@ -540,14 +543,21 @@ class FitContext(Context):
             for epoch in common_epochs
         ]
 
+        # Load dummy model
+        model, _ = load_trained_model(replica_folders[0], epoch=500)
         for epoch in common_epochs:
             logger.info(f"Processing epoch {epoch} / {common_epochs[-1]}")
 
             # Loop over each replica
-            for replica_path in self.get_config("folders", "replicas_folders"):
+            for replica_path in replica_folders:
+                weight_file = load_weights(replica_path, epoch=epoch)
+                try:
+                    model.load_weights(weight_file)
+                except ValueError as e:  # Handle legacy
+                    pdf_model = model.layers[1]
+                    pdf_model.load_weights(weight_file)
 
-                model, _ = load_trained_model(replica_path, epoch=epoch)
-                result = process_model(model, fk_grid, self.get_M())
+                result = process_model(model, x, self.get_M())
 
                 NTK_time[common_epochs.index(epoch)].add(result["NTK"])
                 frob_norm_time[common_epochs.index(epoch)].add(result["frob_norm"])

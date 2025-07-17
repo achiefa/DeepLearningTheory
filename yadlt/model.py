@@ -18,6 +18,7 @@ from yadlt.layers import InputScaling, Preprocessing
 h5py_logger = logging.getLogger("h5py")
 h5py_logger.setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
+tf.get_logger().setLevel("ERROR")
 
 MAX_LAYER = 100000
 
@@ -230,6 +231,35 @@ def load_trained_model(replica_dir, epoch=-1):
     )
 
     # Find and load weights
+    weight_file = load_weights(replica_dir, epoch)
+
+    # Load weights directly into PDF model
+    try:
+        pdf_model.load_weights(weight_file)
+    except ValueError as e:  # Handle legacy
+        model = pdf_model.layers[1]
+        model.load_weights(weight_file)
+
+    return pdf_model, metadata
+
+
+def load_weights(replica_dir, epoch=-1):
+    """
+    Load weights for the PDF model from the specified directory.
+
+    Parameters
+    ----------
+    replica_dir : str
+        Directory where the model weights are stored.
+    epoch : int, optional
+        Specific epoch to load. If None, loads the latest model.
+
+    Returns
+    -------
+    tf.keras.Model
+        The PDF model with loaded weights.
+    """
+    # Find and load weights
     if epoch == -1:
         # Find the latest epoch
         weight_files = list(replica_dir.glob("epoch_*.weights.h5"))
@@ -245,11 +275,4 @@ def load_trained_model(replica_dir, epoch=-1):
     if not weight_file.exists():
         raise FileNotFoundError(f"PDF weight file not found: {weight_file}")
 
-    # Load weights directly into PDF model
-    try:
-        pdf_model.load_weights(weight_file)
-    except ValueError as e:  # Handle legacy
-        model = pdf_model.layers[1]
-        model.load_weights(weight_file)
-
-    return pdf_model, metadata
+    return weight_file

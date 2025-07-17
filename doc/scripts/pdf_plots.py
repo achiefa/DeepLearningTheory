@@ -5,6 +5,7 @@ as well as the PDF distance.
 
 from argparse import ArgumentParser
 import functools
+import logging
 
 import numpy as np
 
@@ -16,6 +17,13 @@ from yadlt.plotting import produce_distance_plot, produce_pdf_plot
 
 SEED = 1423413
 WEIGHTS_TOKEN = "weights.h5"
+
+from yadlt.log import setup_logger
+
+logger = setup_logger()
+
+# If you want to see all messages, including DEBUG:
+logger.setLevel(logging.INFO)
 
 
 @functools.cache
@@ -130,7 +138,7 @@ def plot_evolution_from_initialisation(
     """Plot the PDF comparison from a random initialised
     model using the frozen NTK.
     """
-    learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
+    learning_rate = float(context.get_config("metadata", "arguments")["learning_rate"])
     datatype = context.get_config("metadata", "arguments")["data"]
     common_epochs = context.get_config("replicas", "common_epochs")
     f_bcdms = context.load_f_bcdms()
@@ -218,7 +226,7 @@ def plot_distance(context: FitContext, ref_epoch: int = 0, seed: int = SEED):
     """Produce a distance plot wrt the trained solution."""
     metadata = context.get_config("metadata")
     datatype = metadata["arguments"]["data"]
-    learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
+    learning_rate = float(context.get_config("metadata", "arguments")["learning_rate"])
     last_epoch = context.get_config("replicas", "common_epochs")[-1]
     fk_grid = context.load_fk_grid()
 
@@ -252,9 +260,13 @@ def plot_distance(context: FitContext, ref_epoch: int = 0, seed: int = SEED):
     )
 
 
-def plot_u_v_contributions(context, ref_epoch: int = 0, ev_epoch: int = 1000):
+def plot_u_v_contributions(
+    context: FitContext, ref_epoch: int = 0, ev_epoch: int = 1000, seed: int = SEED
+):
     """Plot the contributions of U and V to the total operator."""
     datatype = context.get_config("metadata", "arguments")["data"]
+    nreplicas = context.get_property("nreplicas")
+    architecture = tuple(context.get_config("metadata", "model_info")["architecture"])
     fk_grid = context.load_fk_grid()
 
     # Load trained solution (end of training)
@@ -265,18 +277,24 @@ def plot_u_v_contributions(context, ref_epoch: int = 0, ev_epoch: int = 1000):
     data_by_replica_original = load_data(context)
 
     # Get learning rate
-    learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
+    learning_rate = float(context.get_config("metadata", "arguments")["learning_rate"])
     t = ev_epoch * learning_rate
 
     # Load trained solution (at reference epoch)
-    xT3_ref = load_model(context, ref_epoch)
-    xT3_ref.set_name(rf"$\textrm{{TS @ }} T_{{\rm ref}}$")
+    # xT3_ref = load_model(context, ref_epoch)
+    # xT3_ref.set_name(rf"$\textrm{{TS @ }} T_{{\rm ref}}$")
+    xT3_0 = produce_model_at_initialisation(
+        replicas=nreplicas,
+        fk_grid_tuple=tuple(fk_grid),
+        architecture_tuple=architecture,
+        seed=seed,
+    )
 
     evolution = EvolutionOperatorComputer(context)
 
     # Evolve the solution
     U, V = evolution.compute_evolution_operator(ref_epoch, t)
-    xT3_t_u = U @ xT3_ref
+    xT3_t_u = U @ xT3_0
     xT3_t_u.set_name(r"$\textrm{Contribution from U}$")
     xT3_t_v = V @ data_by_replica_original
     xT3_t_v.set_name(r"$\textrm{Contribution from V}$")
@@ -286,7 +304,7 @@ def plot_u_v_contributions(context, ref_epoch: int = 0, ev_epoch: int = 1000):
         [xT3_training, xT3_t_u, xT3_t_v],
         normalize_to=1,
         filename=f"pdf_plot_u_v_{ev_epoch}_{datatype}.pdf",
-        title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm trained)}}_{{T_{{\rm ref}}}}, \quad T = {{{ev_epoch}}}$",
+        title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}, \quad T = {{{ev_epoch}}}$",
     )
 
 
@@ -309,6 +327,12 @@ def main():
         default=None,
         help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Force serialization of the data even if it already exists.",
+    )
     fitname = parser.parse_args().fitname
     ref_epoch = parser.parse_args().ref_epoch
     plot_dir = parser.parse_args().plot_dir
@@ -317,7 +341,7 @@ def main():
 
         set_plot_dir(plot_dir)
 
-    context = FitContext(fitname)
+    context = FitContext(fitname, force_serialize=parser.parse_args().force)
 
     # Evolution with random initialisation, at different epochs
     plot_evolution_from_initialisation(
@@ -335,8 +359,8 @@ def main():
         show_true=True,
     )
 
-    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=100)
-    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=50000)
+    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=100, seed=SEED)
+    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=50000, seed=SEED)
 
     plot_distance(context, ref_epoch=ref_epoch, seed=SEED)
 

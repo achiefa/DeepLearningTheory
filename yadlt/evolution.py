@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+import tensorflow as tf
 
 from yadlt.model import compute_ntk_static
 
@@ -211,10 +212,7 @@ def process_model(model, grid, M):
     Helper function to process a single replica at a given epoch.
     """
     # Compute the NTK for the current replica and epoch
-    if len(grid.shape) == 1:
-        x = grid.reshape(1, -1, 1)
-
-    ntk = compute_ntk_static(x, model, 1)
+    ntk = compute_ntk_static(grid, model, 1)
     size = ntk.shape[0]
 
     # Compute eigenvalues and eigenvectors of the NTK
