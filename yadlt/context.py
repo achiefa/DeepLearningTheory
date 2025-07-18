@@ -541,6 +541,8 @@ class FitContext(Context):
             for epoch in common_epochs
         ]
 
+        # Load dummy model to load weights
+        model, _ = load_trained_model(replica_folders[0], epoch=common_epochs[0])
         for epoch in common_epochs:
             logger.info(f"Processing epoch {epoch} / {common_epochs[-1]}")
 
@@ -553,7 +555,6 @@ class FitContext(Context):
                     pdf_model = model.layers[1]
                     pdf_model.load_weights(weight_file)
 
-                model, _ = load_trained_model(replica_path, epoch=epoch)
                 result = process_model(model, fk_grid, self.get_M())
 
                 NTK_time[common_epochs.index(epoch)].add(result["NTK"])
