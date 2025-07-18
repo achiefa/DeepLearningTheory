@@ -65,8 +65,8 @@ using L0 data}
     \caption{Comparison of the trained solution at the end of training and
     the analytical solution using L0 data. In both panels, the
     frozen NTK is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$
-    is a different ensemble of networks at initialisation. In the right panel,
-    the analytical solution is evolved for $T_{\rm tot}$ epochs, while the left
+    is a different ensemble of networks at initialisation. In the left panel,
+    the analytical solution is evolved for $T_{\rm tot}$ epochs, while the right
     panel shows the same comparison for intermediate epochs.}
     \label{fig:xT3_analytical_init_L0}
   \end{figure}
@@ -76,7 +76,10 @@ using L0 data}
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_L0.pdf}
     \caption{PDF distance, as defined in Ref.~\cite{NNPDF:2021njg}, with respect to
     the trained solution at the end of training and analytical
-    solutions for various initial conditions and evolution epochs.}
+    solutions for various initial conditions and evolution epochs. The frozen NTK
+    is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different
+    ensemble of networks at initialisation. For the last epoch, the analytical solution
+    is evolved for $T_{\rm tot} = 50000$.}
     \label{fig:xT3_distance_L0}
   \end{figure}
   % ===================================
