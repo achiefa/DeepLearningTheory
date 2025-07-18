@@ -259,7 +259,9 @@ def main():
     # Define trainable model
     train_model = tf.keras.models.Model(inputs=model_input, outputs=obs(model_input))
     if args.optimizer == "SGD":
-        optimizer = tf.keras.optimizers.SGD(learning_rate=float(args.learning_rate))
+        optimizer = tf.keras.optimizers.SGD(
+            learning_rate=float(args.learning_rate), clipnorm=1.0
+        )
     elif args.optimizer == "Adam":
         optimizer = tf.keras.optimizers.Adam(learning_rate=float(args.learning_rate))
     else:
