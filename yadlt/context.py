@@ -25,7 +25,7 @@ from yadlt.load_data import (
     load_bcdms_grid,
     load_bcdms_pdf,
 )
-from yadlt.model import load_trained_model
+from yadlt.model import load_trained_model, load_weights
 
 MODULE_DIR = Path(__file__).parent
 FIT_FOLDER = (MODULE_DIR / "../Results/fits").resolve()
@@ -444,6 +444,7 @@ class FitContext(Context):
         common_epochs = self.get_config("replicas", "common_epochs", [])
         serialization_folder = self.get_config("folders", "serialization_folder")
         logger.info(f"Serializing data to {serialization_folder}...")
+        replica_folders = self.get_config("folders", "replicas_folders")
 
         # Initialize distributions for serialization
         NTK_time = [
@@ -544,7 +545,13 @@ class FitContext(Context):
             logger.info(f"Processing epoch {epoch} / {common_epochs[-1]}")
 
             # Loop over each replica
-            for replica_path in self.get_config("folders", "replicas_folders"):
+            for replica_path in replica_folders:
+                weight_file, _ = load_weights(replica_path, epoch=epoch)
+                try:
+                    model.load_weights(weight_file)
+                except ValueError:  # Handle legacy
+                    pdf_model = model.layers[1]
+                    pdf_model.load_weights(weight_file)
 
                 model, _ = load_trained_model(replica_path, epoch=epoch)
                 result = process_model(model, fk_grid, self.get_M())

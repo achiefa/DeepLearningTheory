@@ -230,6 +230,35 @@ def load_trained_model(replica_dir, epoch=-1):
     )
 
     # Find and load weights
+    weight_file, epoch_ref = load_weights(replica_dir, epoch)
+
+    # Load weights directly into PDF model
+    try:
+        pdf_model.load_weights(weight_file)
+    except ValueError as e:  # Handle legacy
+        model = pdf_model.layers[1]
+        model.load_weights(weight_file)
+
+    return pdf_model, epoch_ref
+
+
+def load_weights(replica_dir, epoch=-1):
+    """
+    Load weights for the PDF model from the specified directory.
+
+    Parameters
+    ----------
+    replica_dir : str
+        Directory where the model weights are stored.
+    epoch : int, optional
+        Specific epoch to load. If None, loads the latest model.
+
+    Returns
+    -------
+    tf.keras.Model
+        The PDF model with loaded weights.
+    """
+    # Find and load weights
     if epoch == -1:
         # Find the latest epoch
         weight_files = list(replica_dir.glob("epoch_*.weights.h5"))
@@ -239,17 +268,11 @@ def load_trained_model(replica_dir, epoch=-1):
         epochs = [int(f.name.split(".")[0].split("_")[-1]) for f in weight_files]
         latest_epoch = max(epochs)
         weight_file = replica_dir / f"epoch_{latest_epoch}.weights.h5"
+        epoch = latest_epoch
     else:
         weight_file = replica_dir / f"epoch_{epoch}.weights.h5"
 
     if not weight_file.exists():
         raise FileNotFoundError(f"PDF weight file not found: {weight_file}")
 
-    # Load weights directly into PDF model
-    try:
-        pdf_model.load_weights(weight_file)
-    except ValueError as e:  # Handle legacy
-        model = pdf_model.layers[1]
-        model.load_weights(weight_file)
-
-    return pdf_model, metadata
+    return weight_file, epoch

@@ -21,7 +21,7 @@ from yadlt.load_data import (
     load_bcdms_pdf,
 )
 from yadlt.log import MyHandler
-from yadlt.model import Chi2, generate_pdf_model
+from yadlt.model import Chi2, generate_pdf_model, load_trained_model
 
 log = logging.getLogger()
 log.addHandler(MyHandler())
@@ -74,9 +74,22 @@ def parse_args():
         default=None,
         help="Path to YAML configuration file (overrides other arguments)",
     )
+    parser.add_argument(
+        "--resume",
+        type=str,
+        default=None,
+        help="Path to a previous training directory to resume training",
+    )
+
+    parser.add_argument(
+        "--extend",
+        type=int,
+        default=0,
+        help="Number of additional training iterations to perform",
+    )
 
     # Positional arguments
-    parser.add_argument("replica", help="Replica number")
+    parser.add_argument("replica", type=int, default=1, help="Replica number")
 
     # Optional arguments
     parser.add_argument("--seed", help="Seed number", default=57298, type=int)
@@ -180,17 +193,37 @@ def main():
     # Make save directories
     if args.config:
         root_dir = Path(args.config.removesuffix(".yaml"))
+    elif args.resume:
+        root_dir = Path(args.resume)
     else:
         root_dir = Path(args.savedir)
 
     replica_save_dir = root_dir / f"replica_{str(args.replica)}"
+
+    if args.resume and not replica_save_dir.exists():
+        log.error(f"Resume directory {replica_save_dir} does not exist.")
+        raise FileNotFoundError(f"Directory {replica_save_dir} not found.")
+
     replica_save_dir.mkdir(parents=True, exist_ok=True)
     log.debug(f"Saving directory: {replica_save_dir}")
 
+    if args.resume:
+        # Load metadata
+        with open(root_dir / "metadata.yaml", "r") as f:
+            metadata = yaml.safe_load(f)
+
     # Save metadata
     if int(args.replica) == 1:
-        log.info("Saving metadata")
-        save_metadata(args, root_dir)
+        if args.resume:
+            log.info(f"Changing metadata from {args.resume}")
+            metadata["arguments"]["max_iterations"] += args.extend
+
+            with open(root_dir / "metadata.yaml", "w") as f:
+                yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
+
+        else:
+            log.info("Saving metadata")
+            save_metadata(args, root_dir)
 
     # Collect Tommaso's data
     fk_grid = load_bcdms_grid()
@@ -199,52 +232,62 @@ def main():
     f_bcdms = load_bcdms_pdf()
     Cy = load_bcdms_cov()
 
-    # Generate data
-    replica_seed = int(args.seed) + int(args.replica)
-    rng_replica = np.random.default_rng(replica_seed)
-    rng_l1 = np.random.default_rng(int(args.seed))
+    if not args.resume:
+        # Generate data
+        replica_seed = int(args.seed) + int(args.replica)
+        rng_replica = np.random.default_rng(replica_seed)
+        rng_l1 = np.random.default_rng(int(args.seed))
 
-    if args.data == "real":
-        L = np.linalg.cholesky(Cy)
-        y = data + rng_replica.normal(size=(Cy.shape[0])) @ L
-        log.info(f"Using real data with seed {replica_seed}")
-
-    elif args.data in ["L0", "L1", "L2"]:
-        y = FK @ f_bcdms
-        log.info(f"L0 data generated")
-
-        if args.data == "L1" or args.data == "L2":
+        if args.data == "real":
             L = np.linalg.cholesky(Cy)
-            y_l1 = FK @ f_bcdms
-            y = y_l1 + rng_l1.normal(size=(Cy.shape[0])) @ L
-            log.info(f"L1 data generated with seed {int(args.seed)}")
+            y = data + rng_replica.normal(size=(Cy.shape[0])) @ L
+            log.info(f"Using real data with seed {replica_seed}")
 
-            if args.data == "L2":
-                y = y + rng_replica.normal(size=(Cy.shape[0])) @ L
-                log.info(f"L2 data generated with seed {replica_seed}")
+        elif args.data in ["L0", "L1", "L2"]:
+            y = FK @ f_bcdms
+            log.info(f"L0 data generated")
+
+            if args.data == "L1" or args.data == "L2":
+                L = np.linalg.cholesky(Cy)
+                y_l1 = FK @ f_bcdms
+                y = y_l1 + rng_l1.normal(size=(Cy.shape[0])) @ L
+                log.info(f"L1 data generated with seed {int(args.seed)}")
+
+                if args.data == "L2":
+                    y = y + rng_replica.normal(size=(Cy.shape[0])) @ L
+                    log.info(f"L2 data generated with seed {replica_seed}")
+        else:
+            log.error("Please specify --realdata, --L0, --L1 or --L2")
+            raise ValueError()
+
+        # Save the data
+        np.save(replica_save_dir / "data.npy", y)
     else:
-        log.error("Please specify --realdata, --L0, --L1 or --L2")
-        raise ValueError()
-
-    # Save the data
-    np.save(replica_save_dir / "data.npy", y)
+        log.info(f"Loading data from {replica_save_dir / 'data.npy'}")
+        y = np.load(replica_save_dir / "data.npy")
 
     # Prepare the loss function
     chi2 = Chi2(Cy)
 
     # Prepare the PDF model
-    log.info("Generating PDF model")
-    pdf_model = generate_pdf_model(
-        outputs=1,
-        architecture=args.architecture,
-        activations=[args.activation for _ in range(len(args.architecture))],
-        kernel_initializer="GlorotNormal",
-        bias_initializer="zeros",
-        user_ki_args=None,
-        seed=replica_seed,
-        scaled_input=args.use_scaled_input,
-        preprocessing=args.use_preprocessing,
-    )
+    last_epoch = 0
+    if args.resume:
+        log.info(f"Loading PDF model from {replica_save_dir}")
+        pdf_model, last_epoch = load_trained_model(replica_save_dir, -1)
+    else:
+        log.info("Generating PDF model")
+        pdf_model = generate_pdf_model(
+            outputs=1,
+            architecture=args.architecture,
+            activations=[args.activation for _ in range(len(args.architecture))],
+            kernel_initializer="GlorotNormal",
+            bias_initializer="zeros",
+            user_ki_args=None,
+            seed=replica_seed,
+            scaled_input=args.use_scaled_input,
+            preprocessing=args.use_preprocessing,
+        )
+
     pdf_model.summary()
     pdf_model.get_layer("pdf_raw").summary()
     model_input = pdf_model.input
@@ -258,29 +301,48 @@ def main():
 
     # Define trainable model
     train_model = tf.keras.models.Model(inputs=model_input, outputs=obs(model_input))
-    if args.optimizer == "SGD":
-        optimizer = tf.keras.optimizers.SGD(learning_rate=float(args.learning_rate))
-    elif args.optimizer == "Adam":
-        optimizer = tf.keras.optimizers.Adam(learning_rate=float(args.learning_rate))
+    optimizer = metadata["arguments"]["optimizer"] if args.resume else args.optimizer
+    learning_rate = (
+        metadata["arguments"]["learning_rate"] if args.resume else args.learning_rate
+    )
+    if optimizer == "SGD":
+        optimizer = tf.keras.optimizers.SGD(learning_rate=float(learning_rate))
+    elif optimizer == "Adam":
+        optimizer = tf.keras.optimizers.Adam(learning_rate=float(learning_rate))
     else:
-        raise ValueError(f"Unknown optimizer: {args.optimizer}")
+        raise ValueError(f"Unknown optimizer: {optimizer}")
     train_model.compile(optimizer=optimizer, loss=[chi2])
 
     # Train the model
-    log_cb = LoggingCallback(log_frequency=args.callback_freq, ndata=data.size)
+    x = tf.constant(fk_grid.reshape(1, -1, 1), dtype=tf.float32)
+    callback_freq = (
+        metadata["arguments"]["callback_freq"] if args.resume else args.callback_freq
+    )
+    log_cb = LoggingCallback(log_frequency=callback_freq, ndata=data.size)
     save_cb = WeightStorageCallback(
-        storage_frequency=args.callback_freq, storage_path=replica_save_dir
+        storage_frequency=callback_freq,
+        storage_path=replica_save_dir,
+        training_data=(x, data.reshape(1, -1)),
+        initial_epoch=last_epoch,
     )
     nan_cb = NaNCallback()
 
     data = y.reshape(1, -1)
-    x = fk_grid.reshape(1, -1, 1)
+    iterations = (
+        int(metadata["arguments"]["max_iterations"])
+        if args.resume
+        else int(args.max_iterations)
+    )
+    log.info(
+        f"Starting training from epoch {last_epoch} for {iterations - last_epoch} iterations"
+    )
     _ = train_model.fit(
         x,
         data,
-        epochs=int(args.max_iterations),
+        epochs=iterations,
         verbose=0,
         callbacks=[log_cb, save_cb, nan_cb],
+        initial_epoch=last_epoch,
     )
 
     log.info("Training completed")
