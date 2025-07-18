@@ -386,7 +386,6 @@ class FitContext(Context):
         if force_serialize:
             logger.info("Forcing serialization of data...")
             self._serialize_data()
-            return
 
         try:
             # Load all necessary serialized data
