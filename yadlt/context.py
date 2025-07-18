@@ -386,7 +386,6 @@ class FitContext(Context):
         if force_serialize:
             logger.info("Forcing serialization of data...")
             self._serialize_data()
-            return
 
         try:
             # Load all necessary serialized data
@@ -544,7 +543,7 @@ class FitContext(Context):
         ]
 
         # Load dummy model
-        model, _ = load_trained_model(replica_folders[0], epoch=500)
+        model, _ = load_trained_model(replica_folders[0], epoch=common_epochs[0])
         for epoch in common_epochs:
             logger.info(f"Processing epoch {epoch} / {common_epochs[-1]}")
 
