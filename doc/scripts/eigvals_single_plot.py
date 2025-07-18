@@ -1,10 +1,15 @@
 from argparse import ArgumentParser
+import logging
 
 import yaml
 
 from yadlt.context import FitContext
 from yadlt.distribution import combine_distributions
+from yadlt.log import setup_logger
 from yadlt.plotting import produce_plot
+
+logger = setup_logger()
+logger.setLevel(logging.INFO)
 
 
 def main():

@@ -21,8 +21,6 @@ WEIGHTS_TOKEN = "weights.h5"
 from yadlt.log import setup_logger
 
 logger = setup_logger()
-
-# If you want to see all messages, including DEBUG:
 logger.setLevel(logging.INFO)
 
 
@@ -182,6 +180,7 @@ def plot_evolution_from_initialisation(
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
         additional_grids=[add_grid_dict] if show_true else None,
         ax_specs=[None, ax_specs_ratio],
+        xlabel=r"$x$",
     )
 
 
@@ -304,6 +303,7 @@ def plot_u_v_contributions(
         [xT3_training, xT3_t_u, xT3_t_v],
         normalize_to=1,
         filename=f"pdf_plot_u_v_{ev_epoch}_{datatype}.pdf",
+        xlabel=r"$x$",
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}, \quad T = {{{ev_epoch}}}$",
     )
 
@@ -359,6 +359,9 @@ def main():
         show_true=True,
     )
 
+    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=0, seed=SEED)
+    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=10, seed=SEED)
+    plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=50, seed=SEED)
     plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=100, seed=SEED)
     plot_u_v_contributions(context, ref_epoch=ref_epoch, ev_epoch=50000, seed=SEED)
 

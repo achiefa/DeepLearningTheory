@@ -5,6 +5,8 @@
 3. Delta NTK
 4. Relative delta NTK
 """
+import logging
+
 import matplotlib as mpl
 from matplotlib import rc
 from matplotlib.colors import Normalize
@@ -19,7 +21,11 @@ rc("text", usetex=True)
 from argparse import ArgumentParser
 
 from yadlt.context import FitContext
+from yadlt.log import setup_logger
 from yadlt.plotting import FONTSIZE, LABELSIZE, TICKSIZE, get_plot_dir
+
+logger = setup_logger()
+logger.setLevel(logging.INFO)
 
 
 def produce_mat_plot(

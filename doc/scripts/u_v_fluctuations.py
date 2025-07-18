@@ -12,7 +12,7 @@ The plots above can be iterated for different fits.
 """
 
 from argparse import ArgumentParser
-from functools import partial
+import logging
 
 import matplotlib as mpl
 from matplotlib import rc
@@ -30,8 +30,12 @@ from pdf_plots import SEED, load_data, produce_model_at_initialisation
 from yadlt.context import FitContext
 from yadlt.distribution import Distribution
 from yadlt.evolution import EvolutionOperatorComputer
+from yadlt.log import setup_logger
 from yadlt.plotting import FONTSIZE, TICKSIZE, get_plot_dir, produce_plot
 from yadlt.utils import gibbs_fn
+
+logger = setup_logger()
+logger.setLevel(logging.INFO)
 
 # Define GP kernel parameters
 SIGMA = 0.25
@@ -149,7 +153,6 @@ def main():
 
     # Generate model at initialisation
     context = FitContext.get_instance(fitnames[0])
-    evolution = EvolutionOperatorComputer(context)
     xT3_init = produce_model_at_initialisation(
         context.get_property("nreplicas"),
         tuple(context.load_fk_grid()),
@@ -188,7 +191,9 @@ def main():
         context = FitContext.get_instance(fitname)
         evolution = EvolutionOperatorComputer(context)
 
-        learning_rate = context.get_config("metadata", "arguments")["learning_rate"]
+        learning_rate = float(
+            context.get_config("metadata", "arguments")["learning_rate"]
+        )
         data_type = context.get_config("metadata", "arguments")["data"]
         data = load_data(context)
 
@@ -253,7 +258,7 @@ def main():
                 additional_grids=[add_grid_dict],
                 ylabel="$U f_0$",
                 xlabel="$x$",
-                title=rf"$T={epoch}$",
+                title=rf"$T_{{\rm ref}}={reference_epoch}, \quad f_0 = f^{{(\rm init)}}, \quad T={epoch}$",
                 scale="linear",
                 save_fig=True,
                 filename=f"u_f0_independence_{epoch}_{data_type}.pdf",

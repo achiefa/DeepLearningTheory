@@ -110,6 +110,10 @@ run_script "ntk_alignment.py" \
   "$CONFIG_DIR/ntk_alignment.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_alignment.pdf" \
   "Plot of the alignment of the NTK with M"
 
+run_script "eigvals_single_plot.py" \
+  "$CONFIG_DIR/ntk_eigvals_single_plot_L0.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_eigvals_single_plot_L0.pdf" \
+  "Single plot of the ntk eigvals L0"
+
 # Studies on U and V
 # ~~~~~~~~~~~~~~~~~~~~~
 U_V_STUDIES_DIR="$OUTPUT_DIR/u_v_studies"
@@ -137,12 +141,12 @@ AS_DIR="$OUTPUT_DIR/analytical_solution"
 mkdir -p "$AS_DIR"
 # PDF plots with L0 data
 run_script "pdf_plots.py" \
-  "250604-ac-01-L0 --ref-epoch 20000 --plot-dir $AS_DIR" \
+  "250713-01-L0-nnpdf-like --ref-epoch 20000 --plot-dir $AS_DIR" \
   "PDF plots with L0 data"
 
 # PDF plots with L2 data
 run_script "pdf_plots.py" \
-  "250604-ac-03-L2 --ref-epoch 20000 --plot-dir $AS_DIR" \
+  "250713-03-L2-nnpdf-like --ref-epoch 20000 --plot-dir $AS_DIR" \
   "PDF plots with L2 data"
 
 

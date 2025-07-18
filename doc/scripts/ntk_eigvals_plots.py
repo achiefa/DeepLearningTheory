@@ -5,6 +5,8 @@
 3. Delta NTK
 4. Relative delta NTK
 """
+import logging
+
 from matplotlib import rc
 
 rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
@@ -16,7 +18,11 @@ import yaml
 
 from yadlt.context import FitContext
 from yadlt.distribution import combine_distributions
+from yadlt.log import setup_logger
 from yadlt.plotting import produce_pdf_plot
+
+logger = setup_logger()
+logger.setLevel(logging.INFO)
 
 
 def main():

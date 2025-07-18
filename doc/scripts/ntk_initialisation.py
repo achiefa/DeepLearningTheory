@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """This script produces the the comparisons of the NTK at initialization"""
 
+import logging
+
 from matplotlib import rc
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,12 +14,14 @@ from argparse import ArgumentParser
 from pathlib import Path
 import pickle
 
-import tensorflow as tf
-
 from yadlt import load_data
 from yadlt.distribution import Distribution
+from yadlt.log import setup_logger
 from yadlt.model import compute_ntk_static, generate_pdf_model
 from yadlt.plotting import FONTSIZE, LABELSIZE, LEGENDSIZE, TICKSIZE
+
+logger = setup_logger()
+logger.setLevel(logging.INFO)
 
 SERIALIZATION_FOLDER = Path(__file__).parent / "serialization"
 
