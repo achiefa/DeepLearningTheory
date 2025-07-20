@@ -66,8 +66,13 @@ codes introduces noise in the decomposition, so that small eigenvalues
 should be effectively considered zero. We discuss the cut-off tolerance
 later, when we discuss the training process in more details.}. This means that
 only a small subset of active directions can inform the network during training,
-as it will be discussed later. Note that, at least at initialisation, these
-observations do not depend on the architecture.
+as it will be discussed later. Note that, at least at initialization, these
+observations do not depend on the architecture. The eigenvalues in Fig.~\ref{fig:NTKSpectrum} 
+are mostly independent of the size of the network. There is a downward fluctuation of the third
+eigenvalue for the largest architecture that we considered, but we do not have any 
+evidence that this drop is a physical feature of the system, rather than a fluctuation. 
+the variance of the set of eigenvalues over replicas decreases with increasing 
+size, as expected. 
 
 % ===================================
 \begin{figure}[ht!]
@@ -85,10 +90,12 @@ Having established the properties of the NTK at initialisation, we now discuss
 its behaviour during training. In the machine learning literature, it is argued
 that the NTK remains constant during training provided that the width of the
 network is large enough. Here we show that this is not the case, at least for
-the NNPDF methodology. 
+the architectures used in the standard NNPDF methodology. 
 
-\paragraph{Onset of lazy training.} In Fig.~\ref{fig:NTKTime}, we show the Frobenius norm of the variation
-of the NTK during training, normalized by the Frobenius norm of the NTK itself, 
+\paragraph{Onset of lazy training.} As a first estimator of the variation of the
+NTK, we show in Fig.~\ref{fig:NTKTime} the 
+Frobenius norm of the variation
+during training, normalized by the Frobenius norm of the NTK itself, 
 \begin{equation}
 \delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
 \label{eq:DeltaNTK}
@@ -172,10 +179,10 @@ suggests that more ``physical'' features become learnable before lazy training s
 \paragraph{Dependence on the architecture.}
 In order to learn more about the onset of lazy training, it is interesting to consider what happens to 
 the picture sketched so far as the architecture of the neural networks is varied. In Fig.~\ref{fig:NTKTimeDiffArch}
-we compare the time depepndence of the Frobenius norm of the NTK and the variation of the first three eigenvalues
+we compare the time dependence of the Frobenius norm of the NTK and the variation of the first three eigenvalues
 for two different architectures. The smaller network is the $[28,20]$ used in the standard NNPDF
 analyses and in this work, while the large one is a $[100,100]$ network, which is closer to the infinite-width
-limit. For illustration purposes we focus in this plot of L1 data and only three eigenvalues rather than the five
+limit. For illustration purposes we focus in this plot on L1 data and only three eigenvalues rather than the five
 we examined above. The quantitative features are exactly the same for L0 and L2 data, and adding the fourth 
 and fifth eigenvalues does not add unexpected behaviours compared to what we observe in Figs.~\ref{fig:NTKTime} 
 and~\ref{fig:EigvalL0Training}. It is interesting to remark that the onset of lazy training is slower 
