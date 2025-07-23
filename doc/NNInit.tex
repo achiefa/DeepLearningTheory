@@ -1,12 +1,16 @@
 When initializing a neural network, the weights and biases -- which we denote collectively as the {\em parameters}\ 
-are drawn from some probability distribution. In 
-the NNPDF formalism each replica is an instance of i.i.d. stochastic variables. The probability distribution
+of the network -- are drawn from some probability distribution. In 
+the NNPDF formalism, the set of netowrk parameters at initialization for each replica is an instance 
+of i.i.d. stochastic variables. The probability distribution
 of the network parameters induces a probability distribution for the output of the neural networks at inizialization. 
 It is well known that the probability distribution of these outputs becomes approximately gaussian when the size of
 the hidden layers is increased. We call this limit the {\em large-network} limit. 
-In this section, we review the basic results for the large-network limit at inizialization and compare the theoretical 
-predictions with the theoretical expectations for the typical networks used by the NNPDF collaboration. 
-In the process we introduce the notation that is used for the networks in the rest of the paper. 
+In this section, we review some basic results for the large-network limit at inizialization, and 
+compare these theoretical 
+predictions with the actual results obtained in numerical experiments performed with the typical networks 
+used by the NNPDF collaboration. 
+This preliminary study of the properties of networks at initialization also allows us to introduce the 
+notation used for the networks in the rest of the paper. 
 
 As detailed in Ref.~\cite{NNPDF:2021njg}, the NNs used for the NNPDF fit have a 2-25-20-8 architecture,
 a $\tanh$ activation function,
@@ -135,7 +139,14 @@ The action can be expanded in powers of the invariant bilinear,
             \phi^{(\ell)}_{\alpha_1} \cdot \phi^{(\ell)}_{\alpha_2} \,
             \phi^{(\ell)}_{\alpha_3} \cdot \phi^{(\ell)}_{\alpha_4} + O(1/n_{\ell-1}^2)\, ,
 \end{align}
-so that the probability distribution is fully determined by the couplings $\gamma^{(\ell)}$. In
+so that the probability distribution is fully determined by the couplings 
+$\gamma^{(\ell)}$.\footnote{
+    We have denoted {\em all}\ couplings by $\gamma^{{(\ell)}}$. Different couplings 
+    are indentified by the number of indices, so that $\gamma^{(\ell)}_{\alpha_1\alpha_2}$ 
+    is a two-point coupling, $\gamma^{(\ell)}_{\alpha_1\alpha_2,\alpha_3\alpha_4}$ is a four-point 
+    coupling, etc. 
+} 
+In
 Eq.~\eqref{eq:ExpandAction}, we have factored out inverse powers of $n_\ell$ for each coupling.
 With this convention, and with the scaling of the parameters variances in
 Eq.~\eqref{eq:RescaledGlorotVariances}, the couplings in the action are all $O(1)$
@@ -247,7 +258,7 @@ impact of the NN architecture on the prior that is imposed on the PDFs. Iteratin
 Eq.~\eqref{eq:RecursionForK} yields the covariance at initialization for various depths.
 Do we get something interesting? worth mentioning?
 
-We should also look at the recursion relations with other activations. Again, check whether we
-get something interesting...
+\ldd{We should also look at the recursion relations with other activations. Again, check whether we
+get something interesting...}
 
 \FloatBarrier
