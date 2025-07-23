@@ -1,3 +1,13 @@
+When initializing a neural network, the weights and biases -- which we denote collectively as the {\em parameters}\ 
+are drawn from some probability distribution. In 
+the NNPDF formalism each replica is an instance of i.i.d. stochastic variables. The probability distribution
+of the network parameters induces a probability distribution for the output of the neural networks at inizialization. 
+It is well known that the probability distribution of these outputs becomes approximately gaussian when the size of
+the hidden layers is increased. We call this limit the {\em large-network} limit. 
+In this section, we review the basic results for the large-network limit at inizialization and compare the theoretical 
+predictions with the theoretical expectations for the typical networks used by the NNPDF collaboration. 
+In the process we introduce the notation that is used for the networks in the rest of the paper. 
+
 As detailed in Ref.~\cite{NNPDF:2021njg}, the NNs used for the NNPDF fit have a 2-25-20-8 architecture,
 a $\tanh$ activation function,
 and are initialized using a Glorot normal distribution~\cite{glorot2010understanding}. The preactivation
@@ -221,10 +231,10 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
 \end{align}
 
 \begin{figure}
-    \label{fig:SingletGluonInit}
-    \begin{center}
-        \caption{\ldd{Plot of replicas at init}}        
-    \end{center}
+    \centering
+    \includegraphics[scale=0.5]{plots/UoECentredLogo282v1160215.png}
+    \caption{\ldd{Plot of replicas at init}}        
+    \label{fig:SingletGluonInit} 
 \end{figure}
 
 \ldd{List of plots that we still need to do:

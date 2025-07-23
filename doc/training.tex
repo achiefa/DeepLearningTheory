@@ -120,7 +120,7 @@ complement, hence we introduce the notation
 }
 \begin{align}
     \label{eq:ParallelCompnents}
-    &f^\parallel_{t,k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda_{(k)} = 0\, , \\
+    &f^\parallel_{t,k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda^{(k)} = 0\, , \\
     \label{eq:OrthogonalComponents}
     &f^\perp_{t,k} = \frac{1}{\sqrt{\lambda^{(k)}}} \left(z^{(k)}, f_t\right)\, , \quad
         \text{if}\ \lambda^{(k)} \neq 0\, .
@@ -442,35 +442,37 @@ transpose of the second, thereby ensuring that the whole covariance matrix is th
 matrices and therefore is symmetric, 
 \begin{align}
     \label{eq:SumOfCovariances}
-    \cov[f_t,f_t^T] = C^{(00)} + C^{(0Y)} + C^{(YY)}\, ,
+    \cov[f_t,f_t^T] = C_t^{(00)} + C_t^{(0Y)} + C_t^{(YY)}\, ,
 \end{align}
 where
 \begin{align}
     \label{eq:C00term}
-    C^{(00)} 
+    C_t^{(00)} 
         &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
         - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[f_0^T U(t)^T\right]\, ,\\
-    C^{(0Y)}
+    C_t^{(0Y)}
         &= \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
         - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[Y^T V(t)^T\right] \nonumber \\
         \label{eq:C0Yterm}
         &\quad + \mathbb{E}\left[V(t) Y f_0^T U(t)^T\right]
             - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[f_0^T U(t)^T\right] \, ,\\
-    C^{(YY)}
+    C_t^{(YY)}
         &= \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
         - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right]\, .
 \end{align}
-We report the values of $C^{(00)}$, $C^{(0Y)}$ and $C^{(YY)}$ for different values of $t$ in 
+We report the values of $C_t^{(00)}$, $C_t^{(0Y)}$ and $C_t^{(YY)}$ for different values of $t$ in 
 Fig.\ref{fig:CovarianceContribs}.
 \ldd{Here we need plots at many values of $t$, in order to figure out what is actually going on with these three 
 contributions along training. Hoepfully we see explicitly that the fluctuations of the fields at initialization yield a 
 contribution to the statistical uncertainty of the trained fields at early times, and that contribution
 decreases.}
 
-\begin{figure}
-    \label{fig:CovarianceContribs}
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[scale=0.5]{plots/UoECentredLogo282v1160215.png}
     \caption{The various contributions to the covariance as described in the text above. 
     \ldd{Caption will change once we have the plot.}}
+    \label{fig:CovarianceContribs}
 \end{figure}
 
 % % wrong limit

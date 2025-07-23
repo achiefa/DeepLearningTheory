@@ -10,14 +10,14 @@ networks~\cite{alemohammad2021recurrent}. This theoretical framework has proven
 invaluable for characterizing learning dynamics and generalization properties
 across various network designs.
 
-From Eqa.~\eqref{eq:NTKDef} and~\eqref{eq:FlowEquationNoIndices}, we observe that the NTK encodes the
+From Eqs.~\eqref{eq:NTKDef} and~\eqref{eq:FlowEquationNoIndices}, we observe that the NTK encodes the
 dependence on the architecture of the network and governs its training dynamics.
 The analysis of the NTK properties is thus crucial for understanding the 
 behaviour of the network during training. We first discuss the properties of the NTK at
 initialisation, before moving to the training phase, where we provide a detailed
 study of the NTK in the context of the NNPDF methodology. To this end, we
 performed a fit of $T_3$ using the NNPDF methodology with the dataset described
-in Sec.~\ref{sec:DataSet}. We initialized an ensemble of $N_{\rm Rep} = 100$ replicas with
+in Sec.~\ref{sec:dataset}. We initialized an ensemble of $N_{\rm Rep} = 100$ replicas with
 identical architecture, training each replica independently using gradient
 descent (GD) optimization. As our focus here is on NTK properties rather than
 physical predictions, we use synthetic data with controlled noise
@@ -156,7 +156,8 @@ for L2 data are larger than those for L1 and L0 data, indicating that the NTK is
 more sensitive to the noise in the data. This is consistent with the observation
 made in Fig.~\ref{fig:NTKTime}. 
 The eigenvalues reach a plateau and do not change significantly once 
-the network enters the lazy training regime. This fact, combined with the analysis of Eq.~\eqref{eq:FlowSolution}, 
+the network enters the lazy training regime. The increase of the subdominant eigenvalues, 
+combined with the analysis of Eqs.~\eqref{eq:FlowParallel} and~\eqref{eq:FlowPerp}, 
 suggests that more ``physical'' features become learnable before lazy training sets in. 
 
 % ===================================
@@ -186,7 +187,7 @@ limit. For illustration purposes we focus in this plot on L1 data and only three
 we examined above. The quantitative features are exactly the same for L0 and L2 data, and adding the fourth 
 and fifth eigenvalues does not add unexpected behaviours compared to what we observe in Figs.~\ref{fig:NTKTime} 
 and~\ref{fig:EigvalL0Training}. It is interesting to remark that the onset of lazy training is slower 
-for the larger network. This is to be expected if we interpret the onset of lazy training as a phase where 
+for the larger network. This is to be expected if we interpret the early stages of training as a phase where 
 the network identifies the learnable features in the space of functions that it can parametrize. For a 
 larger network, the space of parametrized functions is larger and the identification of the physical 
 features takes a larger number of epochs. 

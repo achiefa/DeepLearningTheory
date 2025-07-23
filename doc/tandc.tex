@@ -1,7 +1,8 @@
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} sheds a new light onto the
 behaviour of the numerical neural network training. In order to study the
 training process, the NNPDF collaboration has successfully developed so-called
-{\em closure tests}. A closure test uses synthetic data, generated using a known
+{\em closure tests}, which we are going to adopt here. A closure test uses synthetic data, 
+generated using a known
 set of PDFs, to train the neural network. The PDFs used for generating the data
 are called here {\em input}\ PDFs. The results of the training are then compared
 to the known input PDFs; the performance of the training algorithm and the NN
@@ -25,21 +26,39 @@ or equivalently, suppressing the indices,
     Y = \FKtab \fin\, .
 \end{equation}
 Using L0 data in the analytical expression for the trained network in
-Eq.~\eqref{eq:AnalyticSol} allows a simplification of the second term,
-\ldd{will type correct formulae here}
+Eq.~\eqref{eq:AnalyticSol} yields
 \begin{align}
-    \label{eq:L0ClosureTrained}
-    V(t) Y = \sumprime_{i} Z^{(i)} \left(1 - e^{-h^{(i)}t}\right)
-        \sum_{k\in\perp} w^{(i)}_k \fin_k\, .
+  \label{eq:TrainingOnLevelZero}
+  \check{U}^\perp(t) f_0 + V(t) Y 
+    &= \mathcal{M}\, \FKtabT C_{Y}^{-1} \FKtab\, 
+      \left[\fin - f_{0}^\parallel\right]\, .
 \end{align}
 Interestingly, for $t\to\infty$,
 \begin{align}
-    \label{eq:L0ClosureInfiniteTraining}
+    \label{eq:LevelZeroClosureInfiniteTraining}
     \lim_{t\to\infty} V(t) Y = \finperp\, ,
 \end{align}
 and therefore the $V$ component of the trained solution reproduces exactly the
 component of the PDF that lies in  the subspace orthogonal to the kernel of
-$\Theta$.
+$\Theta$. The second term in the square bracket on the right-hand side of 
+Eq.~\eqref{eq:TrainingOnLevelZero}
+is the contribution from the parallel component at initialization that does not evolve
+in the training process. Given that $f_0$ is almost normally distributed around zero, 
+that term does not contribute to the central value of the fitted PDF, \ie\ to the average
+of the trained solution over replicas. The time evolution of 
+\begin{align}
+  \label{eq:AverageLevelZeroUcheck}
+  \mathbb{E}\left[\mathcal{M}\, \FKtabT C_{Y}^{-1} \FKtab\, 
+    f_{0}^\parallel\right]\, ,
+\end{align}
+is shown in Fig.~\ref{fig:AverageLevelZeroUcheck}.
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[scale=0.5]{plots/UoECentredLogo282v1160215.png}  
+  \caption{Test of the average of the parallel contribution.}
+  \label{fig:AverageLevelZeroUcheck}
+\end{figure}
+
 
 \ldd{we need to compute the the scalar product $(z^{k},f^\textin)$ for all values of 
 $k$ at different training times between $t=0$ and $T_{\mathrm{ref}}=20,000$. We may be 
