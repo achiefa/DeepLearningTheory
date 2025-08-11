@@ -18,7 +18,7 @@ from yadlt import load_data
 from yadlt.distribution import Distribution
 from yadlt.log import setup_logger
 from yadlt.model import compute_ntk_static, generate_pdf_model
-from yadlt.plotting import FONTSIZE, LABELSIZE, LEGENDSIZE, TICKSIZE
+from yadlt.plotting.plotting import FONTSIZE, LABELSIZE, LEGENDSIZE, TICKSIZE
 
 logger = setup_logger()
 logger.setLevel(logging.INFO)
@@ -99,11 +99,9 @@ def main():
         help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
     args = parser.parse_args()
-
-    if args.plot_dir is not None:
-        from yadlt.plotting import set_plot_dir
-
-        set_plot_dir(args.plot_dir)
+    DIR = Path(args.plot_dir) if args.plot_dir else Path(__file__).parent / "plots"
+    PLOT_DIR = DIR / "ntk_pheno"
+    PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
     # Lists to store results
     group_dict = {}
@@ -217,7 +215,7 @@ def main():
     fig.tight_layout()
 
     # Save the combined plot
-    output_path = Path(args.plot_dir) / "ntk_initialization_with_uncertainty.pdf"
+    output_path = PLOT_DIR / "ntk_initialization_with_uncertainty.pdf"
     fig.savefig(output_path)
     print(f"Plot saved to {output_path}")
 
@@ -291,7 +289,7 @@ def main():
     ax.legend(handles, labels, fontsize=LEGENDSIZE)
 
     # Save the combined plot
-    output_path = Path(args.plot_dir) / "ntk_initialization_arch.pdf"
+    output_path = PLOT_DIR / "ntk_initialization_arch.pdf"
     fig.tight_layout()
     fig.savefig(output_path)
     print(f"Plot saved to {output_path}")

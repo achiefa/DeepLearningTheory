@@ -13,6 +13,7 @@ The plots above can be iterated for different fits.
 
 from argparse import ArgumentParser
 import logging
+from pathlib import Path
 
 import matplotlib as mpl
 from matplotlib import rc
@@ -20,19 +21,18 @@ from matplotlib.colors import Normalize
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
 
 rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
 rc("text", usetex=True)
 
-from pdf_plots import SEED, load_data, produce_model_at_initialisation
+from pdf_plots import SEED
 
 from yadlt.context import FitContext
 from yadlt.distribution import Distribution
 from yadlt.evolution import EvolutionOperatorComputer
 from yadlt.log import setup_logger
-from yadlt.plotting import FONTSIZE, TICKSIZE, get_plot_dir, produce_plot
-from yadlt.utils import gibbs_fn
+from yadlt.plotting.plotting import FONTSIZE, TICKSIZE, produce_plot
+from yadlt.utils import gibbs_fn, load_data, produce_model_at_initialisation
 
 logger = setup_logger()
 logger.setLevel(logging.INFO)
@@ -43,9 +43,24 @@ L0 = 1.7
 DELTA = 1.0e-9
 ALPHA = -0.1
 
+PLOT_DICT = {
+    "fitnames": [
+        # Fit names to be used for the comparison
+        "250713-01-L0-nnpdf-like",
+        "250713-02-L1-nnpdf-like",
+    ],
+    "reference_epoch": 20000,
+    "epochs": [0, 20000],
+    "seed": 1423413,
+}
+
 
 def produce_mat_plot(
-    matrices: list[np.ndarray], titles: list[str], filename: str, save: bool = True
+    matrices: list[np.ndarray],
+    titles: list[str],
+    filename: str,
+    save: bool = True,
+    plot_dir: Path = None,
 ) -> None:
     """Produce a comparison of delta NTK for different fits."""
     vertical = False
@@ -70,7 +85,7 @@ def produce_mat_plot(
     vmin = min(np.percentile(A, 1) for A in matrices)
     vmax = max(np.percentile(A, 95) for A in matrices)
 
-    print(f"vmin: {vmin}, vmax: {vmax}")
+    # print(f"vmin: {vmin}, vmax: {vmax}")
 
     for idx, ax in enumerate(axs):
         matrix = matrices[idx]
@@ -105,7 +120,7 @@ def produce_mat_plot(
     )  # Apply the same tick size as your main axes
 
     if save:
-        fig.savefig(get_plot_dir() / filename, dpi=300)
+        fig.savefig(plot_dir / filename, dpi=300)
     else:
         plt.show()
 
@@ -113,36 +128,20 @@ def produce_mat_plot(
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        "config",
-        type=str,
-        help="Config file",
-    )
-    parser.add_argument(
         "--plot-dir",
         type=str,
         default=None,
         help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
-    parser.add_argument(
-        "--filename",
-        type=str,
-        default="delta_ntk.pdf",
-        help="Filename to save the plot.",
-    )
     args = parser.parse_args()
+    DIR = Path(args.plot_dir) if args.plot_dir else Path(__file__).parent / "plots"
+    PLOT_DIR = DIR / "u_v_studies"
+    PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
-    if args.plot_dir is not None:
-        from yadlt.plotting import set_plot_dir
-
-        set_plot_dir(args.plot_dir)
-
-    with open(args.config, "r") as f:
-        config = yaml.safe_load(f)
-
-    fitnames = config["fitnames"]
-    reference_epoch = config.get("reference_epoch", None)
-    epochs = config.get("epochs", None)
-    seed = config.get("seed", SEED)
+    fitnames = PLOT_DICT["fitnames"]
+    reference_epoch = PLOT_DICT["reference_epoch"]
+    epochs = PLOT_DICT["epochs"]
+    seed = PLOT_DICT["seed"]
 
     # As of now, only two epochs are supported for the comparison
     if len(epochs) != 2:
@@ -184,6 +183,7 @@ def main():
         titles=[r"$\textrm{Gibbs}$", r"$\textrm{Cov}[f_0, f_0]$"],
         save=True,
         filename=f"gibbs_comparison_no_low_x.pdf",
+        plot_dir=PLOT_DIR,
     )
 
     for fitname in fitnames:
@@ -233,6 +233,7 @@ def main():
                 titles=[r"$\bar{U}$", r"$\textrm{Cov}[f_0, f_0]$"],
                 save=True,
                 filename=f"U_bar_vs_cov_f0_{epoch}_{data_type}.pdf",
+                plot_dir=PLOT_DIR,
             )
 
             cov_ft = Distribution(
@@ -262,6 +263,7 @@ def main():
                 scale="linear",
                 save_fig=True,
                 filename=f"u_f0_independence_{epoch}_{data_type}.pdf",
+                plot_dir=PLOT_DIR,
             )
 
             # Produce plots of the matrices of the covariance of ft
@@ -273,6 +275,7 @@ def main():
                 ],
                 filename=f"cov_ft_{epoch}_{data_type}.pdf",
                 save=True,
+                plot_dir=PLOT_DIR,
             )
 
         # Produce plots of the fluctuations of U and V
@@ -281,12 +284,14 @@ def main():
             titles=[rf"$\delta U \textrm{{ at }} T = {epoch}$" for epoch in epochs],
             filename=f"u_fluctuations_{data_type}.pdf",
             save=True,
+            plot_dir=PLOT_DIR,
         )
         produce_mat_plot(
             matrices=V_fluctuations_by_epochs,
             titles=[rf"$\delta V \textrm{{ at }} T = {epoch}$" for epoch in epochs],
             filename=f"v_fluctuations_{data_type}.pdf",
             save=True,
+            plot_dir=PLOT_DIR,
         )
 
 

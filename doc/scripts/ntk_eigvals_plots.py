@@ -1,99 +1,48 @@
-#!/usr/bin/env python3
 """This script produces a comparison of the following quantities:
 1. Eigenvalues of the NTK
 2. Relative eigenvalues of the NTK
 3. Delta NTK
 4. Relative delta NTK
 """
-import logging
-
-from matplotlib import rc
-
-rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
-rc("text", usetex=True)
 
 from argparse import ArgumentParser
+import logging
+from pathlib import Path
 
-import yaml
-
-from yadlt.context import FitContext
-from yadlt.distribution import combine_distributions
 from yadlt.log import setup_logger
-from yadlt.plotting import produce_pdf_plot
+from yadlt.plotting.plot_eigvals import plot_eigvals
 
 logger = setup_logger()
 logger.setLevel(logging.INFO)
 
 
+NTK_DICT = {
+    "fitnames": [
+        "250713-01-L0-nnpdf-like",
+        "250713-02-L1-nnpdf-like",
+        "250713-03-L2-nnpdf-like",
+    ],
+    "fitlabels": ["$\\textrm{L0}$", "$\\textrm{L1}$", "$\\textrm{L2}$"],
+    "fitcolors": ["C0", "C1", "C2"],
+    "eigvals": [1, 2, 3, 4, 5],
+    "filename_prefix": "ntk_eigvals_L0_L1_L2",
+}
+
+
 def main():
     parser = ArgumentParser()
-    parser.add_argument(
-        "config",
-        type=str,
-        help="Config file",
-    )
     parser.add_argument(
         "--plot-dir",
         type=str,
         default=None,
         help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
-    parser.add_argument(
-        "--filename",
-        type=str,
-        default="ntk_eigvals.pdf",
-        help="Filename to save the plot.",
-    )
     args = parser.parse_args()
+    PLOT_DIR = Path(args.plot_dir) if args.plot_dir else Path(__file__).parent / "plots"
+    NTK_PLOT_DIR = PLOT_DIR / "ntk_pheno"
+    NTK_PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
-    if args.plot_dir is not None:
-        from yadlt.plotting import set_plot_dir
-
-        set_plot_dir(args.plot_dir)
-
-    with open(args.config, "r") as f:
-        config = yaml.safe_load(f)
-
-    fitnames = config["fitnames"]
-    fitlabels = config.get("fitlabels", None)
-    fitcolors = config.get("fitcolors", None)
-    eigvals = config.get("eigvals", [0])
-
-    eigvals_by_fit = []
-    epochs = None
-
-    for fitname in fitnames:
-        context = FitContext(fitname)
-        if epochs is None:
-            epochs = context.get_config("replicas", "common_epochs")
-        else:
-            assert epochs == context.get_config(
-                "replicas", "common_epochs"
-            ), "Epochs do not match across fits."
-        tmp = combine_distributions(context.eigvals_time)
-        tmp.set_name(fitname)
-        eigvals_by_fit.append(tmp)
-
-    for idx_eig in eigvals:
-        eigvals_grids = []
-        for eigval in eigvals_by_fit:
-            sliced_distribution = eigval.slice((slice(None), idx_eig - 1))
-            eigvals_grids.append(sliced_distribution)
-
-        filename = f"{args.filename}_n_{idx_eig}.pdf"
-
-        produce_pdf_plot(
-            epochs,
-            eigvals_grids,
-            normalize_to=0,
-            xlabel=r"${\rm Epoch}$",
-            ylabel=r"$\lambda^{(" + str(idx_eig) + ")}$",
-            ratio_label=r"$\delta \lambda^{(" + str(idx_eig) + ")}$",
-            labels=fitlabels,
-            colors=fitcolors,
-            save_fig=True,
-            filename=filename,
-        )
+    plot_eigvals(**NTK_DICT, save_fig=True, plot_dir=NTK_PLOT_DIR)
 
 
 if __name__ == "__main__":
