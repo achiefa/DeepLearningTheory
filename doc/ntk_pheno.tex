@@ -17,7 +17,7 @@ behaviour of the network during training. We first discuss the properties of the
 initialisation, before moving to the training phase, where we provide a detailed
 study of the NTK in the context of the NNPDF methodology. To this end, we
 performed a fit of $T_3$ using the NNPDF methodology with the dataset described
-in Sec.~\ref{sec:dataset}. We initialized an ensemble of $N_{\rm Rep} = 100$ replicas with
+in Sec.~\ref{sec:dataset}. We initialized an ensemble of $\nreps = 100$ replicas with
 identical architecture, training each replica independently using gradient
 descent (GD) optimization. As our focus here is on NTK properties rather than
 physical predictions, we use synthetic data with controlled noise
@@ -25,11 +25,26 @@ characteristics, namely L0, L1, and L2 data generations. Throughout the training
 we track the evolution of the NTK to understand how the network's effective
 dynamics change as it learns the target function.
 
+A special role in this discussion is played by the eigenvalues and eigenvectors of the NTK. 
+The eigenvectors of the NTK form a basis in the space of the fields $f$. 
+As shown in Eq.~\eqref{eq:FlowEqTwo} the rate of change of the components of $f$ in the basis 
+made of eigenvectors of the NTK is proportional to the corresponding eigenvalue. Hence the 
+eigenvectors corresponding to the larger eigenvalues can be interpreted as {\em learnable}\ 
+features, while the small (or zero) eigenvalues, correspond to directions in which the field $f$ 
+never evolves during training. 
+
 \subsection{NTK at Initialization}
 \label{sec:NTKAtInit}
 We first discuss the properties of the NTK at initialisation, that is when the
-network is blind to data. We remind that, at this stage, the NTK depends on the
-$x$-grid of input and on the architecture. It is argued in the literature that,
+network is blind to data. We remind that, before training, the NTK depends on the
+$x$-grid of input and on the architecture. 
+
+\subsubsection{Fluctuations of the NTK}
+\label{sec:NTKFluctAtInit}
+
+The NTK is a function of the fields $f$, which are stochastic variables described by their joint probability
+distribution as discussed in Sect.~\ref{sec:Init}. Therefore the NTK is also a stochastic variable, with 
+its own probability distribution, which we represent as usual as a set of replicas. It is argued in the literature that,
 in the large-width limit, the variance of the NTK over the set of replicas tends to zero 
 with the width of the hidden layers (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to
 quantify the variation of the NTK, we start by computing the Frobenius norm of the NTK over
@@ -56,10 +71,14 @@ due to the finite size of the ensemble. \ac{I can say something more here.}
 \end{figure}
 % ===================================
 
-In order to get a more quantitative understanding of the fluctuations 
-at initialization, the spectrum of the NTK is shown in Fig.~\ref{fig:NTKSpectrum} for four different architectures. 
-As debated in the
-literature, the spectrum of the NTK is heavily hierarchical, and only few
+\FloatBarrier
+
+\subsubsection{Eigenvalues at Initialization}
+\label{sec:NTKEigenAtInit}
+
+In order to get a more quantitative description of the NTK 
+at initialization, its spectrum is shown in Fig.~\ref{fig:NTKSpectrum} for four different architectures. 
+As debated in the literature~\cite{XXX}, the spectrum of the NTK is heavily hierarchical, and only few
 eigenvalues are actually non-zero\footnote{Note that, due to the large
 difference in magnitude of the eigenvalues, the finite precision used in our
 codes introduces noise in the decomposition, so that small eigenvalues
@@ -85,17 +104,22 @@ size, as expected.
 \end{figure}
 % ===================================
 
+\FloatBarrier
+
 \subsection{NTK During Training}
+\label{sec:NTKDuringTraining}
+
 Having established the properties of the NTK at initialisation, we now discuss
 its behaviour during training. In the machine learning literature, it is argued
 that the NTK remains constant during training provided that the width of the
 network is large enough. Here we show that this is not the case, at least for
 the architectures used in the standard NNPDF methodology. 
 
-\paragraph{Onset of lazy training.} As a first estimator of the variation of the
-NTK, we show in Fig.~\ref{fig:NTKTime} the 
-Frobenius norm of the variation
-during training, normalized by the Frobenius norm of the NTK itself, 
+\subsubsection{Onset of Lazy Training} 
+\label{sec:OnsetLazyTraining}
+
+As a first estimator of the variation of the NTK, we show in Fig.~\ref{fig:NTKTime} the 
+Frobenius norm of the variation during training, normalized by the Frobenius norm of the NTK itself, 
 \begin{equation}
 \delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
 \label{eq:DeltaNTK}
@@ -132,7 +156,9 @@ phase, \ie\ after the NTK has stabilized.
 
 \FloatBarrier
 
-\paragraph{Eigensystem of the NTK.}
+\subsubsection{Eigenvalues During Training}
+\label{sec:EigenvalDuringTrain}
+
 Further insight on the evolution of the NTK can be obtained by studying its eigensystem as 
 a function of the training time. 
 In Fig.~\ref{fig:EigvalL0Training} we report the variation of the first five eigenvalues 
@@ -177,9 +203,11 @@ suggests that more ``physical'' features become learnable before lazy training s
 
 \FloatBarrier
 
-\paragraph{Dependence on the architecture.}
-In order to learn more about the onset of lazy training, it is interesting to consider what happens to 
-the picture sketched so far as the architecture of the neural networks is varied. In Fig.~\ref{fig:NTKTimeDiffArch}
+\subsubsection{Dependence on the Architecture}
+\label{sec:DepOnArch}
+
+It is interesting to consider what happens to the picture sketched so far as the architecture 
+of the neural networks is varied. In Fig.~\ref{fig:NTKTimeDiffArch}
 we compare the time dependence of the Frobenius norm of the NTK and the variation of the first three eigenvalues
 for two different architectures. The smaller network is the $[28,20]$ used in the standard NNPDF
 analyses and in this work, while the large one is a $[100,100]$ network, which is closer to the infinite-width
@@ -206,7 +234,9 @@ features takes a larger number of epochs.
 
 \FloatBarrier
 
-\paragraph{Alignment of the NTK.}
+\subsubsection{Alignment of the NTK}
+\label{sec:NTKAlign}
+
 It has been argued before that there is a non-trivial interplay between the
 eigenspace of the NTK and that of the matrix $M$. Indeed, the former encodes the
 model dependence, while the latter brings physical information. Of course the
