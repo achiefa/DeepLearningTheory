@@ -262,12 +262,25 @@ single NTK replica.
 \begin{figure}[ht!]
   \centering
   \includegraphics[width=1\textwidth]{plots/ntk_pheno/ntk_alignment.pdf}
-  \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L1 data and for a
+  \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L2 data and for a
   single replica of the NTK. The matrix is shown at different epochs of the
   training process, indicated in the top of each panel. The white dashed line
   indicates the cut-off tolerance that we imposed to the eigenvalues of the NTK
   (see Appendix...?).}
   \label{fig:NtkMAlign}
+\end{figure}
+% ===================================
+% ===================================
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.45\textwidth]{plots/ntk_pheno/ntk_align_fin_1_L2}
+  \includegraphics[width=0.45\textwidth]{plots/ntk_pheno/ntk_align_fin_2_L2}
+  \caption{Alignment of the eigenvectors of the NTK with the input function
+  $f^{\rm(in)}$ used to generate the L2 data, measured in terms of $\cos
+  \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the left
+  panel, the first five eigenvectors of the NTK are shown, while the right panel
+  shows the remaining eigenvectors up to $k=10$.}
+  \label{fig:NtkAlignFin}
 \end{figure}
 % ===================================
 The blue rectangle in the top right corner of the matrix shows that the eigenvectors

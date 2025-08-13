@@ -6,33 +6,23 @@ This script produces the following plots:
   "theoretical" covariance computed as U_bar @ Cov[f0, f0] @ U_bar^T.
 - Comparison of U_bar Vs Cov[f0, f0].
 - Fluctuations of U and V at different epochs.
-- Comparison of the Gibbs kernel with Cov[f0, f0]
 
 The plots above can be iterated for different fits.
 """
 
 from argparse import ArgumentParser
 import logging
+from pathlib import Path
 
-import matplotlib as mpl
-from matplotlib import rc
-from matplotlib.colors import Normalize
-from matplotlib.gridspec import GridSpec
-import matplotlib.pyplot as plt
 import numpy as np
-import yaml
-
-rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
-rc("text", usetex=True)
-
-from pdf_plots import SEED, load_data, produce_model_at_initialisation
+from pdf_plots import SEED
 
 from yadlt.context import FitContext
 from yadlt.distribution import Distribution
 from yadlt.evolution import EvolutionOperatorComputer
 from yadlt.log import setup_logger
-from yadlt.plotting import FONTSIZE, TICKSIZE, get_plot_dir, produce_plot
-from yadlt.utils import gibbs_fn
+from yadlt.plotting.plotting import produce_mat_plot
+from yadlt.utils import load_data, produce_model_at_initialisation
 
 logger = setup_logger()
 logger.setLevel(logging.INFO)
@@ -43,106 +33,35 @@ L0 = 1.7
 DELTA = 1.0e-9
 ALPHA = -0.1
 
-
-def produce_mat_plot(
-    matrices: list[np.ndarray], titles: list[str], filename: str, save: bool = True
-) -> None:
-    """Produce a comparison of delta NTK for different fits."""
-    vertical = False
-    # gridspec_kw = {"left": 0.07, "right": 0.93, "top": 0.99, "bottom": 0.05}
-
-    if matrices[0].shape[0] != matrices[0].shape[1]:
-        vertical = True
-        fig = plt.figure(figsize=(12, 8))
-        gs = GridSpec(3, 1, height_ratios=[1, 1, 0.2], hspace=0.2)
-        ax1 = fig.add_subplot(gs[0, 0])
-        ax2 = fig.add_subplot(gs[1, 0])
-        cax = fig.add_subplot(gs[2, 0])  # Colorbar axis
-        axs = [ax1, ax2]
-    else:
-        fig = plt.figure(figsize=(12, 5))
-        gs = GridSpec(1, 3, width_ratios=[1, 1, 0.08], wspace=0.2)
-        ax1 = fig.add_subplot(gs[0, 0])
-        ax2 = fig.add_subplot(gs[0, 1])
-        cax = fig.add_subplot(gs[0, 2])  # Colorbar axis
-        axs = [ax1, ax2]
-
-    vmin = min(np.percentile(A, 1) for A in matrices)
-    vmax = max(np.percentile(A, 95) for A in matrices)
-
-    print(f"vmin: {vmin}, vmax: {vmax}")
-
-    for idx, ax in enumerate(axs):
-        matrix = matrices[idx]
-        ms = ax.matshow(
-            matrix,
-            cmap=mpl.colormaps["RdBu_r"],
-            norm=Normalize(
-                vmin=vmin, vmax=vmax, clip=True
-            ),  # clip=True will clip out-of-range values4
-        )
-
-        ax.set_title(titles[idx], fontsize=FONTSIZE, pad=10)
-
-        ax.tick_params(labelsize=TICKSIZE)
-        ax.xaxis.set_ticks_position("bottom")
-        ax.xaxis.set_label_position("bottom")
-
-    cbar = plt.colorbar(
-        ms, cax=cax, extend="both", orientation="horizontal" if vertical else "vertical"
-    )
-
-    # Get the actual position of one of your matshow plots (they should all be the same height)
-    pos = ax1.get_position()
-    cax_pos = cax.get_position()
-    if vertical:
-        cax.set_position([pos.x0, cax_pos.y0, pos.width, cax_pos.height])
-    else:
-        cax.set_position([cax_pos.x0, pos.y0, cax_pos.width, pos.height])
-
-    cbar.ax.tick_params(
-        labelsize=TICKSIZE
-    )  # Apply the same tick size as your main axes
-
-    if save:
-        fig.savefig(get_plot_dir() / filename, dpi=300)
-    else:
-        plt.show()
+PLOT_DICT = {
+    "fitnames": [
+        # Fit names to be used for the comparison
+        "250713-01-L0-nnpdf-like",
+        "250713-02-L1-nnpdf-like",
+    ],
+    "reference_epoch": 20000,
+    "epochs": [0, 20000],
+    "seed": 1423413,
+}
 
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument(
-        "config",
-        type=str,
-        help="Config file",
-    )
     parser.add_argument(
         "--plot-dir",
         type=str,
         default=None,
         help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
-    parser.add_argument(
-        "--filename",
-        type=str,
-        default="delta_ntk.pdf",
-        help="Filename to save the plot.",
-    )
     args = parser.parse_args()
+    DIR = Path(args.plot_dir) if args.plot_dir else Path(__file__).parent / "plots"
+    PLOT_DIR = DIR / "u_v_studies"
+    PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
-    if args.plot_dir is not None:
-        from yadlt.plotting import set_plot_dir
-
-        set_plot_dir(args.plot_dir)
-
-    with open(args.config, "r") as f:
-        config = yaml.safe_load(f)
-
-    fitnames = config["fitnames"]
-    reference_epoch = config.get("reference_epoch", None)
-    epochs = config.get("epochs", None)
-    seed = config.get("seed", SEED)
+    fitnames = PLOT_DICT["fitnames"]
+    reference_epoch = PLOT_DICT["reference_epoch"]
+    epochs = PLOT_DICT["epochs"]
+    seed = PLOT_DICT["seed"]
 
     # As of now, only two epochs are supported for the comparison
     if len(epochs) != 2:
@@ -170,21 +89,6 @@ def main():
     for f0_rep in xT3_init:
         cov = np.outer(f0_rep, f0_rep)
         cov_f0.add(cov)
-
-    # Produce comparison with Gibbs kernel
-    fk_grid = context.load_fk_grid()
-    gibbs_kernel = np.fromfunction(
-        lambda i, j: gibbs_fn(fk_grid[i], fk_grid[j], DELTA, SIGMA, L0),
-        (fk_grid.size, fk_grid.size),
-        dtype=int,
-    )
-
-    produce_mat_plot(
-        matrices=[gibbs_kernel, cov_f0.get_mean()],
-        titles=[r"$\textrm{Gibbs}$", r"$\textrm{Cov}[f_0, f_0]$"],
-        save=True,
-        filename=f"gibbs_comparison_no_low_x.pdf",
-    )
 
     for fitname in fitnames:
         # Compute evolution operators U and V
@@ -231,8 +135,9 @@ def main():
             produce_mat_plot(
                 matrices=[U_mean, cov_f0.get_mean()],
                 titles=[r"$\bar{U}$", r"$\textrm{Cov}[f_0, f_0]$"],
-                save=True,
+                save_fig=True,
                 filename=f"U_bar_vs_cov_f0_{epoch}_{data_type}.pdf",
+                plot_dir=PLOT_DIR,
             )
 
             cov_ft = Distribution(
@@ -244,26 +149,6 @@ def main():
                 cov = np.outer(ft_rep, ft_rep)
                 cov_ft.add(cov)
 
-            # Produce plots of the expectation value of U f0
-            add_grid_dict = {
-                "mean": U_mean @ f0_mean,
-                "label": r"$\mathbb{E}[U] \mathbb{E}[f_0]$",
-                "color": "black",
-            }
-
-            # Produce plots of the expectation value of U f0
-            produce_plot(
-                context.load_fk_grid(),
-                [Uf0],
-                additional_grids=[add_grid_dict],
-                ylabel="$U f_0$",
-                xlabel="$x$",
-                title=rf"$T_{{\rm ref}}={reference_epoch}, \quad f_0 = f^{{(\rm init)}}, \quad T={epoch}$",
-                scale="linear",
-                save_fig=True,
-                filename=f"u_f0_independence_{epoch}_{data_type}.pdf",
-            )
-
             # Produce plots of the matrices of the covariance of ft
             produce_mat_plot(
                 matrices=[cov_ft.get_mean(), cov_ft_rhs],
@@ -272,7 +157,8 @@ def main():
                     r"$\mathbb{E}[U] \textrm{Cov}[f_0, f_0] \mathbb{E}[U]^T$",
                 ],
                 filename=f"cov_ft_{epoch}_{data_type}.pdf",
-                save=True,
+                save_fig=True,
+                plot_dir=PLOT_DIR,
             )
 
         # Produce plots of the fluctuations of U and V
@@ -280,13 +166,15 @@ def main():
             matrices=U_fluctuations_by_epochs,
             titles=[rf"$\delta U \textrm{{ at }} T = {epoch}$" for epoch in epochs],
             filename=f"u_fluctuations_{data_type}.pdf",
-            save=True,
+            save_fig=True,
+            plot_dir=PLOT_DIR,
         )
         produce_mat_plot(
             matrices=V_fluctuations_by_epochs,
             titles=[rf"$\delta V \textrm{{ at }} T = {epoch}$" for epoch in epochs],
             filename=f"v_fluctuations_{data_type}.pdf",
-            save=True,
+            save_fig=True,
+            plot_dir=PLOT_DIR,
         )
 
 

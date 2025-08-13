@@ -1,126 +1,104 @@
 from argparse import ArgumentParser
 import logging
+from pathlib import Path
 
-import yaml
-
-from yadlt.context import FitContext
-from yadlt.distribution import combine_distributions
 from yadlt.log import setup_logger
-from yadlt.plotting import produce_plot
+from yadlt.plotting.plot_eigvals_single_plot import plot_eigvals_single_plot
 
 logger = setup_logger()
 logger.setLevel(logging.INFO)
 
+### CONFIGURATION FOR PLOTTING
+NTK_L0 = {
+    "eigval_type": "ntk",
+    "fitnames": ["250713-01-L0-nnpdf-like"],
+    "group_by": "eigvals",
+    "ylabel": "$\\textrm{NTK eigenvalues}$",
+    "labels": [
+        "$\\lambda^{1}$",
+        "$\\lambda^{2}$",
+        "$\\lambda^{3}$",
+        "$\\lambda^{4}$",
+        "$\\lambda^{5}$",
+    ],
+    "colors": ["C0", "C1", "C2", "C3", "C4"],
+    "eigvals": [1, 2, 3, 4, 5],
+}
+
+NTK_ARCH_L1 = {
+    "eigval_type": "ntk",
+    "fitnames": ["250713-02-L1-nnpdf-like", "250713-06-L1-large"],
+    "group_by": "fitnames",
+    "ylabel": "$\\lambda$",
+    "labels": ["$\\textrm{Arch. } [28,20]$", "$\\textrm{Arch. } [100,100]$"],
+    "colors": ["C0", "C1"],
+    "eigvals": [1, 2, 3],
+}
+
+H_L0 = {
+    "eigval_type": "h",
+    "fitnames": ["250713-01-L0-nnpdf-like"],
+    "group_by": "eigvals",
+    "ylabel": "$\\textrm{h}$",
+    "labels": ["$h^{1}$", "$h^{2}$", "$h^{3}$"],
+    "colors": ["C0", "C1", "C2"],
+    "eigvals": [1, 2, 3],
+}
+
+H_L1 = {
+    "eigval_type": "h",
+    "fitnames": ["250713-02-L1-nnpdf-like"],
+    "group_by": "eigvals",
+    "ylabel": "$\\textrm{h}$",
+    "labels": ["$h^{1}$", "$h^{2}$", "$h^{3}$"],
+    "colors": ["C0", "C1", "C2"],
+    "eigvals": [1, 2, 3],
+}
+
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument(
-        "config",
-        type=str,
-        help="Config file",
-    )
+
     parser.add_argument(
         "--plot-dir",
         type=str,
         default=None,
         help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
-    parser.add_argument(
-        "--filename",
-        type=str,
-        default="delta_ntk.pdf",
-        help="Filename to save the plot.",
-    )
     args = parser.parse_args()
+    PLOT_DIR = Path(args.plot_dir) if args.plot_dir else Path(__file__).parent / "plots"
+    NTK_PLOT_DIR = PLOT_DIR / "ntk_pheno"
+    H_PLOT_DIR = PLOT_DIR / "h_matrix"
+    NTK_PLOT_DIR.mkdir(parents=True, exist_ok=True)
+    H_PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
-    if args.plot_dir is not None:
-        from yadlt.plotting import set_plot_dir
-
-        set_plot_dir(args.plot_dir)
-
-    with open(args.config, "r") as f:
-        config = yaml.safe_load(f)
-
-    fitnames = config["fitnames"]
-    fitlabels = config.get("fitlabels", None)
-    fitcolors = config.get("fitcolors", None)
-    eigvals = config.get("eigvals", [0])
-    eigval_type = config.get("eigval_type", None)
-    ylabel = config.get("ylabel", r"")
-
-    group_by = config["group_by"]
-
-    eigvals_by_fit = []
-    epochs = None
-
-    for fitname in fitnames:
-        context = FitContext(fitname)
-
-        if epochs is None:
-            epochs = context.get_config("replicas", "common_epochs")
-        else:
-            assert epochs == context.get_config(
-                "replicas", "common_epochs"
-            ), "Epochs do not match across fits."
-
-        if eigval_type == "ntk":
-            tmp = combine_distributions(context.eigvals_time)
-        elif eigval_type == "h":
-            tmp = combine_distributions(context.h_by_epoch)
-        else:
-            raise ValueError(f"Unknown eigval_type: {eigval_type}. Use 'ntk' or 'h'.")
-        tmp.set_name(fitname)
-        eigvals_by_fit.append(tmp)
-
-    # Generate all sliced distributions with metadata
-    all_slices = [
-        {
-            "fit_idx": fit_idx,
-            "fit_name": eigval.name,
-            "eig_idx": idx_eig,
-            "distribution": eigval.slice((slice(None), idx_eig - 1)),
-        }
-        for fit_idx, eigval in enumerate(eigvals_by_fit)
-        for idx_eig in eigvals
-    ]
-
-    # Reorganize based on preference
-    if group_by == "fitnames":
-        # Group by fit first (fit1_eig1, fit1_eig2, fit2_eig1, fit2_eig2, ...)
-        all_slices.sort(key=lambda x: (x["fit_idx"], x["eig_idx"]))
-    elif group_by == "eigvals":
-        # Group by eigenvalue first (fit1_eig1, fit2_eig1, fit1_eig2, fit2_eig2, ...)
-        all_slices.sort(key=lambda x: (x["eig_idx"], x["fit_idx"]))
-    else:
-        raise ValueError(f"Unknown group_by: {group_by}. Use 'fitnames' or 'eigvals'.")
-
-    number_of_groups = len(config[group_by])
-    group_size = len(all_slices) / number_of_groups
-    if group_size != int(group_size):
-        raise ValueError(
-            f"Number of groups ({number_of_groups}) does not evenly divide the number of eigvals ({len(all_slices)})."
-        )
-
-    # Extract distributions in the desired order
-    eigvals_grids = [item["distribution"] for item in all_slices]
-
-    ax_specs = {
-        "set_yscale": "log",
-        "grid": {"visible": True, "which": "both", "linestyle": "--", "linewidth": 0.5},
-    }
-
-    produce_plot(
-        epochs,
-        eigvals_grids,
-        scale="linear",
-        colors=fitcolors,
-        labels=fitlabels,
-        xlabel=r"${\rm Epoch}$",
-        ylabel=ylabel,
-        ax_specs=ax_specs,
-        filename=args.filename,
-        save_fig=True,
-        group_size=int(group_size),
+    logger.info("Producing NTK eigenvalues plots with L0 data...")
+    plot_eigvals_single_plot(
+        **NTK_L0,
+        filename="ntk_eigvals_single_plot_L0.pdf",
+        plot_dir=NTK_PLOT_DIR,
+        save_fig=True
+    )
+    logger.info("Producing NTK eigenvalues plots with different architectures...")
+    plot_eigvals_single_plot(
+        **NTK_ARCH_L1,
+        filename="ntk_eigvals_single_plot_arch.pdf",
+        plot_dir=NTK_PLOT_DIR,
+        save_fig=True
+    )
+    logger.info("Producing H eigenvalues plots with L0 data...")
+    plot_eigvals_single_plot(
+        **H_L0,
+        filename="h_eigvals_single_plot_L0.pdf",
+        plot_dir=H_PLOT_DIR,
+        save_fig=True
+    )
+    logger.info("Producing H eigenvalues plots with L1 data...")
+    plot_eigvals_single_plot(
+        **H_L1,
+        filename="h_eigvals_single_plot_L1.pdf",
+        plot_dir=H_PLOT_DIR,
+        save_fig=True
     )
 
 

@@ -92,14 +92,31 @@ using L0 data}
   % ===================================
   \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_L0.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/evolution_vs_trained_epoch_500_L0.pdf} \hspace{10mm}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/evolution_vs_trained_epoch_500_L2.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/evolution_vs_trained_epoch_1000_L0.pdf} \hspace{10mm}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/evolution_vs_trained_epoch_1000_L2.pdf}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/evolution_vs_trained_epoch_10000_L0.pdf} \hspace{10mm}
+    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/evolution_vs_trained_epoch_10000_L2.pdf}
+    \caption{Comparison of the analytical solution and the trained solution at
+    different epochs. The analytical solution is computed using the frozen NTK
+    at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different
+    ensemble of networks at initialisation. Left column shows results for L0
+    data, while the right column shows results for L2 data.}
+    \label{fig:xT3_analytical_vs_trained}
+  \end{figure}
+  % ===================================
+  \begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_from_fin_L0.pdf}
+    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_from_fin_L2.pdf}
     \caption{PDF distance, as defined in Ref.~\cite{NNPDF:2021njg}, with respect to
-    the trained solution at the end of training and analytical
-    solutions for various initial conditions and evolution epochs. The frozen NTK
+    the input function $f^{(in)}$ used to generate the data and the analytical and trained
+    solutions in function of the evaluation epochs. The frozen NTK
     is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different
-    ensemble of networks at initialisation. For the last epoch, the analytical solution
-    is evolved for $T_{\rm tot} = 50000$.}
-    \label{fig:xT3_distance_L0}
+    ensemble of networks at initialisation. The left panel shows the case for L0 data,
+    while the right panel shows the case for L2 data.}
+    \label{fig:xT3_distance_L0_L2}
   \end{figure}
   % ===================================
 
@@ -110,13 +127,6 @@ using L0 data}
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/pdf_plot_init_epochs_L2.pdf}
     \caption{Same as Fig.~\ref{fig:xT3_analytical_init_L0}, but using L2 data.}
     \label{fig:xT3_analytical_init_L2}
-  \end{figure}
-  % ===================================
-  \begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_plot_L2.pdf}
-    \caption{Same as Fig.~\ref{fig:xT3_distance_L0}, but using L2 data.}
-    \label{fig:xT3_distance_L2}
   \end{figure}
   % ===================================
 

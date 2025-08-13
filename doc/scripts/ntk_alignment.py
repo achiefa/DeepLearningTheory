@@ -5,144 +5,65 @@
 3. Delta NTK
 4. Relative delta NTK
 """
-import logging
-
-import matplotlib as mpl
-from matplotlib import rc
-from matplotlib.colors import Normalize
-from matplotlib.gridspec import GridSpec
-import matplotlib.pyplot as plt
-import numpy as np
-import yaml
-
-rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
-rc("text", usetex=True)
-
 from argparse import ArgumentParser
+import logging
+from pathlib import Path
 
 from yadlt.context import FitContext
 from yadlt.log import setup_logger
-from yadlt.plotting import FONTSIZE, LABELSIZE, TICKSIZE, get_plot_dir
+from yadlt.plotting.plot_alignment import plot_theta_m_alignment, produce_alignment_plot
 
 logger = setup_logger()
 logger.setLevel(logging.INFO)
 
-
-def produce_mat_plot(
-    context: FitContext, replica: int, epochs: list[int], filename: str
-):
-    """Produce a comparison of delta NTK for different fits."""
-
-    eigvecs_time = context.eigvecs_time
-    cut_by_epoch = context.cut_by_epoch
-    common_epochs = context.get_config("replicas", "common_epochs")
-
-    # Compute eigvals and eigvecs of M
-    m, W = np.linalg.eigh(context.get_M())
-    m = m[::-1]
-    W = W[:, ::-1]
-
-    gridspec_kw = {"left": 0.07, "right": 0.93, "top": 0.99, "bottom": 0.05}
-    fig = plt.figure(figsize=(15, 5))
-    gs = GridSpec(1, 4, width_ratios=[1, 1, 1, 0.07], wspace=0.20, **gridspec_kw)
-
-    # Create axes
-    ax1 = fig.add_subplot(gs[0, 0])  # Left plot
-    ax2 = fig.add_subplot(gs[0, 1])  # Left plot
-    ax3 = fig.add_subplot(gs[0, 2])  # Left plot
-    cax = fig.add_subplot(gs[0, 3])  # Colorbar axis
-    axs = [ax1, ax2, ax3]
-
-    matrices = []
-    cut_values = []
-
-    # Compute the overlap matrices for each reference epoch
-    for ref_epoch in epochs:
-        Z = eigvecs_time[common_epochs.index(ref_epoch)]
-        cut = cut_by_epoch[common_epochs.index(ref_epoch)]
-        A = np.power(Z[replica].T @ W, 2)
-        cut_value = cut[replica]
-        cut_values.append(cut_value)
-        matrices.append(A)
-
-    vmin = min(np.percentile(A, 1) for A in matrices)
-    vmax = max(np.percentile(A, 95) for A in matrices)
-    print(f"vmin: {vmin}, vmax: {vmax}")
-
-    for idx, ax in enumerate(axs):
-        ms = ax.matshow(
-            matrices[idx],
-            cmap=mpl.colormaps["RdBu_r"],
-            norm=Normalize(
-                vmin=vmin, vmax=vmax, clip=True
-            ),  # clip=True will clip out-of-range values4
-        )
-
-        # Plot horizontal and vertical lines at the cut value
-        ax.axhline(y=cut_values[idx], color="white", linestyle="--", linewidth=2)
-        ax.set_title(
-            r"$\textrm{Overlap at epoch = }" + f"{epochs[idx]}" + r"$",
-            fontsize=FONTSIZE,
-        )
-
-        ax.tick_params(labelsize=TICKSIZE)
-        ax.xaxis.set_ticks_position("bottom")
-        ax.xaxis.set_label_position("bottom")
-
-    cbar = plt.colorbar(ms, cax=cax, extend="both")
-    cbar.ax.yaxis.set_label_position("left")
-
-    # Get the actual position of one of your matshow plots (they should all be the same height)
-    pos = ax1.get_position()
-    cax_pos = cax.get_position()
-    cax.set_position([cax_pos.x0, pos.y0, cax_pos.width, pos.height])
-
-    cbar.ax.tick_params(
-        labelsize=TICKSIZE
-    )  # Apply the same tick size as your main axes
-
-    ax1.set_ylabel(r"$\textrm{Eigenvectors of the NTK}$", fontsize=LABELSIZE)
-    ax2.set_xlabel(r"$\textrm{Eigenvectors of the M matrix}$", fontsize=LABELSIZE)
-
-    fig.savefig(get_plot_dir() / filename, dpi=300)
+FITNAME = "250713-03-L2-nnpdf-like"
+REF_REPLICA = 21
+REF_EPOCHS = [0, 1000, 20000]
 
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument(
-        "config",
-        type=str,
-        help="Path to the config file",
-    )
     parser.add_argument(
         "--plot-dir",
         type=str,
         default=None,
         help="Directory to save the plots. If not specified, uses the default plot directory.",
     )
-    parser.add_argument(
-        "--filename",
-        type=str,
-        default="ntk_alignment.pdf",
-        help="Filename to save the plot.",
-    )
     args = parser.parse_args()
+    PLOT_DIR = Path(args.plot_dir) if args.plot_dir else Path(__file__).parent / "plots"
+    NTK_PLOT_DIR = PLOT_DIR / "ntk_pheno"
+    NTK_PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
-    if args.plot_dir is not None:
-        from yadlt.plotting import set_plot_dir
+    context = FitContext(FITNAME)
+    datatype = context.get_config("metadata", "arguments")["data"]
+    plot_theta_m_alignment(
+        context=context,
+        replica=REF_REPLICA,
+        epochs=REF_EPOCHS,
+        filename=f"ntk_alignment_{datatype}.pdf",
+        save_fig=True,
+        plot_dir=NTK_PLOT_DIR,
+    )
 
-        set_plot_dir(args.plot_dir)
-
-    with open(args.config, "r") as f:
-        config = yaml.safe_load(f)
-
-    fitname = config["fitname"]
-    replica = config["replica"]
-    epochs = config["epochs"]
-
-    context = FitContext(fitname)
-    produce_mat_plot(
-        context=context, replica=replica, epochs=epochs, filename=args.filename
+    produce_alignment_plot(
+        context,
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+        ],
+        save_fig=True,
+        plot_dir=NTK_PLOT_DIR,
+        filename=f"ntk_align_fin_1_{datatype}.pdf",
+    )
+    produce_alignment_plot(
+        context,
+        [5, 6, 7, 8, 9],
+        save_fig=True,
+        plot_dir=NTK_PLOT_DIR,
+        filename=f"ntk_align_fin_2_{datatype}.pdf",
     )
 
 

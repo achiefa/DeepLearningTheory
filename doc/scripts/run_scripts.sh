@@ -82,72 +82,41 @@ run_script() {
 # =============================================================================
 print_status "Starting plot generation..."
 
-# NTK pheno section
-# ~~~~~~~~~~~~~~~~~~~~~
-NTK_PHENO_DIR="$OUTPUT_DIR/ntk_pheno"
-mkdir -p "$NTK_PHENO_DIR"
 run_script "ntk_initialisation.py" \
-  "--n-replicas 100 --plot-dir $NTK_PHENO_DIR" \
+  "--plot-dir $OUTPUT_DIR" \
   "Plot of the NTK at initialisation"
 
 run_script "delta_ntk_plots.py" \
-  "$CONFIG_DIR/delta_ntk.yaml --plot-dir $NTK_PHENO_DIR --filename delta_ntk.pdf" \
-  "Plot of delta ntk for LO L1 and L2 data"
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of delta ntk"
+
+run_script "eigvals_single_plot.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Single plot of the eigenvalues"
 
 run_script "ntk_eigvals_plots.py" \
-  "$CONFIG_DIR/ntk_eigvals_L0_L1_L2.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_eigvals_L0_L1_L2" \
-  "Plot of ntk eigvals for LO L1 and L2 data"
-
-run_script "delta_ntk_plots.py" \
-  "$CONFIG_DIR/delta_ntk_arch.yaml --plot-dir $NTK_PHENO_DIR --filename delta_ntk_arch.pdf" \
-  "Plot of delta ntk for different architectures"
-
-run_script "eigvals_single_plot.py" \
-  "$CONFIG_DIR/ntk_eigvals_arch_single_plot.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_eigvals_single_plot_arch.pdf" \
-  "Single plot of the ntk eigvals for different architectures"
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of ntk eigvals for L0 L1 and L2 data"
 
 run_script "ntk_alignment.py" \
-  "$CONFIG_DIR/ntk_alignment.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_alignment.pdf" \
+  "--plot-dir $OUTPUT_DIR" \
   "Plot of the alignment of the NTK with M"
 
-run_script "eigvals_single_plot.py" \
-  "$CONFIG_DIR/ntk_eigvals_single_plot_L0.yaml --plot-dir $NTK_PHENO_DIR --filename ntk_eigvals_single_plot_L0.pdf" \
-  "Single plot of the ntk eigvals L0"
+run_script "expval_u_f0.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the expectation value of U and f0"
 
-# Studies on U and V
-# ~~~~~~~~~~~~~~~~~~~~~
-U_V_STUDIES_DIR="$OUTPUT_DIR/u_v_studies"
-mkdir -p "$U_V_STUDIES_DIR"
+run_script "gibbs.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the Gibbs kernel and covariance of f0"
+
 run_script "u_v_fluctuations.py" \
-  "$CONFIG_DIR/u_v_fluctuations.yaml --plot-dir $U_V_STUDIES_DIR" \
+  "--plot-dir $OUTPUT_DIR" \
   "Plot of the fluctuations of U and V"
 
-# H section
-# ~~~~~~~~~~~~~~~~~~~~~
-H_MATRIX_DIR="$OUTPUT_DIR/h_matrix"
-mkdir -p "$H_MATRIX_DIR"
-run_script "eigvals_single_plot.py" \
-  "$CONFIG_DIR/h_eigvals_single_plot_L0.yaml --plot-dir $H_MATRIX_DIR --filename h_eigvals_single_plot_L0.pdf" \
-  "Single plot of the H eigvals L0"
-
-run_script "eigvals_single_plot.py" \
-  "$CONFIG_DIR/h_eigvals_single_plot_L1.yaml --plot-dir $H_MATRIX_DIR --filename h_eigvals_single_plot_L1.pdf" \
-  "Single plot of the H eigvals L1"
-
-
-# Analytical evolution
-# ~~~~~~~~~~~~~~~~~~~~~
-AS_DIR="$OUTPUT_DIR/analytical_solution"
-mkdir -p "$AS_DIR"
-# PDF plots with L0 data
 run_script "pdf_plots.py" \
-  "250713-01-L0-nnpdf-like --ref-epoch 20000 --plot-dir $AS_DIR" \
-  "PDF plots with L0 data"
-
-# PDF plots with L2 data
-run_script "pdf_plots.py" \
-  "250713-03-L2-nnpdf-like --ref-epoch 20000 --plot-dir $AS_DIR" \
-  "PDF plots with L2 data"
+  "--plot-dir $OUTPUT_DIR" \
+  "PDF plots with full and split contributions"
 
 
 # =============================================================================

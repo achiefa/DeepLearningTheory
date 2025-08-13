@@ -4,6 +4,8 @@ import numpy as np
 
 
 def validate_shape(func):
+    """Decorator to validate the shape of the data before adding it to the distribution."""
+
     def wrapper(self, data):
         if self._shape is not None and data.shape != self._shape:
             raise ValueError(
@@ -17,6 +19,8 @@ def validate_shape(func):
 
 
 def validate_size(func):
+    """Decorator to validate the size of the distribution before performing operations."""
+
     def wrapper(self, other):
         if self.size != 0 and self.size != other.size:
             raise ValueError(
@@ -117,6 +121,21 @@ class Distribution:
             self._data.append(data)
             self._size += 1
 
+    @validate_size
+    def outer(self, other):
+        """Compute the outer product of each replica with another distribution."""
+        if len(self.shape) > 1 or len(other.shape) > 1:
+            raise ValueError("Outer product is only defined for 1D distributions.")
+        res = Distribution(
+            name=f"{self.name} outer {other.name}",
+            shape=(self.shape[0], other.shape[0]),
+            size=self.size,
+        )
+        for rep_self, rep_other in zip(self, other):
+            cov = np.outer(rep_self, rep_other)
+            res.add(cov)
+        return res
+
     def get_mean(self, axis=0):
         return np.mean(self._data, axis=axis)
 
@@ -200,6 +219,14 @@ class Distribution:
             return res
         else:
             raise TypeError(f"Expected a scalar, got {type(other)}")
+
+    def __xor__(self, other):
+        """Perform outer product with another distribution"""
+        if not isinstance(other, Distribution):
+            raise TypeError(f"Expected a Distribution instance, got {type(other)}")
+
+        res = self.outer(other)
+        return res
 
     def __matmul__(self, other):
         """Matrix multiplication of the distribution with another distribution"""
