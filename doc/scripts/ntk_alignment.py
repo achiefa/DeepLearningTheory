@@ -11,7 +11,7 @@ from pathlib import Path
 
 from yadlt.context import FitContext
 from yadlt.log import setup_logger
-from yadlt.plotting.plot_alignment_matrix import plot_alignment_matrix
+from yadlt.plotting.plot_alignment import plot_theta_m_alignment, produce_alignment_plot
 
 logger = setup_logger()
 logger.setLevel(logging.INFO)
@@ -19,7 +19,6 @@ logger.setLevel(logging.INFO)
 FITNAME = "250713-03-L2-nnpdf-like"
 REF_REPLICA = 21
 REF_EPOCHS = [0, 1000, 20000]
-FILENAME = "ntk_alignment.pdf"
 
 
 def main():
@@ -36,13 +35,35 @@ def main():
     NTK_PLOT_DIR.mkdir(parents=True, exist_ok=True)
 
     context = FitContext(FITNAME)
-    plot_alignment_matrix(
+    datatype = context.get_config("metadata", "arguments")["data"]
+    plot_theta_m_alignment(
         context=context,
         replica=REF_REPLICA,
         epochs=REF_EPOCHS,
-        filename=FILENAME,
+        filename=f"ntk_alignment_{datatype}.pdf",
         save_fig=True,
         plot_dir=NTK_PLOT_DIR,
+    )
+
+    produce_alignment_plot(
+        context,
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+        ],
+        save_fig=True,
+        plot_dir=NTK_PLOT_DIR,
+        filename=f"ntk_align_fin_1_{datatype}.pdf",
+    )
+    produce_alignment_plot(
+        context,
+        [5, 6, 7, 8, 9],
+        save_fig=True,
+        plot_dir=NTK_PLOT_DIR,
+        filename=f"ntk_align_fin_2_{datatype}.pdf",
     )
 
 

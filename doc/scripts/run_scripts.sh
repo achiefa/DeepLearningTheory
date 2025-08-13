@@ -102,6 +102,14 @@ run_script "ntk_alignment.py" \
   "--plot-dir $OUTPUT_DIR" \
   "Plot of the alignment of the NTK with M"
 
+run_script "expval_u_f0.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the expectation value of U and f0"
+
+run_script "gibbs.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the Gibbs kernel and covariance of f0"
+
 run_script "u_v_fluctuations.py" \
   "--plot-dir $OUTPUT_DIR" \
   "Plot of the fluctuations of U and V"
