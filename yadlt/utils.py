@@ -153,3 +153,74 @@ def evaluate_from_initialisation(
         return xT3_t
 
     return func
+
+
+def compute_covariance_decomposition_by_t(
+    context: FitContext, ref_epoch: int, f_0: Distribution
+):
+    """Compute the covariance decomposition of the analytical solution according to
+    the expression reported in the paper:
+
+      Cov[f_t, f_t] = C_t^{(00)} + C_t^{(0Y)} + C_t^{(YY)}.
+
+    Args:
+        context (FitContext): The fit context containing relevant information.
+        ref_epoch (int): The reference epoch to compute the covariance at.
+        f_0 (Distribution): The distribution at the initialisation.
+    Returns:
+        func (callable): A function that computes the covariance decomposition at a given time t.
+        The function returns C_00, C_0Y, and C_YY, in that order.
+    """
+    evolution = EvolutionOperatorComputer(context)
+    Y = load_data(context)
+
+    def func(t: float):
+        # Compute evolution operators
+        U, V = evolution.compute_evolution_operator(ref_epoch, t)
+
+        # Compute objects for the covariance decomposition
+        U_f0 = U @ f_0
+        V_Y = V @ Y
+
+        C_00 = (U_f0 ^ U_f0).get_mean() - np.outer(U_f0.get_mean(), U_f0.get_mean())
+        C_0Y = (
+            +(U_f0 ^ V_Y).get_mean()
+            - np.outer(U_f0.get_mean(), V_Y.get_mean())
+            + (V_Y ^ U_f0).get_mean()
+            - np.outer(V_Y.get_mean(), U_f0.get_mean())
+        )
+        C_YY = (V_Y ^ V_Y).get_mean() - np.outer(V_Y.get_mean(), V_Y.get_mean())
+
+        return C_00, C_0Y, C_YY
+
+    return func
+
+
+def compute_covariance_ft(context: FitContext, ref_epoch: int, f_0: Distribution):
+    """Compute the covariance of the analytical solution
+
+      Cov[f_t, f_t].
+
+    Args:
+        context (FitContext): The fit context containing relevant information.
+        ref_epoch (int): The reference epoch to compute the covariance at.
+        f_0 (Distribution): The distribution at the initialisation.
+    Returns:
+        func (callable): A function that computes the covariance at a given time t.
+        The function returns Cov[f_t, f_t].
+    """
+    evolution = EvolutionOperatorComputer(context)
+    Y = load_data(context)
+
+    def func(t: float):
+        # Compute evolution operators
+        U, V = evolution.compute_evolution_operator(ref_epoch, t)
+
+        U_f0 = U @ f_0
+        V_Y = V @ Y
+
+        res = U_f0 + V_Y
+        C = (res ^ res).get_mean() - np.outer(res.get_mean(), res.get_mean())
+        return C
+
+    return func

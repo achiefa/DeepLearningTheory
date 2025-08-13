@@ -93,6 +93,122 @@ class EvolutionOperatorComputer:
 
         return U, V
 
+    def compute_U_check(self, reference_epoch, t):
+        """
+        Computes the U_check operator for a given reference epoch and time t.
+
+        Parameters:
+        -----------
+        reference_epoch : int
+            The reference epoch for which to compute the U_check operator
+        t : float
+            Time parameter for evolution
+
+        Returns:
+        --------
+        U_check : Distribution
+            The U_check operator at the specified epoch and time
+        """
+        # Extract index of the reference epoch
+        if reference_epoch not in self.context.common_epochs:
+            raise ValueError(
+                f"Reference epoch {reference_epoch} not in common epochs. "
+                f"Available epochs: {self.context.common_epochs}"
+            )
+
+        epoch_index = self.context.common_epochs.index(reference_epoch)
+        M = self.context.get_M()
+
+        Q = self.context.Q_by_epoch[epoch_index]
+        P_parallel = self.context.P_parallel_by_epoch[epoch_index]
+        h = self.context.h_by_epoch[epoch_index]
+        hinv = self.context.hinv_by_epoch[epoch_index].make_diagonal()
+
+        Qt = Q.transpose()
+        Qtilde = Qt @ M @ P_parallel
+
+        one_minus_exp = h.apply_operator(
+            b=t,
+            operator=lambda a, b: 1.0 - np.exp(-a * b),
+            axis=0,
+            name=f"1-exp(-h*t) at t={t}",
+        ).make_diagonal()
+
+        U_check = Q @ hinv @ one_minus_exp @ Qtilde
+
+        return U_check
+
+    def compute_M_operator(self, reference_epoch, t):
+        """
+        Computes the matrix M that enters the evolution operator
+        """
+        epoch_index = self.context.common_epochs.index(reference_epoch)
+        Q = self.context.Q_by_epoch[epoch_index]
+        h = self.context.h_by_epoch[epoch_index]
+        hinv = self.context.hinv_by_epoch[epoch_index].make_diagonal()
+
+        Qt = Q.transpose()
+        one_minus_exp = h.apply_operator(
+            b=t,
+            operator=lambda a, b: 1.0 - np.exp(-a * b),
+            axis=0,
+            name=f"1-exp(-h*t) at t={t}",
+        ).make_diagonal()
+
+        Mcal = Q @ hinv @ one_minus_exp @ Qt
+        return Mcal
+
+    def get_P_parallel(self, reference_epoch):
+        """
+        Returns the parallel projector P_parallel for a given reference epoch.
+
+        Parameters:
+        -----------
+        reference_epoch : int
+            The reference epoch for which to get the parallel projector
+
+        Returns:
+        --------
+        P_parallel : Distribution
+            The parallel projector at the specified epoch
+        """
+        epoch_index = self.context.common_epochs.index(reference_epoch)
+        return self.context.P_parallel_by_epoch[epoch_index]
+
+    def get_Z(self, reference_epoch):
+        """
+        Returns the Z matrix for a given reference epoch.
+
+        Parameters:
+        -----------
+        reference_epoch : int
+            The reference epoch for which to get the Z matrix
+
+        Returns:
+        --------
+        Z : Distribution
+            The Z matrix at the specified epoch
+        """
+        epoch_index = self.context.common_epochs.index(reference_epoch)
+        return self.context.eigvecs_time[epoch_index]
+
+    def get_cut(self, reference_epoch):
+        """
+        Returns the cut index for a given reference epoch.
+
+        Parameters:
+        -----------
+        reference_epoch : int
+            The reference epoch for which to get the cut index
+
+        Returns:
+        --------
+        cut : int
+            The cut index at the specified epoch
+        """
+        epoch_index = self.context.common_epochs.index(reference_epoch)
+        return self.context.cut_by_epoch[epoch_index]
+
     def compute_evolution_operator_at_inf(self, reference_epoch):
         """
         Computes operators at infinity (t -> inf limit).
