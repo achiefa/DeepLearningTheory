@@ -244,7 +244,7 @@ introducing the operator
         = \sum_{k,k'\in\perp} \sqrt{\lambda^{(k)}} z^{(k)}_\alpha 
             \left[\sideset{}{'}\sum_{i} w^{(i)}_{k} \frac{1}{h^{(i)}}\, 
             \left( 1- e^{-h^{(i)}t}\right) w^{(i)}_{k'}\right]
-            z^{(k')}_{\alpha'} \frac{1}{\sqrt{\lambda^{(k')}}}\,. 
+            z^{(k')}_{\alpha'} \sqrt{\lambda^{(k')}}\,. 
 \end{align}
 Then, we can write
 \begin{align}
@@ -260,7 +260,7 @@ and
 where we note that the term in the bracket in Eq.~\eqref{eq:UperpCheck} is simply the projector on the 
 kernel of the NTK. 
 
-\paragraph{Physical Interpretation.} The four terms that appear in the analytical solution have a clear physical interpretation. 
+\paragraph{Physical Interpretation.} \ac{Check the discussion below} The four terms that appear in the analytical solution have a clear physical interpretation. 
 \begin{itemize}
     \item The first term $\hat{U}^\perp(t)$ suppresses the components of the initial condition that lie in the subspace orthogonal 
     to the kernel of the NTK. These are the components that are learned by the network during training. While the trained solution
