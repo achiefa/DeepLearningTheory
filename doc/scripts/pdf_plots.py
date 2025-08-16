@@ -2,11 +2,12 @@ from argparse import ArgumentParser
 import logging
 from pathlib import Path
 
-from matplotlib.style import context
-
 from yadlt.context import FitContext
 from yadlt.log import setup_logger
-from yadlt.plotting.plot_covariance import plot_covariance_ft
+from yadlt.plotting.plot_covariance import (
+    plot_cov_compare_tr_an,
+    plot_covariance_decomposition,
+)
 from yadlt.plotting.plot_distance import plot_distance_from_input
 from yadlt.plotting.plot_evolution_pdf import (
     plot_evolution_from_initialisation,
@@ -24,6 +25,12 @@ FITNAMES = [
     "250713-01-L0-nnpdf-like",
     "250713-03-L2-nnpdf-like",
 ]
+
+COLOR_TS = "C0"
+COLOR_AS = "C1"
+COLOR_AS_REF1 = "C2"
+COLOR_AS_REF2 = "C3"
+COLOR_AS_REF3 = "C4"
 
 
 def main():
@@ -43,7 +50,18 @@ def main():
     args = parser.parse_args()
     DIR = Path(args.plot_dir) if args.plot_dir else Path(__file__).parent / "plots"
     PLOT_DIR = DIR / "analytical_solution"
-    PLOT_DIR.mkdir(parents=True, exist_ok=True)
+
+    PDF_EVOLUTION_DIR = PLOT_DIR / "evolution"
+    PDF_EVOLUTION_DIR.mkdir(parents=True, exist_ok=True)
+
+    COVARIANCE_DIR = PLOT_DIR / "covariance"
+    COVARIANCE_DIR.mkdir(parents=True, exist_ok=True)
+
+    UV_DIR = PLOT_DIR / "u_v_decomposition"
+    UV_DIR.mkdir(parents=True, exist_ok=True)
+
+    DISTANCE_DIR = PLOT_DIR / "distance_from_input"
+    DISTANCE_DIR.mkdir(parents=True, exist_ok=True)
 
     for fitname in FITNAMES:
         context = FitContext(fitname, force_serialize=parser.parse_args().force)
@@ -53,9 +71,10 @@ def main():
         plot_evolution_from_initialisation(
             context,
             ref_epoch=REF_EPOCH,
-            epochs=[700, 5000, 50000],
-            name="init_epochs",
-            plot_dir=PLOT_DIR,
+            epochs=[700, 5000, 20000],
+            colors=[COLOR_TS, COLOR_AS_REF1, COLOR_AS_REF2, COLOR_AS_REF3],
+            filename=f"evolution_epochs_700_5000_20000_{datatype}.pdf",
+            plot_dir=PDF_EVOLUTION_DIR,
             save_fig=True,
         )
 
@@ -63,11 +82,12 @@ def main():
         plot_evolution_from_initialisation(
             context,
             ref_epoch=REF_EPOCH,
-            epochs=[-1],
-            name="init_last_epoch",
+            epochs=[50000],
             show_true=True,
-            plot_dir=PLOT_DIR,
+            plot_dir=PDF_EVOLUTION_DIR,
             save_fig=True,
+            colors=[COLOR_TS, COLOR_AS],
+            filename=f"evolution_epoch_50000_{datatype}.pdf",
         )
 
         # Plot of U and V contributions
@@ -79,7 +99,8 @@ def main():
                 ev_epoch=epoch,
                 seed=SEED,
                 save_fig=True,
-                plot_dir=PLOT_DIR,
+                plot_dir=UV_DIR,
+                filename=f"evolution_u_v_{epoch}_{datatype}.pdf",
             )
 
         # Plot of the evolution vs the empirical trained solution
@@ -89,16 +110,19 @@ def main():
             plot_evolution_vs_trained(
                 context,
                 ref_epoch=REF_EPOCH,
+                legend_title=rf"$\textrm{{{datatype} data}}$",
+                colors=[COLOR_TS, COLOR_AS],
                 epoch=epoch,
                 seed=SEED,
                 show_true=False,
                 save_fig=True,
-                plot_dir=PLOT_DIR,
+                plot_dir=PDF_EVOLUTION_DIR,
                 filename=f"evolution_vs_trained_epoch_{epoch}_{datatype}.pdf",
-                legend_title=rf"$\textrm{{{datatype} data}}$",
             )
 
-            # Distance plot
+        # Distance plot
+        epochs_to_plot = [1000, 10000, 20000, 50000]
+        for epoch in epochs_to_plot:
             plot_distance_from_input(
                 context,
                 ref_epoch=20000,
@@ -106,24 +130,29 @@ def main():
                 seed=SEED,
                 show_std=True,
                 save_fig=True,
-                filename=f"distance_plot_from_fin_{datatype}.pdf",
-                plot_dir=PLOT_DIR,
+                filename=f"distance_plot_from_input_epoch_{epoch}_{datatype}.pdf",
+                plot_dir=DISTANCE_DIR,
                 title=rf"$\textrm{{{datatype} data}}$",
             )
 
-        # Plot the decomposition of the covariance matrix
-        epochs_to_plot = [0, 1, 100]
-        for epoch in epochs_to_plot:
-            plot_covariance_ft(
-                context,
-                ref_epoch=20000,
-                epoch=epoch,
-                seed=SEED,
-                text_dict={"x": -0.5, "y": 0.5, "s": rf"$T = {epoch}$"},
-                save_fig=True,
-                plot_dir=PLOT_DIR,
-                filename=f"covariance_ft_{epoch}_{datatype}.pdf",
-            )
+        plot_covariance_decomposition(
+            context,
+            ref_epoch=20000,
+            epochs=[0, 1, 100],
+            seed=SEED,
+            text_dict={"x": -0.5, "y": 0.5, "s": rf"$T = {epoch}$"},
+            save_fig=True,
+            plot_dir=COVARIANCE_DIR,
+        )
+        plot_cov_compare_tr_an(
+            context,
+            ref_epoch=20000,
+            epochs=[0, 500, 1000, 10000],
+            seed=SEED,
+            text_dict={"x": -0.5, "y": 0.5, "s": rf"$T = {epoch}$"},
+            save_fig=True,
+            plot_dir=COVARIANCE_DIR,
+        )
 
 
 if __name__ == "__main__":

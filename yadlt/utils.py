@@ -224,3 +224,19 @@ def compute_covariance_ft(context: FitContext, ref_epoch: int, f_0: Distribution
         return C
 
     return func
+
+
+def compute_covariance_training(context: FitContext, epoch: int = 0):
+    """Compute the covariance of the trained solution at a given epoch
+
+      Cov[f_t, f_t].
+
+    Args:
+        context (FitContext): The fit context containing relevant information.
+        epoch (int): The epoch to compute the covariance at.
+    Returns:
+        mat (ndarray): The covariance at a given time t.
+    """
+    ft = load_and_evaluate_model(context, epoch)
+    C = (ft ^ ft).get_mean() - np.outer(ft.get_mean(), ft.get_mean())
+    return C
