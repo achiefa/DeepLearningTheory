@@ -13,6 +13,8 @@ of the data used to train the NNs. We use the standard NNPDF nomenclature and
 refer to these three levels as level-0 (L0), level-1 (L1), and level-2 (L2)
 closure tests, and we denote the input PDFs used to generate the data as $\fin$.
 
+\subsection{Analytical Results and Crosschecks}
+\label{sec:AnalyticalChecks}
 Let us start by discussing the case of L0 closure tests. In this case, the data are
 given by
 \begin{equation}
@@ -33,14 +35,25 @@ Eq.~\eqref{eq:AnalyticSol} yields
     &= \mathcal{M}(t)\, \FKtabT C_{Y}^{-1} \FKtab\, 
       \left[\fin - f_{0}^\parallel\right]\, .
 \end{align}
-Interestingly, for $t\to\infty$,
+Eq.~\eqref{eq:TrainingOnLevelZero} suggests a number of crosschecks that allow us to test our
+implementation. Interestingly, for $t\to\infty$,
 \begin{align}
     \label{eq:LevelZeroClosureInfiniteTraining}
     \lim_{t\to\infty} V(t) Y = \finperp\, ,
 \end{align}
 and therefore the $V$ component of the trained solution reproduces exactly the
 component of the PDF that lies in  the subspace orthogonal to the kernel of
-$\Theta$. The second term in the square bracket on the right-hand side of 
+$\Theta$. We compare the asymptotic behaviour of $V(t) Y$ and $\finperp$ in 
+Fig.~\ref{fig:InfiniteTimeVterm}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=0.5]{plots/UoECentredLogo282v1160215.png}  
+  \caption{Test the $t\to\infty$ limit of the L0 training.}
+  \label{fig:InfiniteTimeVterm}
+\end{figure}
+
+The second term in the square bracket on the right-hand side of 
 Eq.~\eqref{eq:TrainingOnLevelZero}
 is the contribution from the parallel component at initialization that does not evolve
 in the training process. Given that $f_0$ is almost normally distributed around zero, 
@@ -59,47 +72,51 @@ is shown in Fig.~\ref{fig:AverageLevelZeroUcheck}.
   \label{fig:AverageLevelZeroUcheck}
 \end{figure}
 
+\FloatBarrier
 
-\ldd{we need to compute the the scalar product $(z^{k},f^\textin)$ for all values of 
-$k$ at different training times between $t=0$ and $T_{\mathrm{ref}}=20,000$. We may be 
-able to see explicitly that the eigenvectors of the NTK really align with the 'true' 
-solution.}
+\subsection{Fluctuations of the Analytical Solution}
+\label{sec:CheckCovariance}
 
-Distance between the numerical minimization and the analytical formula as a
-function of training time $t$
+In Sect.~\ref{sec:CentralValue} and~\ref{sec:Covariance} we obtained some simplified expressions 
+for the mean and the covariance of the analytical solution under the assumption that the fluctuations
+of the evolution operators $U(t)$ and $V(t)$ are independent of the fluctuations of the networks 
+at initialization. Here we quantify this assumption by computing these correlations explicitly 
+for the dataset and architectures used in this work. In the absence of general theorems, it is necessary 
+to verify the validity of these assumptions case by case. The comparison of 
+$\mathbb{E}\left[U(t) f_{0}\right]$ and $\bar{U}(t) \bar{f}_{0}$ is shown in Fig.~\ref{fig:xT3_exp_val} for
+$T=20000$. 
+While the central value of both expressions is compatible with zero, we see that the fluctuations of 
+$\mathbb{E}\left[U(t) f_{0}\right]$ are much larger than the ones of $\bar{U}(t) \bar{f}_{0}$, suggesting 
+that using the simplified expressions results in an incorrect estimate of the error bars. 
 
-\ldd{Compute distances between numerical and analytical solutions using the
-standard NNPDF definition of the distance. Same as the ones that are below, but
-using L0 data}
-
-
-\newpage
-\input{training_and_closure.tex}
-
-% L0 data
-\begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epoch_50000_L0.pdf}
-    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epochs_700_5000_20000_L0.pdf}
-    \caption{Comparison of the trained solution at the end of training and
-    the analytical solution using L0 data. In both panels, the
-    frozen NTK is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$
-    is a different ensemble of networks at initialisation. In the left panel,
-    the analytical solution is evolved for $T_{\rm tot}$ epochs, while the right
-    panel shows the same comparison for intermediate epochs.}
-    \label{fig:xT3_analytical_init_L0}
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.65\textwidth]{plots/u_v_studies/u_f0_independence_20000_L0.pdf}
+  \caption{Comparison of $\mathbb{E}\left[U(t) f_{0}\right]$ and $\bar{U}(t) \bar{f}_{0}$ as defined in 
+    Eqs.~\eqref{eq:MeanValAtT} and~\eqref{eq:MeanValAtTNoCorr} respectively. 
+    The data is obtained by choosing the frozen NTK at $T_{\rm
+    ref} = 20000$, while $f_0$ is an ensemble of networks at initialisation
+    (\textit{i.e.}\ $\mathbb{E}[f_0]=0$). The analytical solution is evolved for
+    $T=20000$ epochs. L0 data is used.}
+    \label{fig:xT3_exp_val}
   \end{figure}
 % ===================================
 
-    % L2 data
-\begin{figure}[ht!]
-  \centering
-  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epoch_50000_L2.pdf}
-    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epochs_700_5000_20000_L2.pdf}
-  \caption{Same as Fig.~\ref{fig:xT3_analytical_init_L0}, but using L2 data.}
-  \label{fig:xT3_analytical_init_L2}
-\end{figure}
+\FloatBarrier
 
+\subsection{Convergence of the Analytical Solution}
+\label{sec:CheckAnalyticalConvergence}
+
+At the beginning of the training process there is clearly no difference between the analytical solution and
+the trained solution. By construction both AS and TS are given by the outcome of the neural network at initialization, 
+as discussed in Sect.~\ref{sec:Init}. in the early stages of training AS and TS differ as expected. Indeed, the
+analytical solution is computed using the frozen NTK at $T_{\rm ref}$, while the trained solution evolves with an 
+NTK that is still changing as shown in Sect.~\ref{sec:NTKPheno}. Since the NTK at $T_{\rm ref}$ is already aligned 
+with the solution, the AS converges faster to the target solution, while the TS takes more epochs before starting 
+to evolve in the right direction. The two solutions are compared for different training times in Fig.~\ref{fig:xT3_analytical_vs_trained}
+after $T=500, 1000$ and 10000 epochs. The plots in the left column correspond to synthetic L0 data, while the ones 
+in the right column are obtained using L2 data. The analytical solution is obtained using a frozen NTK 
+at $T_{\rm ref}=20000$. In both cases the analytical solution agrees with the trained one for $T=10000$.
 
   % ===================================
   \begin{figure}[ht!]
@@ -119,12 +136,41 @@ using L0 data}
   \end{figure}
   % ===================================
 
+% L0 data
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epoch_50000_L0.pdf}
+  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epochs_700_5000_20000_L0.pdf}
+  \caption{Comparison of the trained solution at the end of training and
+  the analytical solution using L0 data. In both panels, the
+  frozen NTK is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$
+  is a different ensemble of networks at initialisation. In the left panel,
+  the analytical solution is evolved for $T_{\rm tot}$ epochs, while the right
+  panel shows the same comparison for intermediate epochs.}
+  \label{fig:xT3_analytical_init_L0}
+\end{figure}
+% ===================================
+
+  % L2 data
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epoch_50000_L2.pdf}
+  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/evolution/evolution_epochs_700_5000_20000_L2.pdf}
+\caption{Same as Fig.~\ref{fig:xT3_analytical_init_L0}, but using L2 data.}
+\label{fig:xT3_analytical_init_L2}
+\end{figure}
+
+\FloatBarrier
+
+
+
+
   \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_from_input/distance_plot_from_input_epoch_20000_L0.pdf}
     \includegraphics[width=0.48\textwidth]{plots/analytical_solution/distance_from_input/distance_plot_from_input_epoch_20000_L2.pdf}
     \caption{PDF distance, as defined in Ref.~\cite{NNPDF:2021njg}, with respect to
-    the input function $f^{(in)}$ used to generate the data and the analytical and trained
+    the input function $\fin$ used to generate the data and the analytical and trained
     solutions in function of the evaluation epochs. The frozen NTK
     is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different
     ensemble of networks at initialisation. The left panel shows the case for L0 data,
@@ -132,6 +178,7 @@ using L0 data}
     \label{fig:xT3_distance_L0_L2}
   \end{figure}
   % ===================================
+
 
 
 \begin{figure}[ht!]
@@ -155,15 +202,20 @@ using L0 data}
   \end{figure}
   % ===================================
 
+\FloatBarrier
 
-  % L0
+\subsection{Covariance of the Analytical Solution}
+\label{sec:CovarianceAnlyticalSolution}
+
+
+% L0
 % ===================================
 \begin{figure}[ht!]
   \centering
   \includegraphics[width=0.90\textwidth]{plots/analytical_solution/covariance/covariance_ft_0_L0.pdf}
   \includegraphics[width=0.90\textwidth]{plots/analytical_solution/covariance/covariance_ft_1_L0.pdf}
   \includegraphics[width=0.90\textwidth]{plots/analytical_solution/covariance/covariance_ft_100_L0.pdf}
-  \caption{Decomposition of the covariance of the trained solution, as
+  \caption{Decomposition of the covariance of the analytical solution, as
   described in Eq.~\eqref{eq:SumOfCovariances}, for different training epochs.
   The analytical solution is obtained by using a frozen NTK at
   $T_{\rm{ref}}=20000$ and the initial function $f_0$ is an ensemble of
