@@ -5,7 +5,6 @@ from yadlt.distribution import Distribution
 from yadlt.plotting.plotting import produce_distance_plot
 from yadlt.utils import (
     evaluate_from_initialisation,
-    evaluate_from_ref_function,
     load_and_evaluate_model,
 )
 

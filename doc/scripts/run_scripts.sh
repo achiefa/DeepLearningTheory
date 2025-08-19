@@ -82,37 +82,41 @@ run_script() {
 # =============================================================================
 print_status "Starting plot generation..."
 
-# run_script "ntk_initialisation.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Plot of the NTK at initialisation"
+run_script "ntk_initialisation.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the NTK at initialisation"
 
-# run_script "delta_ntk_plots.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Plot of delta ntk"
+run_script "kernel_recursion.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the kernel recursion"
 
-# run_script "eigvals_single_plot.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Single plot of the eigenvalues"
+run_script "delta_ntk_plots.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of delta ntk"
 
-# run_script "ntk_eigvals_plots.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Plot of ntk eigvals for L0 L1 and L2 data"
+run_script "eigvals_single_plot.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Single plot of the eigenvalues"
 
-# run_script "ntk_alignment.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Plot of the alignment of the NTK with M"
+run_script "ntk_eigvals_plots.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of ntk eigvals for L0 L1 and L2 data"
 
-# run_script "expval_u_f0.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Plot of the expectation value of U and f0"
+run_script "ntk_alignment.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the alignment of the NTK with M"
 
-# run_script "gibbs.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Plot of the Gibbs kernel and covariance of f0"
+run_script "expval_u_f0.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the expectation value of U and f0"
 
-# run_script "u_v_fluctuations.py" \
-#   "--plot-dir $OUTPUT_DIR" \
-#   "Plot of the fluctuations of U and V"
+run_script "gibbs.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the Gibbs kernel and covariance of f0"
+
+run_script "u_v_fluctuations.py" \
+  "--plot-dir $OUTPUT_DIR" \
+  "Plot of the fluctuations of U and V"
 
 run_script "pdf_plots.py" \
   "--plot-dir $OUTPUT_DIR" \

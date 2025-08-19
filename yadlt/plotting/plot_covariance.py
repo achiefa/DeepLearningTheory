@@ -1,4 +1,4 @@
-"""Module to plot contributions of U and V in the evolution operator."""
+"""Module to plot the covariance matrix."""
 
 from typing import List
 

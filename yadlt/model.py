@@ -4,6 +4,7 @@ PDFmodel class
 Inspiration from n3fit: https://github.com/NNPDF/nnpdf/tree/master/n3fit
 """
 
+import functools
 import logging
 from pathlib import Path
 from typing import Dict
@@ -349,7 +350,7 @@ def compute_K_by_layer(model_ensemble: list, layer_idx: int, input_data):
         K_{i1 α1,i2 α2} = < φ_{i1,α1}^(l) * φ_{i2,α2}^(l) >
     """
     phi_a1a2_phi_i1i2 = compute_preactivation_product(
-        model_ensemble[0].layers[1], layer_idx, input_data
+        model_ensemble[0].layers[1], layer_idx, input_data  # Select sequential model
     )
     for model in model_ensemble[1:]:
         phi_a1a2_phi_i1i2 += compute_preactivation_product(
@@ -436,3 +437,50 @@ def mc_integrate_from_mvg(func, mean, covmat, num_samples=1000, batch_size=1000)
     res_std = np.std(batch_results)
 
     return res_mean, res_std
+
+
+@functools.cache
+def compute_kernel_from_recursion(
+    model_ensemble: tuple[keras.Model],
+    layer_idx: int,
+    input_data: np.ndarray,
+    num_samples: int = 1000,
+    batch_size: int = 100,
+):
+    """Compute the kernel from the recursion relation."""
+    if layer_idx == 0:
+        return np.outer(input_data, input_data)
+    else:
+        K_previous_layer = compute_kernel_from_recursion(
+            model_ensemble, layer_idx - 1, input_data, num_samples, batch_size
+        )
+        model = model_ensemble[0].layers[1]  # Make sure to use the sequential model
+        layer = model.layers[layer_idx]
+        layer_n_in = layer.kernel.shape[0]
+        layer_n_out = layer.kernel.shape[1]
+
+        # Define the function that will be integrated
+        rho_rho_func = lambda x: np.outer(np.tanh(x), np.tanh(x))
+
+        # Integrate the function over the multivariate Gaussian distribution
+        rho_rho_mean, _ = mc_integrate_from_mvg(
+            rho_rho_func,
+            np.zeros(K_previous_layer.shape[0]),
+            K_previous_layer,
+            num_samples=num_samples,
+            batch_size=batch_size,
+        )
+
+        # Compute the factor Cw
+        if (
+            layer.kernel_initializer.__class__.__name__ == "GlorotNormal"
+            and layer.bias_initializer.__class__.__name__ == "Zeros"
+        ):
+            Cw = 2 / (layer_n_in + layer_n_out)
+            K = Cw * rho_rho_mean
+        else:
+            raise NotImplementedError(
+                f"Kernel initializer {layer.kernel_initializer.__class__.__name__} and "
+                f"bias initializer {layer.bias_initializer.__class__.__name__} not implemented for recursion relation."
+            )
+        return K
