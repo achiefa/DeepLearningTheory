@@ -8,9 +8,10 @@ import logging
 from pathlib import Path
 from typing import Dict
 
-import keras.initializers as Kinit
 import numpy as np
 import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import initializers as Kinit
 import yaml
 
 from yadlt.layers import InputScaling, Preprocessing
@@ -276,3 +277,162 @@ def load_weights(replica_dir, epoch=-1):
         raise FileNotFoundError(f"PDF weight file not found: {weight_file}")
 
     return weight_file
+
+
+def get_preactivation(model, layer_idx, input_data):
+    """
+    Extract pre-activation values for a specific layer given input data a
+    a sequential model.
+
+    Args:
+        model (tf.keras.Model): The Keras model from which to extract pre-activations.
+        layer_idx (int): Index of the layer (0-indexed)
+        input_data: Input data to the model
+    """
+    keras_model = model
+
+    # Check if the shape of input_data is correct
+    if len(np.array(input_data).shape) != 3:
+        input_data = tf.reshape(input_data, (1, -1, 1))
+
+    if layer_idx == 0:
+        # For first layer, pre-activations are the inputs
+        return input_data
+
+    # Create a function that outputs the pre-activation (input to the layer)
+    get_preact_fn = keras.Function(
+        [keras_model.inputs[0]], [keras_model.layers[layer_idx].input]
+    )
+
+    # Get pre-activations
+    return get_preact_fn([input_data])[0]
+
+
+def compute_preactivation_product(model, layer_idx, input_data):
+    """
+    Compute the product of pre-activations for a given layer and input data.
+
+    Args:
+        model (tf.keras.Model): The Keras model from which to extract pre-activations.
+        layer_idx (int): Index of the layer (0-indexed)
+        input_data: Input data to the model
+
+    Returns:
+        tf.Tensor: Tensor containing the product of pre-activations.
+
+          φ_{i1,α1}^(l) * φ_{i2,α2}^(l)
+    """
+    preactivations = get_preactivation(model, layer_idx, input_data)
+
+    phi_alpha1_i1 = preactivations[0, :, :]  # Shape: [data, neuron]
+    phi_alpha2_i2 = preactivations[0, :, :]  # Shape: [data, neuron]
+
+    # Compute outer product
+    tensor_product = tf.einsum("ai,bj->aibj", phi_alpha1_i1, phi_alpha2_i2)
+
+    return tensor_product
+
+
+def compute_K_by_layer(model_ensemble: list, layer_idx: int, input_data):
+    """
+    Compute the correlation matrix K for each layer in the model ensemble.
+
+    Args:
+      model_ensemble (list): List of Keras models.
+      layer_idx (int): Index of the layer (0-indexed).
+      input_data: Input data to the model.
+
+    Returns:
+      tf.Tensor: Tensor containing the average value of the correlation matrix K
+      for the specified layer over the ensemble of models.
+
+        K_{i1 α1,i2 α2} = < φ_{i1,α1}^(l) * φ_{i2,α2}^(l) >
+    """
+    phi_a1a2_phi_i1i2 = compute_preactivation_product(
+        model_ensemble[0].layers[1], layer_idx, input_data
+    )
+    for model in model_ensemble[1:]:
+        phi_a1a2_phi_i1i2 += compute_preactivation_product(
+            model.layers[1], layer_idx, input_data
+        )
+    return phi_a1a2_phi_i1i2 / len(model_ensemble)
+
+
+def sample_from_mvg(mean, covmat, num_samples=1000, batch_size=1000):
+    """Sample from a multivariate Gaussian distribution. If the covariance matrix
+    is singular, it computes the spectrum of the covariance and samples in the
+    subspace of non-zero directions (eigenvalues).
+
+    This function allows to generate multiple batches of samples. This is useful to
+    estimate the uncertainty of a Monte Carlo integration.
+
+    Parameters
+    ----------
+    mean : np.ndarray
+        Mean of the multivariate Gaussian distribution.
+    covmat : np.ndarray
+        Covariance matrix of the multivariate Gaussian distribution.
+    num_samples : int, optional
+        Total number of samples to generate. Default is 1000.
+    batch_size : int, optional
+        Number of samples to generate in each batch. Default is 1000.
+    """
+    # Check if the sample size is divisible by the batch size
+    if num_samples % batch_size != 0:
+        raise ValueError("num_samples must be divisible by batch_size")
+
+    try:
+        L = np.linalg.cholesky(covmat)  # covariance = L @ L.T
+
+        for _ in range(num_samples // batch_size):
+            samples = np.random.normal(size=(batch_size, covmat.shape[0]))
+            samples = mean + samples @ L.T
+            yield samples
+
+    except np.linalg.LinAlgError:
+        eigvals, eigvecs = np.linalg.eigh(covmat)
+        non_zero_mask = eigvals > 1e-8
+        effective_rank = np.sum(non_zero_mask)
+        if effective_rank == 0:
+            raise ValueError("Covariance matrix is singular and has no effective rank.")
+        eigvals = eigvals[non_zero_mask]
+        eigvecs = eigvecs[:, non_zero_mask]
+
+        for _ in range(num_samples // batch_size):
+            z = np.random.normal(0, 1, (batch_size, effective_rank))
+            z_scaled = z * np.sqrt(eigvals)  # Scale by sqrt of eigenvalues
+            samples = mean + (eigvecs @ z_scaled.T).T  # Project back to full space
+            yield samples
+
+
+def mc_integrate_from_mvg(func, mean, covmat, num_samples=1000, batch_size=1000):
+    """
+    Perform Monte Carlo integration of a function over a multivariate Gaussian distribution.
+
+    Parameters
+    ----------
+    func : callable
+        Function to integrate. It should accept a 2D array of shape (num_samples, dim) as input.
+    mean : np.ndarray
+        Mean of the multivariate Gaussian distribution.
+    covmat : np.ndarray
+        Covariance matrix of the multivariate Gaussian distribution.
+    num_samples : int, optional
+        Total number of samples to generate. Default is 1000.
+    batch_size : int, optional
+        Number of samples to generate in each batch. Default is 1000.
+
+    Returns
+    -------
+    float
+        Estimated value of the integral and its statistical uncertainty.
+    """
+    batch_results = []
+    batch_generator = sample_from_mvg(mean, covmat, num_samples, batch_size)
+    for batch in batch_generator:
+        batch_results.append(np.mean([func(sample) for sample in batch], axis=0))
+
+    res_mean = np.mean(batch_results, axis=0)
+    res_std = np.std(batch_results)
+
+    return res_mean, res_std
