@@ -44,6 +44,7 @@ def plot_evolution_from_initialisation(
         tmp.set_name(rf"$\textrm{{AS @ }} T =  {{{epoch}}}$")
         grids_list.append(tmp)
 
+    normalize_to = 1
     if show_true:
         add_grid_dict = {
             "mean": f_bcdms,
@@ -53,6 +54,7 @@ def plot_evolution_from_initialisation(
                 "color": "black",
             },
         }
+        normalize_to = -1
 
     ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
 
@@ -67,7 +69,7 @@ def plot_evolution_from_initialisation(
     produce_pdf_plot(
         fk_grid,
         [xT3_training, *grids_list],
-        normalize_to=1,
+        normalize_to=normalize_to,
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
         additional_grids=[add_grid_dict] if show_true else None,
         ax_specs=[None, ax_specs_ratio],

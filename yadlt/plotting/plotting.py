@@ -15,6 +15,7 @@ import matplotlib as mpl
 from matplotlib import rc
 from matplotlib.colors import Normalize
 from matplotlib.gridspec import GridSpec
+from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import numpy as np
@@ -31,6 +32,17 @@ LABELSIZE = 16
 LEGENDSIZE = 16
 TICKSIZE = 14
 FIGSIZE = (10, 5)
+
+
+def yield_colors():
+    prop_settings = mpl.rcParams["axes.prop_cycle"]
+    settings_cycler = prop_settings()
+
+    for color in settings_cycler:
+        yield color
+
+
+next_color = yield_colors()
 
 
 def produce_pdf_plot(
@@ -51,7 +63,11 @@ def produce_pdf_plot(
     legend_title: str = None,
 ):
     if normalize_to > 0:
-        ref_grid = grids[normalize_to - 1]
+        ref_grid = grids[normalize_to - 1].get_mean()
+    elif (
+        normalize_to < 0 and additional_grids is not None
+    ):  # Use additional grids for normalization
+        ref_grid = additional_grids[-normalize_to - 1]["mean"]
 
     fig, axs = plt.subplots(
         2,
@@ -78,9 +94,9 @@ def produce_pdf_plot(
         )
 
         if normalize_to == 0:
-            ref_grid = grid
+            ref_grid = grid.mean()
 
-        normalised_grid = grid / ref_grid.get_mean()
+        normalised_grid = grid / ref_grid
         axs[1].plot(x_grid, normalised_grid.get_mean(), color=pl[0].get_color())
         axs[1].fill_between(
             x_grid,
@@ -95,7 +111,7 @@ def produce_pdf_plot(
             spec = additional_grid.get("spec", {})
             mean = additional_grid.get("mean")
             axs[0].plot(x_grid, mean, **spec)
-            axs[1].plot(x_grid, mean / ref_grid.get_mean(), **spec)
+            axs[1].plot(x_grid, mean / ref_grid, **spec)
 
     # Set the title
     if title is not None:
@@ -208,6 +224,133 @@ def produce_plot(
     ax.tick_params(labelsize=TICKSIZE)
     # Legend
     ax.legend(fontsize=LEGENDSIZE)
+
+    for key, value in ax_specs.items():
+        if hasattr(ax, key):
+            if isinstance(value, dict):
+                # If value is a dict, assume it's for a method call
+                getattr(ax, key)(**value)
+            else:
+                getattr(ax, key)(value)
+        else:
+            print(f"Warning: {key} is not a valid attribute of the Axes object.")
+
+    # Save the figure
+    fig.tight_layout()
+    if save_fig:
+        fig.savefig(plot_dir / filename, bbox_inches="tight")
+        plt.close(fig)
+    else:
+        plt.show()
+
+
+def produce_errorbar_plot(
+    xgrid,
+    grids: list[Distribution] | None = None,
+    add_grids: list[dict] | None = None,
+    ylabel: str = "",
+    xlabel: str = "",
+    title=None,
+    scale="linear",
+    yscale="linear",
+    ax_specs: dict = {},
+    labels: list[str] | None = None,
+    colors: list[str] | None = None,
+    filename: str = "plot.pdf",
+    plot_dir: Path | None = None,
+    save_fig=False,
+):
+    """Produce a plot with error bars for the given grids. Grids are meant to be instances of Distribution.
+    In alternative, you can pass a list of dictionaries with 'mean' and 'std' keys if instances of Distribution
+    are not available. A dictionary in `add_grids` can also contain a 'spec' key for additional plotting specifications,
+    so for instance
+    ```python
+    dict_for_additional_grid = {
+        "mean": np.array([1, 2, 3]),
+        "std": np.array([0.1, 0.2, 0.3]),
+        "label": "Additional Grid",
+        "spec": {"color": "red", "linestyle": "--", "label": "Additional Grid"}
+    }
+    ```
+    will plot the additional grid with the specified color and linestyle.
+    """
+    fig, ax = plt.subplots(figsize=FIGSIZE)
+
+    if grids is None and add_grids is None:
+        raise ValueError("At least one of 'grids' or 'add_grids' must be provided.")
+
+    legend_handles = []
+    legend_labels = []
+
+    if grids is not None:
+        for idx, grid in enumerate(grids):
+            color = colors[idx] if colors else None
+            label = labels[idx] if labels else grid.name
+
+            pl = ax.errorbar(
+                x=xgrid,
+                y=grid.get_mean(),
+                yerr=grid.get_std(),
+                label=label,
+                color=color,
+            )
+            legend_handles.append(pl)
+            legend_labels.append(label)
+
+    if add_grids is not None:
+        for additional_grid in add_grids:
+            spec = additional_grid.get("spec", {})
+            label = additional_grid["label"]
+
+            tmp_legend_handles = []
+            if (
+                additional_grid.get("mean") is not None
+                and additional_grid.get("std") is not None
+            ):
+                eb = ax.errorbar(
+                    x=xgrid,
+                    y=additional_grid["mean"],
+                    yerr=additional_grid["std"],
+                    **spec,
+                )
+                tmp_legend_handles.append(eb)
+
+            if collection := additional_grid.get("box"):
+                ax.add_collection(collection)
+                box_proxy = Rectangle(
+                    (0, 0),
+                    0.1,
+                    0.1,
+                    angle=90,
+                    facecolor=collection.get_facecolors()[0],
+                    alpha=collection.get_alpha(),
+                    edgecolor=(
+                        collection.get_edgecolors()[0]
+                        if len(collection.get_edgecolors()) > 0
+                        else "none"
+                    ),
+                )
+
+                tmp_legend_handles.append(box_proxy)
+
+            legend_handles.append(tuple(tmp_legend_handles))
+            legend_labels.append(label)
+
+    # Set the title
+    if title is not None:
+        fig.suptitle(title, fontsize=FONTSIZE)
+
+    # Y labels
+    ax.set_ylabel(ylabel, fontsize=FONTSIZE)
+    # X labels
+    ax.set_xlabel(xlabel, fontsize=FONTSIZE)
+    # Set the x and y scale
+    ax.set_xscale(scale)
+    ax.set_yscale(yscale)
+    # Tick size
+    ax.tick_params(labelsize=TICKSIZE)
+    # Legend
+    ax.legend(legend_handles, legend_labels, fontsize=LEGENDSIZE)
 
     for key, value in ax_specs.items():
         if hasattr(ax, key):

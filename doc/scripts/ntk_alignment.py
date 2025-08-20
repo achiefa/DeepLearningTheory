@@ -43,6 +43,7 @@ def main():
         filename=f"ntk_alignment_{datatype}.pdf",
         save_fig=True,
         plot_dir=NTK_PLOT_DIR,
+        cut_noise=20,
     )
 
     produce_alignment_plot(

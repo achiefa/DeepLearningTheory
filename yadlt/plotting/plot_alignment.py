@@ -24,6 +24,7 @@ def plot_theta_m_alignment(
     filename: str,
     save_fig: bool = False,
     plot_dir: str = None,
+    cut_noise: int = -1,
 ) -> None:
     """Plot the aligment matrix between the NTK and M matrix for three reference epochs."""
     eigvecs_time = context.eigvecs_time
@@ -56,12 +57,34 @@ def plot_theta_m_alignment(
         A = np.power(Z[replica].T @ W, 2)
         cut_value = cut[replica]
         cut_values.append(cut_value)
-        matrices.append(A)
+        matrices.append(A[0:cut_noise, :])
 
     vmin = min(np.percentile(A, 1) for A in matrices)
     vmax = max(np.percentile(A, 95) for A in matrices)
 
     for idx, ax in enumerate(axs):
+        # # Add wavy lines to indicate truncation
+        # x = np.linspace(-0.5, matrices[idx].shape[1]-0.5, 100)
+        # y = 19.5 + 0.3 * np.sin(x * 2 * np.pi / 5)
+        # ax.plot(x, y, 'k-', linewidth=2)
+        # ax.fill_between(x, y, cut_noise, color='white', zorder=3)
+
+        # Create torn edge
+        np.random.seed(42)
+        torn_edge = 19.5 + np.random.uniform(-0.7, 0.7, matrices[idx].shape[1])
+        x_edge = np.arange(matrices[idx].shape[1])
+
+        # Plot the torn edge
+        ax.fill_between(
+            x_edge - 0.5,
+            torn_edge,
+            20,
+            color="white",
+            zorder=3,
+            edgecolor="black",
+            linewidth=1,
+        )
+
         ms = ax.matshow(
             matrices[idx],
             cmap=mpl.colormaps["RdBu_r"],
@@ -75,11 +98,13 @@ def plot_theta_m_alignment(
         ax.set_title(
             r"$\textrm{Overlap at epoch = }" + f"{epochs[idx]}" + r"$",
             fontsize=FONTSIZE,
+            pad=10,
         )
 
         ax.tick_params(labelsize=TICKSIZE)
-        ax.xaxis.set_ticks_position("bottom")
+        ax.xaxis.set_ticks_position("top")
         ax.xaxis.set_label_position("bottom")
+        ax.spines["bottom"].set_visible(False)
 
     cbar = plt.colorbar(ms, cax=cax, extend="both")
     cbar.ax.yaxis.set_label_position("left")
@@ -94,7 +119,9 @@ def plot_theta_m_alignment(
     )  # Apply the same tick size as your main axes
 
     ax1.set_ylabel(r"$\textrm{Eigenvectors of the NTK}$", fontsize=LABELSIZE)
-    ax2.set_xlabel(r"$\textrm{Eigenvectors of the M matrix}$", fontsize=LABELSIZE)
+    ax2.set_xlabel(
+        r"$\textrm{Eigenvectors of the M matrix}$", fontsize=LABELSIZE, labelpad=20
+    )
 
     if save_fig:
         fig.savefig(plot_dir / filename, dpi=300)

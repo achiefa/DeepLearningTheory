@@ -7,8 +7,12 @@ from yadlt.log import setup_logger
 from yadlt.plotting.plot_covariance import (
     plot_cov_compare_tr_an,
     plot_covariance_decomposition,
+    plot_diag_error_decomposition,
 )
-from yadlt.plotting.plot_distance import plot_distance_from_input
+from yadlt.plotting.plot_distance import (
+    plot_distance_from_input,
+    plot_distance_from_train,
+)
 from yadlt.plotting.plot_evolution_pdf import (
     plot_evolution_from_initialisation,
     plot_evolution_vs_trained,
@@ -62,6 +66,9 @@ def main():
 
     DISTANCE_DIR = PLOT_DIR / "distance_from_input"
     DISTANCE_DIR.mkdir(parents=True, exist_ok=True)
+
+    DISTANCE_TR_DIR = PLOT_DIR / "distance_from_training"
+    DISTANCE_TR_DIR.mkdir(parents=True, exist_ok=True)
 
     for fitname in FITNAMES:
         context = FitContext(fitname, force_serialize=parser.parse_args().force)
@@ -134,25 +141,65 @@ def main():
                 plot_dir=DISTANCE_DIR,
                 title=rf"$\textrm{{{datatype} data}}$",
             )
+            plot_distance_from_train(
+                context,
+                ref_epoch=20000,
+                epoch=epoch,
+                seed=SEED,
+                show_std=True,
+                save_fig=True,
+                filename=f"distance_plot_from_training_epoch_{epoch}_{datatype}.pdf",
+                plot_dir=DISTANCE_TR_DIR,
+                title=rf"$\textrm{{{datatype} data}}$",
+            )
 
         plot_covariance_decomposition(
             context,
             ref_epoch=20000,
             epochs=[0, 1, 100],
             seed=SEED,
-            text_dict={"x": -0.5, "y": 0.5, "s": rf"$T = {epoch}$"},
             save_fig=True,
             plot_dir=COVARIANCE_DIR,
         )
+
         plot_cov_compare_tr_an(
             context,
             ref_epoch=20000,
             epochs=[0, 500, 1000, 10000],
             seed=SEED,
-            text_dict={"x": -0.5, "y": 0.5, "s": rf"$T = {epoch}$"},
             save_fig=True,
             plot_dir=COVARIANCE_DIR,
         )
+
+        # Plot the diagonal error decomposition
+        epochs = [0, 100, 500, 1000, 10000, 20000]
+        common_spec = {
+            "alpha": 0.5,
+            "marker": "X",
+            "markersize": 5,
+            "lw": 2.0,
+            "capthick": 2,
+            "capsize": 3,
+            "linestyle": "None",
+        }
+        for epoch in epochs:
+            plot_diag_error_decomposition(
+                context,
+                ref_epoch=20000,
+                epoch=epoch,
+                common_plt_spec=common_spec,
+                seed=SEED,
+                ax_specs={
+                    "set_yscale": "linear",
+                    "set_xticks": [1, 10, 20, 30, 40, 50],
+                },  # Convert range to list
+                title=rf"$\textrm{{Decomposition at }} T = {epoch}$",
+                xlabel=r"$x-{\rm grids}$",
+                ylabel=r"$\sigma~(\sqrt{C_{ii}})$",
+                save_fig=True,
+                plot_dir=COVARIANCE_DIR,
+                filename=f"diag_error_decomposition_epoch_{epoch}_{datatype}.pdf",
+            )
 
 
 if __name__ == "__main__":

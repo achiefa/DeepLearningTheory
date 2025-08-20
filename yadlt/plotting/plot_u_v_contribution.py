@@ -20,7 +20,7 @@ def plot_u_v_contributions(
     """Plot the contributions of U and V to the total operator."""
     nreplicas = context.get_property("nreplicas")
     architecture = tuple(context.get_config("metadata", "model_info")["architecture"])
-    common_epochs = context.get_config("metadata", "common_epochs")
+    common_epochs = context.get_config("replicas", "common_epochs")
     fk_grid = context.load_fk_grid()
 
     # Load trained solution (end of training)
@@ -61,6 +61,7 @@ def plot_u_v_contributions(
         ax_specs=[None, ax_specs_ratio],
         normalize_to=1,
         xlabel=r"$x$",
+        ylabel=r"$xT_3(x)$",
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}, \quad T = {{{ev_epoch}}}$",
         **plot_kwargs,
     )
