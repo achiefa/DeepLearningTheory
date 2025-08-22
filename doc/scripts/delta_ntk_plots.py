@@ -21,7 +21,7 @@ DELTA_NTK_DATA_DICT = {
 
 DELTA_NTK_ARCH_DICT = {
     "fitnames": ["250713-02-L1-nnpdf-like", "250713-06-L1-large"],
-    "fitlabels": ["$\\textrm{Arch. } [28,20]$", "$\\textrm{Arch. } [100,100]$"],
+    "fitlabels": ["$\\textrm{Arch. } [25,20]$", "$\\textrm{Arch. } [100,100]$"],
     "fitcolors": ["C0", "C1"],
     "filename": "delta_ntk_arch.pdf",
 }
