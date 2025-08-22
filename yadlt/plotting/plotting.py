@@ -61,13 +61,17 @@ def produce_pdf_plot(
     colors: list[str] | None = None,
     plot_dir: Path | None = None,
     legend_title: str = None,
+    divide_by_x: bool = False,
 ):
     if normalize_to > 0:
         ref_grid = grids[normalize_to - 1].get_mean()
     elif (
         normalize_to < 0 and additional_grids is not None
     ):  # Use additional grids for normalization
-        ref_grid = additional_grids[-normalize_to - 1]["mean"]
+        ref_grid = additional_grids[-normalize_to - 1]["mean"].copy()
+
+    if divide_by_x:
+        ref_grid /= x_grid
 
     fig, axs = plt.subplots(
         2,
@@ -84,6 +88,10 @@ def produce_pdf_plot(
     for idx, grid in enumerate(grids):
         label = labels[idx] if labels else rf"$\textrm{{{grid.name}}}$"
         color = colors[idx] if colors else None
+
+        if divide_by_x:
+            grid = grid / x_grid
+
         pl = axs[0].plot(x_grid, grid.get_mean(), label=label, color=color)
         axs[0].fill_between(
             x_grid,
@@ -94,7 +102,7 @@ def produce_pdf_plot(
         )
 
         if normalize_to == 0:
-            ref_grid = grid.mean()
+            ref_grid = grid.get_mean()
 
         normalised_grid = grid / ref_grid
         axs[1].plot(x_grid, normalised_grid.get_mean(), color=pl[0].get_color())
@@ -110,6 +118,8 @@ def produce_pdf_plot(
         for additional_grid in additional_grids:
             spec = additional_grid.get("spec", {})
             mean = additional_grid.get("mean")
+            if divide_by_x:
+                mean = mean / x_grid
             axs[0].plot(x_grid, mean, **spec)
             axs[1].plot(x_grid, mean / ref_grid, **spec)
 
@@ -119,7 +129,6 @@ def produce_pdf_plot(
 
     # Set the ratio label
     axs[1].set_ylabel(ratio_label, fontsize=FONTSIZE)
-    axs[1].set_ylim
 
     # X labels
     axs[1].set_xlabel(xlabel, fontsize=FONTSIZE)
@@ -161,6 +170,7 @@ def produce_pdf_plot(
 
     fig.tight_layout()
     if save_fig:
+        plot_dir.mkdir(parents=True, exist_ok=True)
         fig.savefig(plot_dir / filename, bbox_inches="tight")
         plt.close(fig)
     else:
@@ -182,6 +192,7 @@ def produce_plot(
     colors: list[str] | None = None,
     group_size: int = 1,
     plot_dir: Path | None = None,
+    divide_by_x: bool = False,
 ):
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
@@ -196,8 +207,10 @@ def produce_plot(
 
         label_seen.add(label)
 
+        if divide_by_x:
+            grid = grid / xgrid
         pl = ax.plot(xgrid, grid.get_mean(), label=label, color=color)
-        ax.fill_between(
+        plfb = ax.fill_between(
             xgrid,
             grid.get_mean() - grid.get_std(),
             grid.get_mean() + grid.get_std(),
@@ -208,7 +221,10 @@ def produce_plot(
     if additional_grids is not None:
         for additional_grid in additional_grids:
             spec = additional_grid.get("spec", {})
-            ax.plot(xgrid, additional_grid["mean"], **spec)
+            mean = additional_grid["mean"]
+            if divide_by_x:
+                mean = mean / xgrid
+            ax.plot(xgrid, mean, **spec)
 
     # Set the title
     if title is not None:
@@ -238,6 +254,7 @@ def produce_plot(
     # Save the figure
     fig.tight_layout()
     if save_fig:
+        plot_dir.mkdir(parents=True, exist_ok=True)
         fig.savefig(plot_dir / filename, bbox_inches="tight")
         plt.close(fig)
     else:
@@ -365,6 +382,8 @@ def produce_errorbar_plot(
     # Save the figure
     fig.tight_layout()
     if save_fig:
+        # Create save dir if given
+        plot_dir.mkdir(parents=True, exist_ok=True)
         fig.savefig(plot_dir / filename, bbox_inches="tight")
         plt.close(fig)
     else:
@@ -378,13 +397,18 @@ def produce_distance_plot(
     scale="linear",
     title=None,
     ylabel="",
+    ax_specs: dict = {},
     show_std=False,
     plot_dir: Path | None = None,
     filename="distance_plot.pdf",
     save_fig=False,
+    divide_by_x=False,
     **kwargs,
 ):
     # Compute distances
+    if divide_by_x:
+        for grid in grids:
+            grid /= x_grid
     distances = compute_distance(grids, normalize_to=normalize_to)
 
     if kwargs.get("figsize", None) is None:
@@ -445,9 +469,21 @@ def produce_distance_plot(
     ax.legend(fontsize=LEGENDSIZE)
     # Set the x scale
     ax.set_xscale(scale)
+
+    for key, value in ax_specs.items():
+        if hasattr(ax, key):
+            if isinstance(value, dict):
+                # If value is a dict, assume it's for a method call
+                getattr(ax, key)(**value)
+            else:
+                getattr(ax, key)(value)
+        else:
+            print(f"Warning: {key} is not a valid attribute of the Axes object.")
+
     # Save the figure
     fig.tight_layout()
     if save_fig:
+        plot_dir.mkdir(parents=True, exist_ok=True)
         fig.savefig(plot_dir / filename, bbox_inches="tight")
         plt.close(fig)
     else:
@@ -538,6 +574,7 @@ def produce_mat_plot(
         labelsize=TICKSIZE
     )  # Apply the same tick size as your main axes
     if save_fig:
+        plot_dir.mkdir(parents=True, exist_ok=True)
         fig.savefig(plot_dir / filename, dpi=300, bbox_inches="tight", pad_inches=0.1)
         plt.close(fig)
     else:

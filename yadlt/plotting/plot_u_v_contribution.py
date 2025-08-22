@@ -54,11 +54,14 @@ def plot_u_v_contributions(
     xT3_t_v.set_name(r"$\textrm{Contribution from V}$")
 
     ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
+    if plot_kwargs.get("ax_specs", None) is not None:
+        plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+    else:
+        plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
 
     produce_pdf_plot(
         fk_grid,
         [xT3_training, xT3_t_u, xT3_t_v],
-        ax_specs=[None, ax_specs_ratio],
         normalize_to=1,
         xlabel=r"$x$",
         ylabel=r"$xT_3(x)$",

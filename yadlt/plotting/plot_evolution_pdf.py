@@ -1,7 +1,9 @@
 """Module to plot the complete evolution of PDFs."""
 
+from fileinput import filename
+
 from yadlt.context import FitContext
-from yadlt.plotting.plotting import produce_pdf_plot
+from yadlt.plotting.plotting import produce_pdf_plot, produce_plot
 from yadlt.utils import (
     evaluate_from_initialisation,
     evaluate_from_ref_function,
@@ -57,6 +59,10 @@ def plot_evolution_from_initialisation(
         normalize_to = -1
 
     ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
+    if plot_kwargs.get("ax_specs", None) is not None:
+        plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+    else:
+        plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
 
     # Check the colors, if give, are compatible with the number of grids
     if "colors" in plot_kwargs:
@@ -72,7 +78,6 @@ def plot_evolution_from_initialisation(
         normalize_to=normalize_to,
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
         additional_grids=[add_grid_dict] if show_true else None,
-        ax_specs=[None, ax_specs_ratio],
         xlabel=r"$x$",
         ylabel=r"$xT3(x)$",
         **plot_kwargs,
@@ -80,7 +85,11 @@ def plot_evolution_from_initialisation(
 
 
 def plot_evolution_from_ref(
-    context: FitContext, ref_epoch: int = 0, tr_epoch: int = 0, **plot_kwargs
+    context: FitContext,
+    ref_epoch: int = 0,
+    tr_epoch: int = 0,
+    show_ratio: bool = True,
+    **plot_kwargs,
 ):
     """Plot the PDF comparison from a random initialised
     model using the frozen NTK.
@@ -107,13 +116,21 @@ def plot_evolution_from_ref(
         if len(colors) != 2:
             raise ValueError("Please provide exactly two colors for the plots.")
 
-    produce_pdf_plot(
-        context.load_fk_grid(),
-        [xT3_training, xT3_t],
-        normalize_to=1,
-        title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm trained)}}_{{T_{{\rm ref}}}}$",
-        **plot_kwargs,
-    )
+    if show_ratio:
+        produce_pdf_plot(
+            context.load_fk_grid(),
+            [xT3_training, xT3_t],
+            normalize_to=1,
+            title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm trained)}}_{{T_{{\rm ref}}}}$",
+            **plot_kwargs,
+        )
+    else:
+        produce_plot(
+            context.load_fk_grid(),
+            [xT3_training, xT3_t],
+            title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm trained)}}_{{T_{{\rm ref}}}}$",
+            **plot_kwargs,
+        )
 
 
 def plot_evolution_vs_trained(
@@ -167,6 +184,10 @@ def plot_evolution_vs_trained(
         }
 
     ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
+    if plot_kwargs.get("ax_specs", None) is not None:
+        plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+    else:
+        plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
 
     # Check the colors, if give, are compatible with the number of grids
     if "colors" in plot_kwargs:
@@ -180,8 +201,41 @@ def plot_evolution_vs_trained(
         normalize_to=1,
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
         additional_grids=[add_grid_dict] if show_true else None,
-        ax_specs=[None, ax_specs_ratio],
         xlabel=r"$x$",
         ylabel=r"$xT3(x)$",
+        **plot_kwargs,
+    )
+
+
+def plot_Q_directions(
+    context: FitContext,
+    ref_epoch: 0,
+    ranks: list[int],
+    colors: list[str],
+    **plot_kwargs,
+):
+    """Plot the vectors in Q, which are the combinations
+    of the NTK directions and the FK table."""
+    common_epochs = context.get_config("replicas", "common_epochs")
+    epoch_idx = -1 if ref_epoch == -1 else common_epochs.index(ref_epoch)
+    Q = context.Q_by_epoch[epoch_idx]
+    fk_grid = context.load_fk_grid()
+
+    grids = []
+
+    for idx in ranks:
+        # Slice the distribution and select the n-th vector
+        grid = Q.slice((slice(None), idx - 1))
+        grid.set_name(rf"$\pmb{{q}}^{{({idx})}}$")
+
+        grids.append(grid)
+
+    produce_plot(
+        fk_grid,
+        grids,
+        xlabel=r"$x$",
+        ylabel=r"$\pmb{q}$",
+        # labels=fitlabels,
+        colors=colors,
         **plot_kwargs,
     )

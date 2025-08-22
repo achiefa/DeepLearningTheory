@@ -156,7 +156,7 @@ def evaluate_from_initialisation(
 
 
 def compute_covariance_decomposition_by_t(
-    context: FitContext, ref_epoch: int, f_0: Distribution
+    context: FitContext, ref_epoch: int, f_0: Distribution, divide_by_x: bool = False
 ):
     """Compute the covariance decomposition of the analytical solution according to
     the expression reported in the paper:
@@ -182,6 +182,11 @@ def compute_covariance_decomposition_by_t(
         U_f0 = U @ f_0
         V_Y = V @ Y
 
+        if divide_by_x:
+            fk_grid = context.load_fk_grid()
+            U_f0 = U_f0 / fk_grid
+            V_Y = V_Y / fk_grid
+
         C_00 = (U_f0 ^ U_f0).get_mean() - np.outer(U_f0.get_mean(), U_f0.get_mean())
         C_0Y = (
             +(U_f0 ^ V_Y).get_mean()
@@ -196,7 +201,9 @@ def compute_covariance_decomposition_by_t(
     return func
 
 
-def compute_covariance_ft(context: FitContext, ref_epoch: int, f_0: Distribution):
+def compute_covariance_ft(
+    context: FitContext, ref_epoch: int, f_0: Distribution, divide_by_x: bool = False
+):
     """Compute the covariance of the analytical solution
 
       Cov[f_t, f_t].
@@ -220,13 +227,20 @@ def compute_covariance_ft(context: FitContext, ref_epoch: int, f_0: Distribution
         V_Y = V @ Y
 
         res = U_f0 + V_Y
+
+        if divide_by_x:
+            fk_grid = context.load_fk_grid()
+            res = res / fk_grid
+
         C = (res ^ res).get_mean() - np.outer(res.get_mean(), res.get_mean())
         return C
 
     return func
 
 
-def compute_covariance_training(context: FitContext, epoch: int = 0):
+def compute_covariance_training(
+    context: FitContext, epoch: int = 0, divide_by_x: bool = False
+):
     """Compute the covariance of the trained solution at a given epoch
 
       Cov[f_t, f_t].
@@ -238,5 +252,8 @@ def compute_covariance_training(context: FitContext, epoch: int = 0):
         mat (ndarray): The covariance at a given time t.
     """
     ft = load_and_evaluate_model(context, epoch)
+    if divide_by_x:
+        fk_grid = context.load_fk_grid()
+        ft = ft / fk_grid
     C = (ft ^ ft).get_mean() - np.outer(ft.get_mean(), ft.get_mean())
     return C

@@ -257,7 +257,7 @@ class Distribution:
 
     @check_size
     def __truediv__(self, other):
-        """Multiply the distribution by a scalar"""
+        """Divide the distribution by a scalar"""
         if isinstance(other, (int, float)):
             res = Distribution(
                 f"{self.name} * {other}", shape=self.shape, size=self.size

@@ -83,6 +83,28 @@ class Context(ABC):
         """
         return cls(context_name)
 
+    @classmethod
+    def remove_instance(cls, context_name: str) -> bool:
+        """
+        Remove a context instance.
+
+        Args:
+            context_name: Name of the context instance to remove
+
+        Returns:
+            True if instance was removed, False if it didn't exist
+        """
+        with cls._lock:
+            if context_name in cls._instances:
+                del cls._instances[context_name]
+                logger.info(f"Context instance '{context_name}' removed")
+                return True
+            return False
+
+    def remove_self(self) -> bool:
+        """Remove this context instance."""
+        return self.__class__.remove_instance(self.context_name)
+
     # Property management methods
     def set_property(self, key: str, value: Any) -> None:
         """

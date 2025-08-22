@@ -107,6 +107,7 @@ def plot_diag_error_decomposition(
     epoch: int = 0,
     seed: int = 0,
     common_plt_spec: dict = {},
+    divide_by_x: bool = False,
     **plot_kwargs,
 ):
     """Plot the diagonal uncertainty of the decomposition of the covariance matrix for the analytical solution"""
@@ -121,15 +122,20 @@ def plot_diag_error_decomposition(
 
     # Compute covariance matrices
     cov_decomposition = compute_covariance_decomposition_by_t(
-        context, ref_epoch=ref_epoch, f_0=f0
+        context, ref_epoch=ref_epoch, f_0=f0, divide_by_x=divide_by_x
     )
-    cov_ft = compute_covariance_ft(context, ref_epoch=ref_epoch, f_0=f0)
+    cov_ft = compute_covariance_ft(
+        context, ref_epoch=ref_epoch, f_0=f0, divide_by_x=divide_by_x
+    )
 
-    x = [i + 1 for i in range(context.load_fk_grid().shape[0])]
-    box_x_size = 0.5
+    x = (
+        context.load_fk_grid()
+    )  # [i + 1 for i in range(context.load_fk_grid().shape[0])]
+    box_x_size = [0.2 * (fk_p - fk_m) for fk_m, fk_p in zip(x[0:], x[1:])]
+    box_x_size.append(box_x_size[-1])
 
     evolution_time = epoch * learning_rate
-    C_00, C_0Y, C_YY = cov_decomposition(evolution_time)
+    C_00, _, C_YY = cov_decomposition(evolution_time)
     C = cov_ft(evolution_time)
     zeros = np.zeros_like(C.diagonal())
 
@@ -137,8 +143,8 @@ def plot_diag_error_decomposition(
 
     # Loop over data points; create box from errors at each point
     errorboxes = [
-        Rectangle((xp - box_x_size, yp - ye), box_x_size * 2, ye * 2)
-        for xp, yp, ye in zip(x, zeros, full_cov_diag)
+        Rectangle((xp - x_size, yp - ye), x_size * 2, ye * 2)
+        for xp, yp, ye, x_size in zip(x, zeros, full_cov_diag, box_x_size)
     ]
 
     # Create patch collection with specified colour/alpha
@@ -162,6 +168,68 @@ def plot_diag_error_decomposition(
             },
             # {"label": r"$C_t^{(0Y)}$", "mean": zeros, "std": np.sqrt(C_0Y.diagonal()), "spec": common_plt_spec | {"color": "C3"}},
             {"label": r"$\rm{Cov}[f_t, f_t]$", "box": pc},
+        ],
+        **plot_kwargs,
+    )
+
+
+def plot_diag_error_compare_an_tr(
+    context: FitContext,
+    ref_epoch: int = 0,
+    epoch: int = 0,
+    seed: int = 0,
+    common_plt_spec: dict = {},
+    divide_by_x: bool = False,
+    **plot_kwargs,
+):
+    """Plot the diagonal uncertainty of the decomposition of the covariance matrix for the analytical solution"""
+    learning_rate = float(context.get_config("metadata", "arguments")["learning_rate"])
+
+    f0 = produce_model_at_initialisation(
+        context.get_property("nreplicas"),
+        tuple(context.load_fk_grid()),
+        tuple(context.get_config("metadata", "model_info")["architecture"]),
+        seed=seed,
+    )
+
+    # Compute evolution time
+    evolution_time = epoch * learning_rate
+
+    # Compute covariance matrices
+    cov_ft = compute_covariance_ft(
+        context, ref_epoch=ref_epoch, f_0=f0, divide_by_x=divide_by_x
+    )
+    cov_f_trained = compute_covariance_training(
+        context, epoch=epoch, divide_by_x=divide_by_x
+    )
+    C = cov_ft(evolution_time)
+
+    x = (
+        context.load_fk_grid()
+    )  # [i + 1 for i in range(context.load_fk_grid().shape[0])]
+    box_x_size = [0.2 * (fk_p - fk_m) for fk_m, fk_p in zip(x[0:], x[1:])]
+    box_x_size.append(box_x_size[-1])
+
+    zeros = np.zeros_like(C.diagonal())
+    an_cov_diag = np.sqrt(C.diagonal())
+    tr_cov_diag = np.sqrt(cov_f_trained.diagonal())
+
+    # Add collection to Axes
+    produce_errorbar_plot(
+        xgrid=x,
+        add_grids=[
+            {
+                "label": r"$\rm{Cov}[f_t^{\rm (an)}, f_t^{\rm (an)}]$",
+                "mean": zeros,
+                "std": np.sqrt(an_cov_diag),
+                "spec": common_plt_spec | {"color": "C1"},
+            },
+            {
+                "label": r"$\rm{Cov}[f_t^{\rm (tr)}, f_t^{\rm (tr)}]$",
+                "mean": zeros,
+                "std": np.sqrt(tr_cov_diag),
+                "spec": common_plt_spec | {"color": "C2"},
+            },
         ],
         **plot_kwargs,
     )
