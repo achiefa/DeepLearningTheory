@@ -39,6 +39,7 @@ CONFIGS = [
         "ylim": None,
         "xlim": None,
         "prefix": "xT3",
+        "label": r"$xT_3(x)$",
     },  # Linear xT3
     {
         "scale": "linear",
@@ -46,6 +47,7 @@ CONFIGS = [
         "ylim": (-1, 3),
         "xlim": None,
         "prefix": "T3",
+        "label": r"$T_3(x)$",
     },  # Linear T3
     {
         "scale": "log",
@@ -53,6 +55,7 @@ CONFIGS = [
         "ylim": None,
         "xlim": (1e-3, 1),
         "prefix": "xT3",
+        "label": r"$xT_3(x)$",
     },  # Log xT3
     {
         "scale": "log",
@@ -60,6 +63,7 @@ CONFIGS = [
         "ylim": (-10, 10),
         "xlim": (1e-3, 1),
         "prefix": "T3",
+        "label": r"$T_3(x)$",
     },  # Log T3
 ]
 
@@ -98,6 +102,7 @@ def main():
             xlim = config["xlim"]
             ylim = config["ylim"]
             prefix = config["prefix"]
+            ylabel = config["label"]
 
             ######################################################
             #  Evolution from initialisation and different epochs
@@ -119,11 +124,12 @@ def main():
                 filename=f"evolution_epochs_700_5000_20000_{datatype}_{scale}.pdf",
                 save_fig=True,
                 ratio_label=r"$\textrm{Ratio to}$" + "\n" + r"$\rm{Trained}$",
+                ylabel=ylabel,
             )
 
-            ######################################################
-            #  Evolution from initialisation and last epoch
-            #######################################################
+            # ######################################################
+            # #  Evolution from initialisation and last epoch
+            # #######################################################
             logger.info(
                 f"Plotting evolution from initialisation 2 for {fitname} with {datatype} data, scale={scale}, divide_by_x={divide_by_x}"
             )
@@ -142,6 +148,7 @@ def main():
                 filename=f"evolution_epoch_50000_{datatype}_{scale}.pdf",
                 save_fig=True,
                 ratio_label=r"$\textrm{Ratio to}$" + "\n" + r"$\rm{True}$",
+                ylabel=ylabel,
             )
 
             ################################################
@@ -150,23 +157,40 @@ def main():
             logger.info(
                 f"Plotting U and V contributions for {fitname} with {datatype} data, scale={scale}, divide_by_x={divide_by_x}"
             )
-            epochs_to_plot = [0, 10, 50, 100, 20000]
+            epochs_to_plot = [
+                0,
+                10,
+                50,
+                100,
+                500,
+                700,
+                1000,
+                1200,
+                1500,
+                2000,
+                3000,
+                5000,
+                6000,
+                7000,
+                8000,
+                9000,
+                10000,
+                20000,
+            ]
             for epoch in epochs_to_plot:
                 plot_u_v_contributions(
                     context,
                     ref_epoch=REF_EPOCH,
                     ev_epoch=epoch,
                     seed=SEED,
-                    ax_specs=[
-                        {"set_xscale": scale, "set_xlim": xlim, "set_ylim": ylim},
-                        {},
-                    ],
+                    ax_specs={"set_xscale": scale, "set_xlim": xlim, "set_ylim": ylim},
                     divide_by_x=divide_by_x,
                     save_fig=True,
                     plot_dir=PLOT_DIR
                     / f"{prefix}/u_v_decomposition/{datatype}/{scale}",
                     filename=f"evolution_u_v_{epoch}_{datatype}_{scale}.pdf",
-                    ratio_label=r"$\textrm{Ratio to}$" + "\n" + r"$\rm{Trained}$",
+                    ylabel=ylabel,
+                    # ratio_label=r"$\textrm{Ratio to}$" + "\n" + r"$\rm{Trained}$",
                 )
 
             ################################################
@@ -175,7 +199,18 @@ def main():
             logger.info(
                 f"Plotting evolution vs trained for {fitname} with {datatype} data, scale={scale}, divide_by_x={divide_by_x}"
             )
-            epochs_to_plot = [0, 500, 1000, 10000, 20000]
+            epochs_to_plot = [
+                0,
+                500,
+                1000,
+                2000,
+                5000,
+                10000,
+                15000,
+                20000,
+                30000,
+                50000,
+            ]
             for epoch in epochs_to_plot:
                 # Evolution plot
                 plot_evolution_vs_trained(
@@ -185,22 +220,20 @@ def main():
                     colors=[COLOR_TS, COLOR_AS],
                     epoch=epoch,
                     seed=SEED,
-                    ax_specs=[
-                        {"set_xscale": scale, "set_xlim": xlim, "set_ylim": ylim},
-                        {},
-                    ],
+                    ax_specs={"set_xscale": scale, "set_xlim": xlim, "set_ylim": ylim},
                     divide_by_x=divide_by_x,
                     show_true=False,
                     save_fig=True,
                     plot_dir=PLOT_DIR
                     / f"{prefix}/evolution/tr_vs_an/{datatype}/{scale}",
                     filename=f"evolution_vs_trained_epoch_{epoch}_{datatype}_{scale}.pdf",
-                    ratio_label=r"$\textrm{Ratio to}$" + "\n" + r"$\rm{Trained}$",
+                    ylabel=ylabel,
+                    # ratio_label=r"$\textrm{Ratio to}$" + "\n" + r"$\rm{Trained}$",
                 )
 
-            ################################################
-            #  Distance from input and from training
-            ################################################
+            # ################################################
+            # #  Distance from input and from training
+            # ################################################
             logger.info(
                 f"Plotting distance from input for {fitname} with {datatype} data, scale={scale}, divide_by_x={divide_by_x}"
             )
@@ -239,23 +272,24 @@ def main():
             ################################################
             #  Plot the covariance
             ################################################
-            # plot_covariance_decomposition(
-            #     context,
-            #     ref_epoch=20000,
-            #     epochs=[0, 1, 100],
-            #     seed=SEED,
-            #     save_fig=True,
-            #     plot_dir=PLOT_DIR / f"covariance/matrix/decomposition/{datatype}",
-            # )
+            plot_covariance_decomposition(
+                context,
+                ref_epoch=20000,
+                epochs=[0, 1, 100],
+                seed=SEED,
+                save_fig=True,
+                plot_dir=PLOT_DIR / f"covariance/matrix/decomposition/{datatype}",
+            )
 
-            # plot_cov_compare_tr_an(
-            #     context,
-            #     ref_epoch=20000,
-            #     epochs=[0, 500, 1000, 10000],
-            #     seed=SEED,
-            #     save_fig=True,
-            #     plot_dir=PLOT_DIR / f"covariance/matrix/analytical_trained_comparison/{datatype}",
-            # )
+            plot_cov_compare_tr_an(
+                context,
+                ref_epoch=20000,
+                epochs=[0, 500, 1000, 10000],
+                seed=SEED,
+                save_fig=True,
+                plot_dir=PLOT_DIR
+                / f"covariance/matrix/analytical_trained_comparison/{datatype}",
+            )
 
             ################################################
             #  Plot the diagonal error decomposition

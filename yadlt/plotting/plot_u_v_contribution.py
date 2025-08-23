@@ -2,7 +2,7 @@
 
 from yadlt.context import FitContext
 from yadlt.evolution import EvolutionOperatorComputer
-from yadlt.plotting.plotting import produce_pdf_plot
+from yadlt.plotting.plotting import produce_pdf_plot, produce_plot
 from yadlt.utils import (
     load_and_evaluate_model,
     load_data,
@@ -15,6 +15,7 @@ def plot_u_v_contributions(
     ref_epoch: int = 0,
     ev_epoch: int = 1000,
     seed: int = 0,
+    show_ratio: bool = False,
     **plot_kwargs,
 ):
     """Plot the contributions of U and V to the total operator."""
@@ -24,8 +25,8 @@ def plot_u_v_contributions(
     fk_grid = context.load_fk_grid()
 
     # Load trained solution (end of training)
-    xT3_training = load_and_evaluate_model(context, -1)
-    xT3_training.set_name(rf"$\textrm{{TS @ {common_epochs[-1]}}}$")
+    # xT3_training = load_and_evaluate_model(context, -1)
+    # xT3_training.set_name(rf"$\textrm{{TS @ {common_epochs[-1]}}}$")
 
     # Load data
     data_by_replica_original = load_data(context)
@@ -52,19 +53,29 @@ def plot_u_v_contributions(
     xT3_t_u.set_name(r"$\textrm{Contribution from U}$")
     xT3_t_v = V @ data_by_replica_original
     xT3_t_v.set_name(r"$\textrm{Contribution from V}$")
+    full_solution = xT3_t_u + xT3_t_v
+    full_solution.set_name(r"$\textrm{Total Contribution}$")
 
-    ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
-    if plot_kwargs.get("ax_specs", None) is not None:
-        plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+    if show_ratio:
+        ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
+        if plot_kwargs.get("ax_specs", None) is not None:
+            plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+        else:
+            plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
+
+        produce_pdf_plot(
+            fk_grid,
+            [full_solution, xT3_t_u, xT3_t_v],
+            normalize_to=1,
+            xlabel=r"$x$",
+            title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}, \quad T = {{{ev_epoch}}}$",
+            **plot_kwargs,
+        )
     else:
-        plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
-
-    produce_pdf_plot(
-        fk_grid,
-        [xT3_training, xT3_t_u, xT3_t_v],
-        normalize_to=1,
-        xlabel=r"$x$",
-        ylabel=r"$xT_3(x)$",
-        title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}, \quad T = {{{ev_epoch}}}$",
-        **plot_kwargs,
-    )
+        produce_plot(
+            fk_grid,
+            [full_solution, xT3_t_u, xT3_t_v],
+            xlabel=r"$x$",
+            title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}, \quad T = {{{ev_epoch}}}$",
+            **plot_kwargs,
+        )

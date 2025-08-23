@@ -79,7 +79,6 @@ def plot_evolution_from_initialisation(
         title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
         additional_grids=[add_grid_dict] if show_true else None,
         xlabel=r"$x$",
-        ylabel=r"$xT3(x)$",
         **plot_kwargs,
     )
 
@@ -139,6 +138,7 @@ def plot_evolution_vs_trained(
     epoch: int = 0,
     seed: int = 0,
     show_true: bool = False,
+    show_ratio: bool = False,
     **plot_kwargs,
 ):
     """Plot the PDF comparison from a random initialised
@@ -183,28 +183,38 @@ def plot_evolution_vs_trained(
             },
         }
 
-    ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
-    if plot_kwargs.get("ax_specs", None) is not None:
-        plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
-    else:
-        plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
-
     # Check the colors, if give, are compatible with the number of grids
     if "colors" in plot_kwargs:
         colors = plot_kwargs["colors"]
         if len(colors) != 2:
             raise ValueError("Please provide exactly two colors for the plots.")
 
-    produce_pdf_plot(
-        fk_grid,
-        [xT3_training, grid],
-        normalize_to=1,
-        title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
-        additional_grids=[add_grid_dict] if show_true else None,
-        xlabel=r"$x$",
-        ylabel=r"$xT3(x)$",
-        **plot_kwargs,
-    )
+    if show_ratio:
+        ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
+        if plot_kwargs.get("ax_specs", None) is not None:
+            plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+        else:
+            plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
+
+        produce_pdf_plot(
+            fk_grid,
+            [xT3_training, grid],
+            normalize_to=1,
+            title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
+            additional_grids=[add_grid_dict] if show_true else None,
+            xlabel=r"$x$",
+            **plot_kwargs,
+        )
+
+    else:
+        produce_plot(
+            fk_grid,
+            [xT3_training, grid],
+            title=rf"$T_{{\rm ref}} = {{{ref_epoch}}}, \quad f_0 = f^{{(\rm init)}}$",
+            additional_grids=[add_grid_dict] if show_true else None,
+            xlabel=r"$x$",
+            **plot_kwargs,
+        )
 
 
 def plot_Q_directions(

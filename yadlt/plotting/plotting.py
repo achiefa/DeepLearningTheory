@@ -31,7 +31,7 @@ FONTSIZE = 20
 LABELSIZE = 16
 LEGENDSIZE = 16
 TICKSIZE = 14
-FIGSIZE = (10, 5)
+FIGSIZE = (8, 5)
 
 
 def yield_colors():
@@ -186,6 +186,7 @@ def produce_plot(
     filename="plot.pdf",
     title=None,
     scale="linear",
+    legend_title: str = None,
     ax_specs: dict = {},
     save_fig=False,
     labels: list[str] | None = None,
@@ -239,7 +240,11 @@ def produce_plot(
     # Tick size
     ax.tick_params(labelsize=TICKSIZE)
     # Legend
-    ax.legend(fontsize=LEGENDSIZE)
+    ax.legend(
+        fontsize=LEGENDSIZE,
+        title=legend_title,
+        title_fontproperties={"size": LEGENDSIZE},
+    )
 
     for key, value in ax_specs.items():
         if hasattr(ax, key):

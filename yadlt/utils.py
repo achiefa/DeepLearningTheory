@@ -128,7 +128,7 @@ def evaluate_from_ref_function(context: FitContext, ref_epoch: int = 0):
 
 
 def evaluate_from_initialisation(
-    context: FitContext, ref_epoch: int = 0, seed: int = 0
+    context: FitContext, ref_epoch: int = 0, seed: int = 0, f0: Distribution = None
 ):
     """Utility function to compute the xT3 from a random initialisation
     using a frozen NTK specified by the reference epoch."""
@@ -136,12 +136,13 @@ def evaluate_from_initialisation(
     fk_grid = context.load_fk_grid()
     arch_tuple = tuple(context.get_config("metadata", "model_info")["architecture"])
 
-    xT3_0 = produce_model_at_initialisation(
-        replicas=replicas,
-        fk_grid_tuple=tuple(fk_grid),
-        architecture_tuple=arch_tuple,
-        seed=seed,
-    )
+    if f0 is None:
+        f0 = produce_model_at_initialisation(
+            replicas=replicas,
+            fk_grid_tuple=tuple(fk_grid),
+            architecture_tuple=arch_tuple,
+            seed=seed,
+        )
     data_by_replica_original = load_data(context)
 
     evolution = EvolutionOperatorComputer(context)
@@ -149,7 +150,7 @@ def evaluate_from_initialisation(
     def func(t: float):
         # Load data
         U, V = evolution.compute_evolution_operator(ref_epoch, t)
-        xT3_t = U @ xT3_0 + V @ data_by_replica_original
+        xT3_t = U @ f0 + V @ data_by_replica_original
         return xT3_t
 
     return func
