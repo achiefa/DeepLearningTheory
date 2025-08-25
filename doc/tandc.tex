@@ -109,7 +109,7 @@ that using the simplified expressions results in an incorrect estimate of the er
 
 At the beginning of the training process there is clearly no difference between the analytical solution and
 the trained solution. By construction both AS and TS are given by the outcome of the neural network at initialization, 
-as discussed in Sect.~\ref{sec:Init}. in the early stages of training AS and TS differ as expected. Indeed, the
+as discussed in Sect.~\ref{sec:Init}. In the early stages of training AS and TS differ as expected. Indeed, the
 analytical solution is computed using the frozen NTK at $T_{\rm ref}$, while the trained solution evolves with an 
 NTK that is still changing as shown in Sect.~\ref{sec:NTKPheno}. Since the NTK at $T_{\rm ref}$ is already aligned 
 with the solution, the AS converges faster to the target solution, while the TS takes more epochs before starting 
