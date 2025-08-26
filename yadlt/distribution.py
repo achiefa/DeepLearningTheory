@@ -337,6 +337,24 @@ class Distribution:
             res.add(data[index])
         return res
 
+    def bootstrap(self, size_bootstrap: int = 1000, seed: int = 0):
+        """Bootstrap resampling of the distribution."""
+        # Initialise the distribution that contains the bootstrap averages
+        bootstrap_means = Distribution(
+            f"{self.name} bootstrap", shape=self.shape, size=size_bootstrap
+        )
+
+        # Initialise the random seed
+        rng = np.random.default_rng(seed)
+        for _ in range(size_bootstrap):
+            bootstrap_sample = rng.choice(
+                self._data, size=self.size, replace=True, axis=0
+            )
+            bootstrap_mean = bootstrap_sample.mean(axis=0)
+            bootstrap_means.add(bootstrap_mean)
+
+        return bootstrap_means
+
     def __str__(self):
         return f"{self.name}:\n{self._data}"
 
