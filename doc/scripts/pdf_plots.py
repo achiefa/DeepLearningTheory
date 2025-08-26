@@ -18,6 +18,7 @@ from yadlt.plotting.plot_evolution_pdf import (
     plot_evolution_from_initialisation,
     plot_evolution_vs_trained,
     plot_Q_directions,
+    plot_VYinfty_vs_fin,
 )
 from yadlt.plotting.plot_u_v_contribution import plot_u_v_contributions
 
@@ -374,6 +375,32 @@ def main():
                     filename=f"q_components_epoch_{epoch}_{datatype}_{scale}.pdf",
                     plot_dir=PLOT_DIR / f"{prefix}/q_components/{datatype}/{scale}",
                 )
+
+            ################################################
+            #  Plot the V(infty)Y versus perp projection of fin
+            ################################################
+            logger.info(
+                f"Plotting V(infty)Y for {fitname} with {datatype} data, scale={scale}, divide_by_x={divide_by_x}"
+            )
+            plot_VYinfty_vs_fin(
+                context,
+                ref_epoch=20000,
+                show_ratio=True,
+                xlabel=r"$x$",
+                ylabel=r"$xT_3$",
+                title=r"$\lim_{T\rightarrow \infty} V(T)\boldsymbol{Y}, \quad T_{\rm ref} = 20000$",
+                ratio_label=r"$\rm{Ratio}$"
+                + "\n"
+                + r"${\rm to~}\boldsymbol{f}^{(\rm in)}_\perp$",
+                divide_by_x=divide_by_x,
+                ax_specs=[
+                    {"set_xscale": scale, "set_xlim": xlim, "set_ylim": ylim},
+                    {},
+                ],
+                save_fig=True,
+                filename=f"VYinfty_vs_fin_{datatype}_{scale}.pdf",
+                plot_dir=PLOT_DIR / f"{prefix}/VY_infty/{datatype}/{scale}",
+            )
 
         context.remove_self()
 

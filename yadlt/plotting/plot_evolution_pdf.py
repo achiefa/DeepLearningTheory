@@ -3,6 +3,7 @@
 from fileinput import filename
 
 from yadlt.context import FitContext
+from yadlt.evolution import EvolutionOperatorComputer, compute_evolution_operator_at_inf
 from yadlt.plotting.plotting import produce_pdf_plot, produce_plot
 from yadlt.utils import (
     evaluate_from_initialisation,
@@ -249,3 +250,57 @@ def plot_Q_directions(
         colors=colors,
         **plot_kwargs,
     )
+
+
+def plot_VYinfty_vs_fin(
+    context: FitContext, ref_epoch: 0, show_ratio: bool = False, **plot_kwargs
+):
+    """Plot the contribution of V(t)Y for large epochs (T -> \infty) and
+    compare the results with the projection of the input function in
+    the parallel space."""
+    # Load evolution operators at infinity
+    _, V = compute_evolution_operator_at_inf(context, reference_epoch=ref_epoch)
+
+    # Load parallel projector
+    epoch_index = context.common_epochs.index(ref_epoch)
+    P_perp = context.P_perp_by_epoch[epoch_index]
+
+    # Load input function
+    fin = context.load_f_bcdms()
+
+    # Project input function onto orthogonal space
+    f_perp = P_perp @ fin
+
+    # Load data
+    Y = load_data(context)
+
+    # Compute lhs grid
+    lhs_grid = V @ Y
+
+    # Load fk grid
+    fk_grid = context.load_fk_grid()
+
+    # Set labels
+    labels = [r"$V(T) \boldsymbol{Y}$", r"$\boldsymbol{f}^{(\rm in)}_\perp$"]
+
+    if show_ratio:
+        ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
+        if plot_kwargs.get("ax_specs", None) is not None:
+            plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+        else:
+            plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
+
+        produce_pdf_plot(
+            fk_grid,
+            [lhs_grid, f_perp],
+            labels=labels,
+            normalize_to=2,
+            **plot_kwargs,
+        )
+    else:
+        produce_plot(
+            fk_grid,
+            [lhs_grid, f_perp],
+            labels=labels,
+            **plot_kwargs,
+        )
