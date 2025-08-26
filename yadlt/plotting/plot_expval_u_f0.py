@@ -28,26 +28,20 @@ def plot_expval_u_f0(
 
     # Compute grid for U f0
     Uf0 = U @ f_init
-    Uf0.set_name(r"$\mathbb{E}[U f_0]$")
 
     # Produce plots of the expectation value of U f0
-    U_mean = U.get_mean()
-    add_grid_dict = {
-        "mean": U_mean @ f_init_mean,
-        "spec": {
-            "label": r"$\mathbb{E}[U] \mathbb{E}[f_0]$",
-            "color": "black",
-        },
-    }
+    U_bootstrap = U.bootstrap(10000, seed=seed)
+    finit_bootstrap = f_init.bootstrap(10000, seed=seed)
+
+    Uf0_bootstrap = U_bootstrap @ finit_bootstrap
 
     # Produce plots of the expectation value of U f0
     produce_plot(
         context.load_fk_grid(),
-        [Uf0],
-        additional_grids=[add_grid_dict],
-        ylabel="$U f_0$",
-        xlabel="$x$",
-        title=rf"$T_{{\rm ref}}={ref_epoch}, \quad f_0 = f^{{(\rm init)}}, \quad T={epoch}$",
-        scale="linear",
+        [Uf0, Uf0_bootstrap],
+        labels=[
+            r"$\mathbb{E}\left[ U f_0 \right]$",
+            r"$\mathbb{E}\left[ U \right]  \mathbb{E}\left[ f_0 \right]\rm{~(bootstrap)}$",
+        ],
         **plot_kwargs,
     )

@@ -17,9 +17,12 @@ from yadlt.plotting.plot_distance import (
 from yadlt.plotting.plot_evolution_pdf import (
     plot_evolution_from_initialisation,
     plot_evolution_vs_trained,
+    plot_f0_parallel,
+    plot_Mcal_M_fpar,
     plot_Q_directions,
     plot_VYinfty_vs_fin,
 )
+from yadlt.plotting.plot_expval_u_f0 import plot_expval_u_f0
 from yadlt.plotting.plot_u_v_contribution import plot_u_v_contributions
 
 logger = setup_logger()
@@ -387,7 +390,7 @@ def main():
                 ref_epoch=20000,
                 show_ratio=True,
                 xlabel=r"$x$",
-                ylabel=r"$xT_3$",
+                ylabel=ylabel,
                 title=r"$\lim_{T\rightarrow \infty} V(T)\boldsymbol{Y}, \quad T_{\rm ref} = 20000$",
                 ratio_label=r"$\rm{Ratio}$"
                 + "\n"
@@ -401,6 +404,123 @@ def main():
                 filename=f"VYinfty_vs_fin_{datatype}_{scale}.pdf",
                 plot_dir=PLOT_DIR / f"{prefix}/VY_infty/{datatype}/{scale}",
             )
+
+            ################################################
+            #  Plot Mcal M fpar
+            ################################################
+            for epoch in [
+                0,
+                10,
+                50,
+                100,
+                500,
+                700,
+                1000,
+                1200,
+                1500,
+                2000,
+                3000,
+                5000,
+                6000,
+                7000,
+                8000,
+                9000,
+                10000,
+                20000,
+                25000,
+                30000,
+                35000,
+                40000,
+                45000,
+                50000,
+            ]:
+                plot_Mcal_M_fpar(
+                    context=context,
+                    ref_epoch=20000,
+                    epochs=[epoch],
+                    seed=SEED,
+                    title=r"$\mathcal{M}(T)M \boldsymbol{f_0}^{\parallel},\quad T_{\rm ref} = 20000$",
+                    ylabel=ylabel,
+                    xlabel=r"$x$",
+                    divide_by_x=divide_by_x,
+                    ax_specs={
+                        "set_xscale": scale,
+                        "set_xlim": (1.0e-3, 1.0) if divide_by_x else xlim,
+                        "set_ylim": (-0.1, 0.1) if divide_by_x else None,
+                    },
+                    save_fig=True,
+                    filename=f"Mcal_M_fpar_epoch_{epoch}_{datatype}_{scale}.pdf",
+                    plot_dir=PLOT_DIR / f"{prefix}/Mcal_M_fpar/{datatype}/{scale}",
+                )
+
+            ################################################
+            #  Plot f0 parallel
+            ################################################
+            plot_f0_parallel(
+                context=context,
+                ref_epoch=20000,
+                seed=SEED,
+                divide_by_x=divide_by_x,
+                xlabel=r"$x$",
+                ylabel=ylabel,
+                title=r"$\boldsymbol{f_0}^{\parallel},\quad T_{\rm ref} = 20000$",
+                ax_specs={
+                    "set_xscale": scale,
+                    "set_xlim": (1.0e-5, 1.0) if divide_by_x else xlim,
+                    "set_ylim": (-0.005, 0.005) if divide_by_x else ylim,
+                },
+                save_fig=True,
+                filename=f"f0_parallel_{datatype}_{scale}.pdf",
+                plot_dir=PLOT_DIR / f"{prefix}/f0_parallel/{datatype}/{scale}",
+            )
+
+            ################################################
+            #  Plot exp. value of Uf0
+            ################################################
+            logger.info(
+                f"Plotting Uf0 for {fitname} with {datatype} data, scale={scale}, divide_by_x={divide_by_x}"
+            )
+            for epoch in [
+                0,
+                10,
+                50,
+                100,
+                500,
+                700,
+                1000,
+                1200,
+                1500,
+                2000,
+                3000,
+                5000,
+                6000,
+                7000,
+                8000,
+                9000,
+                10000,
+                20000,
+                25000,
+                30000,
+                35000,
+                40000,
+                45000,
+                50000,
+            ]:
+                plot_expval_u_f0(
+                    context,
+                    ref_epoch=20000,
+                    epoch=epoch,
+                    seed=SEED,
+                    divide_by_x=divide_by_x,
+                    xlabel=r"$x$",
+                    ylabel=ylabel,
+                    colors=["C1", "C2"],
+                    title=rf"$U f_0\rm{{~at~T={epoch}}}, \quad T_{{\rm ref}} = 20000$",
+                    ax_specs={"set_xscale": scale, "set_xlim": xlim, "set_ylim": ylim},
+                    save_fig=True,
+                    filename=f"exp_val_u_f0_{epoch}_{datatype}.pdf",
+                    plot_dir=PLOT_DIR / f"{prefix}/u_f0/{datatype}/{scale}",
+                )
 
         context.remove_self()
 
