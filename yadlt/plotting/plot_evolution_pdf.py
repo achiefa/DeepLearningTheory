@@ -374,3 +374,32 @@ def plot_Mcal_M_fpar(
             grids,
             **plot_kwargs,
         )
+
+
+def plot_f0_parallel(
+    context: FitContext, ref_epoch: int = 0, seed: int = 0, **plot_kwargs
+):
+    """Produce a plot that shows the contribution of the parallel component
+    of the functional form at initialisation
+    """
+    # Load function at initialisation
+    replicas = context.get_property("nreplicas")
+    fk_grid = context.load_fk_grid()
+    arch_tuple = tuple(context.get_config("metadata", "model_info")["architecture"])
+    f0 = produce_model_at_initialisation(
+        replicas=replicas,
+        fk_grid_tuple=tuple(fk_grid),
+        architecture_tuple=arch_tuple,
+        seed=seed,
+    )
+
+    # Load parallel projector
+    epoch_index = context.common_epochs.index(ref_epoch)
+    P_parallel = context.P_parallel_by_epoch[epoch_index]
+
+    f0_parallel = P_parallel @ f0
+    produce_plot(
+        fk_grid,
+        [f0_parallel],
+        **plot_kwargs,
+    )
