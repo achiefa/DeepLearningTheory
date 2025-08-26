@@ -10,6 +10,7 @@ from yadlt.utils import (
     evaluate_from_ref_function,
     load_and_evaluate_model,
     load_data,
+    produce_model_at_initialisation,
 )
 
 
@@ -302,5 +303,74 @@ def plot_VYinfty_vs_fin(
             fk_grid,
             [lhs_grid, f_perp],
             labels=labels,
+            **plot_kwargs,
+        )
+
+
+def plot_Mcal_M_fpar(
+    context: FitContext,
+    ref_epoch: 0,
+    epochs: list[int] = 0,
+    show_ratio: bool = False,
+    seed: int = 0,
+    **plot_kwargs,
+):
+    """Plot the expectation value of
+
+      M_cal @ M @ f_0^{\parallel}
+
+    for different epochs.
+    """
+    # Load learning rate
+    learning_rate = float(context.get_config("metadata", "arguments")["learning_rate"])
+
+    # Load evolution operators at infinity
+    evolution = EvolutionOperatorComputer(context)
+
+    # Load parallel projector
+    epoch_index = context.common_epochs.index(ref_epoch)
+    P_paralell = context.P_parallel_by_epoch[epoch_index]
+
+    # Load fk grid
+    fk_grid = context.load_fk_grid()
+    M = context.get_M()
+
+    # Load function at initialisation
+    replicas = context.get_property("nreplicas")
+    fk_grid = context.load_fk_grid()
+    arch_tuple = tuple(context.get_config("metadata", "model_info")["architecture"])
+    f0 = produce_model_at_initialisation(
+        replicas=replicas,
+        fk_grid_tuple=tuple(fk_grid),
+        architecture_tuple=arch_tuple,
+        seed=seed,
+    )
+    f0_parallel = P_paralell @ f0
+
+    grids = []
+    for epoch in epochs:
+        evolution_time = epoch * learning_rate
+        Mcal = evolution.compute_M_operator(reference_epoch=ref_epoch, t=evolution_time)
+        dist = Mcal @ M @ f0_parallel
+        dist.set_name(rf"$T = {epoch}$")
+        grids.append(dist)
+
+    if show_ratio:
+        ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
+        if plot_kwargs.get("ax_specs", None) is not None:
+            plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
+        else:
+            plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
+
+        produce_pdf_plot(
+            fk_grid,
+            grids,
+            normalize_to=1,
+            **plot_kwargs,
+        )
+    else:
+        produce_plot(
+            fk_grid,
+            grids,
             **plot_kwargs,
         )
