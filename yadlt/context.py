@@ -366,6 +366,21 @@ class FitContext(Context):
         self.set_config("replicas", "common_epochs", common_epochs)
 
     @functools.lru_cache(maxsize=None)
+    def load_loss_history(self, replica: int):
+        replica_folders = self.get_config("folders", "replicas_folders")
+        replica_path = replica_folders[replica]
+        history_file = replica_path / "complete_training_history.npz"
+        loss_history = np.load(history_file)["loss_history"]
+        return loss_history
+
+    def load_epoch_history(self, replica):
+        replica_folders = self.get_config("folders", "replicas_folders")
+        replica_path = replica_folders[replica]
+        history_file = replica_path / "complete_training_history.npz"
+        epoch_history = np.load(history_file)["epochs"]
+        return epoch_history
+
+    @functools.lru_cache(maxsize=None)
     def load_fk_grid(self):
         """Load and return the FK grid data."""
         fk_grid = load_bcdms_grid()

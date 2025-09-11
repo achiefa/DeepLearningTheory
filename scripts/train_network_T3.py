@@ -274,14 +274,13 @@ def main():
     save_cb = WeightStorageCallback(
         storage_frequency=args.callback_freq,
         storage_path=replica_save_dir,
-        training_data=(x, data.reshape(1, -1)),
+        training_data=(x, y.reshape(1, -1)),
     )
     nan_cb = NaNCallback()
 
-    data = y.reshape(1, -1)
     _ = train_model.fit(
         x,
-        data,
+        y.reshape(1, -1),
         epochs=int(args.max_iterations),
         verbose=0,
         callbacks=[log_cb, save_cb, nan_cb],

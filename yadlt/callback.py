@@ -27,7 +27,10 @@ class WeightStorageCallback(tf.keras.callbacks.Callback):
 
         # Evaluate loss at initial state
         x_train, y_train = self.training_data
-        initial_loss = self.model.evaluate(x_train, y_train, verbose=0)
+        predictions = self.model(x_train, training=True)
+        initial_loss = self.model.compute_loss(
+            x_train, y_train, predictions, training=True
+        )
         self.loss_checkpoints.append(initial_loss)
         logger.info(f"Initial loss: {initial_loss}")
 
