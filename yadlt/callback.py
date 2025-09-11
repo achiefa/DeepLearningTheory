@@ -89,3 +89,64 @@ class NaNCallback(tf.keras.callbacks.Callback):
         if np.isnan(logs.get("loss")):
             logger.error(f"NaN detected at batch {batch}")
             self.model.stop_training = True
+
+
+class GradientNormCallback(tf.keras.callbacks.Callback):
+    def __init__(self, log_frequency=100, clip_norm=None, training_data=None):
+        super().__init__()
+        self.log_frequency = log_frequency
+        self.clip_norm = clip_norm
+        self.training_data = training_data
+
+        # Storage for gradient norms
+        self.grad_norms = []
+        self.epochs = []
+        self.clipping_events = 0
+        self.total_batches = 0
+
+    def on_epoch_end(self, epoch, logs=None):
+        x_train, y_train = self.training_data
+
+        # Compute gradient norm
+        with tf.GradientTape() as tape:
+            predictions = self.model(x_train, training=True)
+            loss_value = self.model.compute_loss(x_train, y_train, predictions)
+
+        gradients = tape.gradient(loss_value, self.model.trainable_variables)
+        grad_norm = tf.linalg.global_norm(gradients)
+
+        # Store the gradient norm
+        self.grad_norms.append(float(grad_norm))
+        self.epochs.append(epoch)
+        self.total_batches += 1
+
+        # Check if clipping would occur
+        if self.clip_norm and grad_norm > self.clip_norm:
+            self.clipping_events += 1
+
+        # Log periodically
+        if epoch % self.log_frequency == 0:
+            clipping_freq = (
+                self.clipping_events / self.total_batches
+                if self.total_batches > 0
+                else 0
+            )
+
+            recent_norms = self.grad_norms[
+                -min(self.log_frequency, len(self.grad_norms)) :
+            ]
+            stats = {
+                "current_grad_norm": float(grad_norm),
+                "mean_grad_norm": np.mean(recent_norms),
+                "max_grad_norm": np.max(recent_norms),
+                "min_grad_norm": np.min(recent_norms),
+                "std_grad_norm": np.std(recent_norms),
+                "clipping_frequency": clipping_freq,
+                "total_clipping_events": self.clipping_events,
+            }
+
+            logging.info(
+                f"Epoch {epoch} - Gradient norm: {grad_norm:.4f}, "
+                f"Mean (last {len(recent_norms)}): {stats['mean_grad_norm']:.4f}, "
+                f"Clipping freq: {clipping_freq:.2%}"
+            )

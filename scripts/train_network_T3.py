@@ -3,7 +3,6 @@ This script trains a neural network and saves the evolution in pickle format.
 """
 
 from argparse import ArgumentParser
-from datetime import datetime
 import logging
 from pathlib import Path
 
@@ -11,7 +10,12 @@ import numpy as np
 import tensorflow as tf
 import yaml
 
-from yadlt.callback import LoggingCallback, NaNCallback, WeightStorageCallback
+from yadlt.callback import (
+    GradientNormCallback,
+    LoggingCallback,
+    NaNCallback,
+    WeightStorageCallback,
+)
 from yadlt.layers import Convolution
 from yadlt.load_data import (
     load_bcdms_cov,
@@ -154,6 +158,11 @@ def main():
         training_data=(x, y.reshape(1, -1)),
     )
     nan_cb = NaNCallback()
+    grad_cb = GradientNormCallback(
+        log_frequency=callback_freq,
+        training_data=(x, y.reshape(1, -1)),
+        clip_norm=cliponorm,
+    )
 
     max_iter = config["arguments"]["max_iterations"]
     _ = train_model.fit(
@@ -161,7 +170,7 @@ def main():
         y.reshape(1, -1),
         epochs=int(max_iter),
         verbose=0,
-        callbacks=[log_cb, save_cb, nan_cb],
+        callbacks=[log_cb, save_cb, nan_cb, grad_cb],
     )
 
     log.info("Training completed")
