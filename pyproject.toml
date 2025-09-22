@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
+python = ">=3.10,<4.0"
 numpy = "^1.22.0"
 pandas = "^1.4.0"
 matplotlib = "^3.5.0"  # Assuming you need this for plot_utils
@@ -63,3 +63,4 @@ python_files = "test_*.py"
 
 [tool.poetry.scripts]
 train = "scripts.train_network_T3:main"
+yadlt-remote = "scripts.remote_fits:main"
