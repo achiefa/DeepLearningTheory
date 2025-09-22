@@ -32,6 +32,29 @@ def validate_size(func):
     return wrapper
 
 
+def validate_type(func):
+    """Decorator to validate the type of the input before performing operations."""
+
+    def wrapper(self, other):
+        cls_type = type(self)
+        if not isinstance(other, cls_type):
+            raise TypeError(
+                f"Expected a {cls_type.__name__}, got {type(other).__name__}"
+            )
+        return func(self, other)
+
+    return wrapper
+
+
+def check_empty(func):
+    def wrapper(self, *args, **kwargs):
+        if self.size == 0:
+            raise ValueError("Distribution is empty")
+        return func(self, *args, **kwargs)
+
+    return wrapper
+
+
 def check_size(func):
     def wrapper(self, *args, **kwargs):
         if self.size == 0:
@@ -136,6 +159,7 @@ class Distribution:
             res.add(cov)
         return res
 
+    @check_empty
     def get_mean(self, axis=0):
         return np.mean(self._data, axis=axis)
 
@@ -167,6 +191,7 @@ class Distribution:
             raise ValueError(
                 f"Data shape {data.shape} does not match expected shape {(self._pre_allocated_size, *self.shape)}"
             )
+        self._size = self._pre_allocated_size
         self._data = data
 
     def transpose(self):
@@ -178,13 +203,11 @@ class Distribution:
             res.add(self._data[rep].T)
         return res
 
+    @validate_type
     @validate_shape
     @validate_size
     def __add__(self, other):
         """Apply the operator + to each replica"""
-        if not isinstance(other, Distribution):
-            raise TypeError(f"Expected a Distribution instance, got {type(other)}")
-
         res = Distribution(
             f"{self.name} + {other.name}", shape=self.shape, size=self.size
         )
@@ -192,13 +215,11 @@ class Distribution:
             res.add(self._data[rep] + other._data[rep])
         return res
 
+    @validate_type
     @validate_shape
     @validate_size
     def __sub__(self, other):
         """Apply the operator - to each replica"""
-        if not isinstance(other, Distribution):
-            raise TypeError(f"Expected a Distribution instance, got {type(other)}")
-
         res = Distribution(
             f"{self.name} - {other.name}", shape=self.shape, size=self.size
         )
@@ -206,6 +227,7 @@ class Distribution:
             res.add(self._data[rep] - other._data[rep])
         return res
 
+    @check_empty
     @check_size
     def __mul__(self, other):
         """Multiply the distribution by a scalar"""
@@ -220,6 +242,7 @@ class Distribution:
         else:
             raise TypeError(f"Expected a scalar, got {type(other)}")
 
+    @check_empty
     def __xor__(self, other):
         """Perform outer product with another distribution"""
         if not isinstance(other, Distribution):
@@ -228,6 +251,7 @@ class Distribution:
         res = self.outer(other)
         return res
 
+    @check_empty
     def __matmul__(self, other):
         """Matrix multiplication of the distribution with another distribution"""
         if isinstance(other, Distribution):
@@ -255,6 +279,7 @@ class Distribution:
         else:
             raise TypeError(f"Expected a Distribution instance, got {type(other)}")
 
+    @check_empty
     @check_size
     def __truediv__(self, other):
         """Divide the distribution by a scalar"""
@@ -277,6 +302,7 @@ class Distribution:
         else:
             raise TypeError(f"Expected a scalar or array, got {type(other)}")
 
+    @check_empty
     @check_size
     def apply_operator(self, b, operator, axis=0, name=None):
         """Apply a custom operator to the distribution along a given axis
@@ -302,6 +328,7 @@ class Distribution:
             res.add(aux)
         return res
 
+    @check_empty
     def make_diagonal(self):
         """Convert the distribution to a diagonal matrix representation."""
         if self._shape is None or len(self._shape) != 1:
@@ -319,17 +346,32 @@ class Distribution:
             res.add(diag_data)
         return res
 
-    def slice(self, index):
+    @check_empty
+    def slice(self, index: tuple):
         """Slice the distribution data.
 
         Args:
-            index: Can be an int, slice object, tuple of indices/slices, or numpy array
+            index: Can be a tuple of indices/slices, or numpy array
                   Examples:
                   - 5 → data[5]
                   - slice(10, 20) → data[10:20]
                   - (slice(None), 5) → data[:, 5]
                   - (0, slice(10, 20)) → data[0, 10:20]
         """
+        if (
+            not np.array(
+                [x >= 0 if not isinstance(x, slice) else True for x in index]
+            ).all()
+            or not np.array(
+                [
+                    x < self.shape[i] if not isinstance(x, slice) else True
+                    for i, x in enumerate(index)
+                ]
+            ).all()
+        ):
+            raise IndexError(
+                f"Index {index} out of bounds for distribution of size {self.size}"
+            )
         sample_sliced = self._data[0][index]
         new_shape = sample_sliced.shape
         res = Distribution(f"{self.name} sliced", shape=new_shape, size=self.size)
