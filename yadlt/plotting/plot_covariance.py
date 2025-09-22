@@ -6,12 +6,15 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 import numpy as np
 
+from yadlt import evolution
 from yadlt.context import FitContext
 from yadlt.plotting.plotting import next_color, produce_errorbar_plot, produce_mat_plot
 from yadlt.utils import (
     compute_covariance_decomposition_by_t,
     compute_covariance_ft,
     compute_covariance_training,
+    evaluate_from_initialisation,
+    load_and_evaluate_model,
     produce_model_at_initialisation,
 )
 
@@ -108,9 +111,21 @@ def plot_diag_error_decomposition(
     seed: int = 0,
     common_plt_spec: dict = {},
     divide_by_x: bool = False,
+    normalize: bool = False,
     **plot_kwargs,
 ):
-    """Plot the diagonal uncertainty of the decomposition of the covariance matrix for the analytical solution"""
+    """Plot the diagonal uncertainty of the decomposition of the covariance matrix for the analytical solution.
+
+    Args:
+        context (FitContext): The fit context containing relevant information.
+        ref_epoch (int): The reference epoch to compute the covariance at.
+        epoch (int): The epoch to compute the covariance at.
+        seed (int): The seed to use for the initialisation.
+        common_plt_spec (dict): A dictionary containing common plot specifications.
+        divide_by_x (bool): Whether to divide the covariance by x.
+        normalize (bool): Whether to normalize the covariance by the mean of the prediction.
+        plot_kwargs (dict): Additional keyword arguments to pass to the plotting function.
+    """
     learning_rate = float(context.get_config("metadata", "arguments")["learning_rate"])
 
     f0 = produce_model_at_initialisation(
@@ -139,7 +154,16 @@ def plot_diag_error_decomposition(
     C = cov_ft(evolution_time)
     zeros = np.zeros_like(C.diagonal())
 
-    full_cov_diag = np.sqrt(C.diagonal())
+    if normalize:
+        f = evaluate_from_initialisation(context, ref_epoch=ref_epoch, f0=f0)
+        ft = f(evolution_time)
+        full_cov_diag = np.sqrt(C.diagonal()) / np.abs(ft.get_mean())
+        c00 = np.sqrt(C_00.diagonal()) / np.abs(ft.get_mean())
+        cyy = np.sqrt(C_YY.diagonal()) / np.abs(ft.get_mean())
+    else:
+        full_cov_diag = np.sqrt(C.diagonal())
+        c00 = np.sqrt(C_00.diagonal())
+        cyy = np.sqrt(C_YY.diagonal())
 
     # Loop over data points; create box from errors at each point
     errorboxes = [
@@ -157,13 +181,13 @@ def plot_diag_error_decomposition(
             {
                 "label": r"$C_t^{(00)}$",
                 "mean": zeros,
-                "std": np.sqrt(C_00.diagonal()),
+                "std": c00,
                 "spec": common_plt_spec | {"color": "C1"},
             },
             {
                 "label": r"$C_t^{(YY)}$",
                 "mean": zeros,
-                "std": np.sqrt(C_YY.diagonal()),
+                "std": cyy,
                 "spec": common_plt_spec | {"color": "C2"},
             },
             # {"label": r"$C_t^{(0Y)}$", "mean": zeros, "std": np.sqrt(C_0Y.diagonal()), "spec": common_plt_spec | {"color": "C3"}},
@@ -180,6 +204,7 @@ def plot_diag_error_compare_an_tr(
     seed: int = 0,
     common_plt_spec: dict = {},
     divide_by_x: bool = False,
+    normalize: bool = False,
     **plot_kwargs,
 ):
     """Plot the diagonal uncertainty of the decomposition of the covariance matrix for the analytical solution"""
@@ -211,8 +236,16 @@ def plot_diag_error_compare_an_tr(
     box_x_size.append(box_x_size[-1])
 
     zeros = np.zeros_like(C.diagonal())
-    an_cov_diag = np.sqrt(C.diagonal())
-    tr_cov_diag = np.sqrt(cov_f_trained.diagonal())
+
+    if normalize:
+        f = evaluate_from_initialisation(context, ref_epoch=ref_epoch, f0=f0)
+        ft = f(evolution_time)
+        ft_trained = load_and_evaluate_model(context, epoch)
+        an_cov_diag = np.sqrt(C.diagonal()) / np.abs(ft.get_mean())
+        tr_cov_diag = np.sqrt(cov_f_trained.diagonal()) / np.abs(ft_trained.get_mean())
+    else:
+        an_cov_diag = np.sqrt(C.diagonal())
+        tr_cov_diag = np.sqrt(cov_f_trained.diagonal())
 
     # Add collection to Axes
     produce_errorbar_plot(
@@ -221,13 +254,13 @@ def plot_diag_error_compare_an_tr(
             {
                 "label": r"$\rm{Cov}[f_t^{\rm (an)}, f_t^{\rm (an)}]$",
                 "mean": zeros,
-                "std": np.sqrt(an_cov_diag),
+                "std": an_cov_diag,
                 "spec": common_plt_spec | {"color": "C1"},
             },
             {
                 "label": r"$\rm{Cov}[f_t^{\rm (tr)}, f_t^{\rm (tr)}]$",
                 "mean": zeros,
-                "std": np.sqrt(tr_cov_diag),
+                "std": tr_cov_diag,
                 "spec": common_plt_spec | {"color": "C2"},
             },
         ],
