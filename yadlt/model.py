@@ -218,11 +218,10 @@ def load_trained_model(replica_dir, epoch=-1):
 
     # Reconstruct the PDF model with same configuration
     pdf_model = generate_pdf_model(
-        outputs=model_config["outputs"],
+        outputs=1,
         architecture=model_config["architecture"],
         activations=[
-            model_config["activations"]
-            for _ in range(len(model_config["architecture"]))
+            model_config["activation"] for _ in range(len(model_config["architecture"]))
         ],
         kernel_initializer="zeros",  # model_config["kernel_initializer"],
         bias_initializer="zeros",

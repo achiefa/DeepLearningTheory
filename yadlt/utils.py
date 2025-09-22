@@ -85,7 +85,11 @@ def load_data(context: FitContext):
 
 @functools.cache
 def produce_model_at_initialisation(
-    replicas, fk_grid_tuple, architecture_tuple, seed: int = 0
+    replicas,
+    fk_grid_tuple,
+    architecture_tuple,
+    seed: int = 0,
+    scaled_input: bool = False,
 ):
     """Initialise a model at random initialisation."""
     xT3_0 = Distribution("xT3 at initialisation")
@@ -98,7 +102,7 @@ def produce_model_at_initialisation(
             kernel_initializer="GlorotNormal",
             user_ki_args=None,
             seed=seed + rep,
-            scaled_input=False,
+            scaled_input=scaled_input,
             preprocessing=False,
         )
 
