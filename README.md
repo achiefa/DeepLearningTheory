@@ -1,4 +1,5 @@
 [![Test pip installation](https://github.com/achiefa/DeepLearningTheory/actions/workflows/test_pip.yaml/badge.svg)](https://github.com/achiefa/DeepLearningTheory/actions/workflows/test_pip.yaml)
+[![codecov](https://codecov.io/gh/achiefa/DeepLearningTheory/branch/main/graph/badge.svg)](https://codecov.io/gh/achiefa/DeepLearningTheory)
 
 # DeepLearningTheory
 This repository collects a series of experiments that focus on deep learning.
