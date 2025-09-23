@@ -216,12 +216,18 @@ def load_trained_model(replica_dir, epoch=-1):
     model_config.setdefault("use_scaled_input", False)
     model_config.setdefault("use_preprocessing", False)
 
+    # Legacy support for activation key
+    model_conf_act = "activation"
+    if model_config.get("activation", None) is None:
+        model_conf_act = "activations"
+
     # Reconstruct the PDF model with same configuration
     pdf_model = generate_pdf_model(
         outputs=1,
         architecture=model_config["architecture"],
         activations=[
-            model_config["activation"] for _ in range(len(model_config["architecture"]))
+            model_config[model_conf_act]
+            for _ in range(len(model_config["architecture"]))
         ],
         kernel_initializer="zeros",  # model_config["kernel_initializer"],
         bias_initializer="zeros",
