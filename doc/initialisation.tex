@@ -1,6 +1,108 @@
+\section{On Neural Networks and Inverse Problems}
+\label{sec:Init}
+
+In this section, we discuss some non-trivial properties of neural networks at
+initialization. Then, we present the framework adopted in this work and
+introduce the notation used in the rest of the paper.
+
+\subsection{The Inverse Problem for $xT_3$}
+\label{subsec:inverse_problem}
+
+The extraction of PDFs from experimental data is a classic example of an inverse
+problem, namely the reconstruction of a function $f(x)$ from a finite set of
+data points $Y_I$, where the index $I=1, \ldots, \ndat$.\footnote{When omitting
+the data index $I$, we will always assume $Y \in \mathbb{R}^{\ndat}$.} In
+particular, for this study, we will focus on DIS data, which depend linearly on
+the function $f(x)$. The theoretical prediction for the data point $Y_I$ is
+given by
+\begin{equation}
+    \label{eq:TheoryPred}
+    T_I[f] = \sum_{i=1}^{\nflav} \int dx\, C_{Ii}(x) f_{i}(x)\, ,
+\end{equation}
+where $C_{Ii}(x)$ is a coefficient function, known to some given order in
+perturbation theory, $i$ labels the parton flavour, and $f_i(x)$ is the PDF (or
+set of PDFs) that we want to determine.
+
+In this work, we will 
+
+Attempting to determine a function $f$ in an infinite dimensional space of
+solutions with a finite set of data is inherently ill-posed. The solution will
+inevitably depend on assumptions and prior knowledge, conscious or not,
+introduced to regularise the problem. The solution of the inverse problem
+can be tackled either by using non-parametric methods, as recently proposed
+in Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, or, more commonly in the
+filed of PDF determination, by introducing a parameterization for the function
+$f$. Many state-of-the-art PDF determinations belong to the latter, and
+they differ, among other things, in the choice of the parameterization and the
+fitting methodology.
+
+As mentioned, understanding the difference between the various approaches is
+crucial for precision physics. For instance, different parametrisations for
+can lead to a bias in the the space of te reconstructed solution. Furthermore,
+the interplay between the parameterization and the fitting methodology determines
+how the uncertainties on the data propagate to the uncertainties on the fitted
+solution. Understanding the bias and variance of the fitted PDF is therefore a
+major challenge for precision physics.
+
+Following the ideas highlighted in
+Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, the solution of the inverse
+problem is conveniently phrased in a Bayesian framework. The functions $f_i$ are
+promoted to stochastic processes; for any grid of points $x_{\alpha}$,
+$\alpha=1, \ldots, \ngrid$, the vector $f_{i\alpha}=f_{i}(x_{\alpha})$ is a
+vector of $\nflav\times\ngrid$ stochastic variables, for which we introduce a
+prior distribution $p(f)$.~\footnote{Following the same convention used for the
+data, when omitting the grid index $\alpha$, and/or the flavor index $i$, we
+will always refer to a vector $f \in \mathbb{R}^{\nflav\times\ngrid}$.}
+
+Any fitting procedure is interpreted as a recipe that yields the posterior
+distribution $\tilde{p}(f)$.
+
+In this study, probability distributions are represented by ensembles of i.i.d.
+replicas. So, for instance, the prior distribution $p(f)$ is described by an
+ensemble
+\begin{equation}
+    \label{eq:RepDef}
+    \left\{f^{(k)} \in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots, \nreps\right\}\, ,
+\end{equation}
+drawn from the distribution $p$, so that
+\begin{equation}
+    \label{eq:ReplicaEnsemble}
+    \mathbb{E}_{p}[O(f)] = \frac{1}{\nreps} \sum_{k=1}^{\nreps} O(f^{(k)})\, ,
+\end{equation}
+for any observable $O$ that is built from the PDFs.
+
+The prior distribution $p(f)$ is defined by initializing a set of replicas using
+a Glorot normal initializer~\cite{glorot2010understanding}. The result of this
+initialization is discussed below in Sec.~\ref{sec:Init}. For each replica, a
+new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional Gaussian
+distribution centred at the experimental central value $Y$, with the covariance
+given by the experimental covariance matrix $C_Y$,
+\begin{equation}
+    \label{eq:ExpReplicaDistr}
+    Y^{(k)} \sim \mathcal{N}\left(Y, C_Y\right)\, .
+\end{equation}
+Each replica $f^{(k)}$ is trained on its corresponding data set $Y^{(k)}$. We
+denote the replicas at training time $t$, $f^{(k)}_{t} \in
+\mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $T$, the
+posterior probability distribution is represented by the set of replicas
+$\left\{f^{(k)}_{T}\in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots,
+\nreps\right\}$, so that averages over the posterior distribution are computed
+as
+\begin{equation}
+    \label{eq:PostEnsemble}
+    \mathbb{E}_{\tilde{p}}[O(f)] = \frac{1}{\nreps} \sum_{k=1}^{\nreps}
+        O\left(f^{(k)}_{T}\right)\, .
+\end{equation}
+All knowledge about the solution of the inverse problem, $f$, is encoded in the
+posterior $\tilde{p}$ and is expressed as expectation values of observables $O$
+using Eq.~\eqref{eq:PostEnsemble}.
+
+\subsection{Neural Networks at Initialisation}
+% \label{subsec:NNinit}
+
 When initializing a neural network, the weights and biases -- which we denote collectively as the {\em parameters}\ 
 of the network -- are drawn from some probability distribution. In 
-the NNPDF formalism, the set of netowrk parameters at initialization for each replica is an instance 
+the NNPDF formalism, the set of network parameters at initialization for each replica is an instance 
 of i.i.d. stochastic variables. The probability distribution
 of the network parameters induces a probability distribution for the output of the neural networks at inizialization. 
 It is well known that the probability distribution of these outputs becomes approximately gaussian when the size of
@@ -252,7 +354,7 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
 comparison analytical vs empirical, 
 comparison analytical vs Gaussian processes}
 
-\paragraph{Dependence on the architecture.}
+% \paragraph{Dependence on the architecture.}
 Having analytical expressions for the variance at initialization allows us to investigate the
 impact of the NN architecture on the prior that is imposed on the PDFs. Iterating
 Eq.~\eqref{eq:RecursionForK} yields the covariance at initialization for various depths.

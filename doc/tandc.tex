@@ -1,21 +1,32 @@
+\section{Results and Crosschecks}
+\label{sec:TrainClosure}
+
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} sheds a new light onto the
 behaviour of the numerical neural network training. In order to study the
 training process, the NNPDF collaboration has successfully developed so-called
-{\em closure tests}, which we are going to adopt here. A closure test uses
-synthetic data, generated using a known set of PDFs, to train the neural
-network. The PDFs used for generating the data are called here {\em input}\
-PDFs. The results of the training are then compared to the known input PDFs; the
-performance of the training algorithm and the NN architecture are assessed by
-quantifying the comparison between trained PDFs and input PDFs. Following the
-original presentation in Ref.~\cite{NNPDF:2014otw}, we distinguish three levels
-of closure tests, which are defined by the complexity of the data used to train
-the NNs. We use the standard NNPDF nomenclature and refer to these three levels
-as level-0 (L0), level-1 (L1), and level-2 (L2) closure tests, and we denote the
-input PDFs used to generate the data as $\fin$.
+{\em closure tests}, which we are going to adopt here. 
 
-\subsection{Analytical Results and Crosschecks}
+A closure test uses synthetic data, generated using a known set of PDFs, to
+train the neural network. The PDFs used for generating the data are called here
+{\em input}\ PDFs. The results of the training are then compared to the known
+input PDFs; the performance of the training algorithm and the NN architecture
+are assessed by quantifying the comparison between trained PDFs and input PDFs.
+Following the original presentation in Ref.~\cite{NNPDF:2014otw}, we distinguish
+three levels of closure tests, which are defined by the complexity of the data
+used to train the NNs. We use the standard NNPDF nomenclature and refer to these
+three levels as level-0 (L0), level-1 (L1), and level-2 (L2) closure tests, and
+we denote the input PDFs used to generate the data as $\fin$.
+
+With the full control over the sought solution at hand, the analytic solution
+allows us to perform a number of crosschecks that validate our implementation
+and provides insight into the training process. These are discussed in the
+following sections.
+
+
+\subsection{Analytical Results and Crosschecks using L0 data}
 \label{sec:AnalyticalChecks}
-Let us start by discussing the case of L0 closure tests. In this case, the data
+Let us start by discussing the case of L0 closure tests. In this case, the realization
+of the dataset is completely determined by the input PDFs, and the values of the data
 are given by
 \begin{equation}
     \label{eq:DataL0}
@@ -27,16 +38,33 @@ or equivalently, suppressing the indices,
     \label{eq:DataL0NoIndices}
     Y = \FKtab \fin\, .
 \end{equation}
-Using L0 data in the analytical expression for the trained network in
-Eq.~\eqref{eq:AnalyticSol} yields
+Note that using L0 data only affects the second term in
+Eq.~\ref{eq:AnalyticSol}\footnote{To be more precise, since the analytical
+solution is requires the NTK to be frozen at a certain epoch $T_{\rm ref}$, the
+NTK will itself depend on the data used in the training.}. We can then rewrite the
+combined term in Eq.~\eqref{eq:DataCorrectedInference} as follows
 \begin{align}
   \label{eq:TrainingOnLevelZero}
   \check{U}^\perp(t) f_0 + V(t) Y 
     &= \mathcal{M}(t)\, \FKtabT C_{Y}^{-1} \FKtab\, 
       \left[\fin - f_{0}^\parallel\right]\, .
 \end{align}
-Eq.~\eqref{eq:TrainingOnLevelZero} suggests a number of crosschecks that allow
-us to test our implementation. Interestingly, for $t\to\infty$,
+The subtraction taking place in the square brackets of
+Eq.~\eqref{eq:TrainingOnLevelZero} suggests us that the effective function that
+the neural network actually sees is not the input function $\fin$ used to
+generate the data, but rather the difference between $\fin$ and the component of
+the initial function $f_0$ that lies in the subspace spanned by the kernel of
+the NTK, \ie\ $f_0^\parallel$. In other words, the parallel component
+$f_0^\parallel$, which we remind does not evolve during the analytic training,
+acts as a constant ``bias'' in the training process, shifting the effective
+input function that the neural network sees. Of course the actual magnitude of
+this irreducible noise depends both on how $f_0$ and the kernel of the NTK are
+distributed over the ensemble. We will come to this point soon.
+
+Note that the observation above remains true even in the limit of infinite training.
+This can be shown using
+Interestingly, for $t\to\infty$, \ac{How is
+this limit justified?} we have
 \begin{align}
     \label{eq:LevelZeroClosureInfiniteTraining}
     \lim_{t\to\infty} V(t) Y = \finperp\, ,
@@ -46,9 +74,9 @@ component of the PDF that lies in  the subspace orthogonal to the kernel of
 $\Theta$. We compare the asymptotic behaviour of $V(t) Y$ and $\finperp$ in
 Fig.~\ref{fig:InfiniteTimeVterm}.
 
-\begin{figure}[h!]
+\begin{figure}[t]
   \centering
-  \includegraphics[width=0.95\textwidth]{vy_inf_L0.pdf}  
+  \includegraphics[width=\textwidth]{vy_inf_L0.pdf}  
   \caption{Test the $t\to\infty$ limit of the L0 training for different frozen
   NTK. The orange curve represents the projection of the input function $\fin$
   onto the subspace orthogonal to the kernel of the NTK at $T_{\rm ref}$, \ie\
@@ -107,7 +135,7 @@ expressions results in an incorrect estimate of the error bars.
     data is obtained by choosing the frozen NTK at $T_{\rm ref} = 20000$, while
     $f_0$ is an ensemble of networks at initialisation (\textit{i.e.}\
     $\mathbb{E}[f_0]=0$). L2 data is used in the plots. \ac{Check correctness of
-    bootstrap error bars with Luigi.}}
+    bootstrap error with Luigi.}}
     \label{fig:xT3_exp_val}
   \end{figure}
 % ===================================

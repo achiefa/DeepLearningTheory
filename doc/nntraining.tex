@@ -1,25 +1,57 @@
-\documentclass[11pt]{article}
+\documentclass[11pt,a4paper]{article}
 
-\include{init}
+% \usepackage[inline]{showlabels} % prints labels such as fig:xxxx, REMOVE ONCE DONE
+\usepackage{xcolor}
+\usepackage[colorlinks=true, linkcolor=black!50!blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
+\usepackage[font=small,labelfont=bf,margin=0mm,labelsep=period,tableposition=top]{caption}
+\usepackage[a4paper,top=3cm,bottom=2.5cm,left=2.5cm,right=2.5cm,bindingoffset=0mm]{geometry}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{authblk}
+\usepackage{dsfont}
+\usepackage{pifont}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{siunitx}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{epsfig}
+\usepackage{framed}
+\usepackage{makeidx}
+\usepackage{simplewick}
+\usepackage{placeins}
+\usepackage{bbold}
+\usepackage{braket}
+\graphicspath{{./figs/}}
 
-\graphicspath{dir-list/{./figs/}}
-
+\input{commands}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
 \newcommand{\ldd}[1]{\textcolor{red}{\textbf{Luigi: #1}}}
 \newcommand{\ac}[1]{\textcolor{red}{\textbf{Amedeo: #1}}}
 
-\title{Parton Distributions from Neural Networks: Analytical Results}
-\author{Amedeo Chiefa}
-\author{Luigi Del Debbio}
-\author{Richard Kenway}
-\affil{Higgs Centre for Theoretical Physics, School of Physics and Astronomy,
-Peter~Guthrie~Tait~Road, Edinburgh EH9 3FD, United Kingdom.}
-
-\date{\today}
-\makeindex
-
 \begin{document}
+\newgeometry{top=1.5cm,bottom=1.5cm,left=1.5cm,right=1.5cm,bindingoffset=0mm}
+\vspace{-2.0cm}
+\begin{flushright}
+Edinburgh 2025/x
+\end{flushright}
+\vspace{0.3cm}
 
-\maketitle
+\begin{center}
+  {\Large \bf Do we Understand PDF uncertainty?}
+  \vspace{1.1cm}
+
+  Amedeo Chiefa, Luigi Del Debbio and Richard Kenway
+
+  \vspace{0.2cm}
+
+  {\it \small
+    The Higgs Centre for Theoretical Physics, University of Edinburgh,\\
+    JCMB, KB, Mayfield Rd, Edinburgh EH9 3JZ, Scotland\\[0.1cm]
+  }
+  \vspace{0.7cm}
+\end{center}
 
 \begin{abstract}
   Parton Distribution Functions (PDFs) play a crucial role in describing
@@ -38,34 +70,18 @@ Peter~Guthrie~Tait~Road, Edinburgh EH9 3FD, United Kingdom.}
   regime commonly discussed in the ML community.
 \end{abstract}
 
-\section{Introduction}
-\label{sec:intro}
-\input{intro.tex}
+\tableofcontents
+\clearpage
 
-
-\section{Large Neural Networks at Initialization}
-\label{sec:Init}
-\input{NNInit.tex}
-
-
-\section{Training}
-\label{sec:Training}
-\input{training.tex}
-
-
-\section{Behaviour of the NTK}
-\label{sec:NTKPheno}
-\input{ntk_pheno.tex}
-
-
-\section{Training and Closure}
-\label{sec:TrainClosure}
+\input{introduction.tex}
+\input{initialisation.tex}
+\input{ntk_training.tex}
+\input{lazy_training.tex}
 \input{tandc.tex}
 
 
 \section{Conclusions}
 \label{sec:Conclusions}
-
 
 \newpage
 

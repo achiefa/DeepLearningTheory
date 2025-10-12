@@ -1,3 +1,95 @@
+\section{Training Dynamics and the Neural Tangent Kernel}
+\label{sec:NTKPheno}
+
+Here, we revisit the training dynamics of the neural networks used in the NNPDF
+methodology.
+
+\subsection{Training in Functional Space}
+The parameter-space/function-space duality described in Sec.~\ref{sec:Init} yields intersting insight
+on the training process. Our main aim in this paper is understanding the dynamics driving the
+training process. Therefore, we work in a simplified setting where we consider standard gradient descent
+and data that depend linearly on the unknwon PDFs, as shown in Eq.~\eqref{eq:TheoryPred}. The generalization
+to other minimizers and non-linear data is left to future investigations, but is expected to yield
+qualitatively similar results. The results
+in this subsection apply to any generic parametrization of the unknown function, they are {\em not}\
+specific to the case of using NNs for the parametrization.
+
+Gradient descent is described as a continuous flow of the parameters $\theta$ in training time $t$
+along the negative gradient of the loss function $\mathcal{L}$. The parameters and the fields during
+training are labelled by adding an index $t$, so that \eg\ $\theta_{t,\mu}$ identifies the parameter
+$\theta_\mu$ at training time $t$. The gradient flow is given by
+\begin{align}
+    \label{eq:GradientFlowDef}
+    \ddt &\theta_{t,\mu} = -\nabla_\mu \mathcal{L}_t\, .
+\end{align}
+We focus here on quadratic loss functions that are obtained as the negative logarithm of Gaussian
+data distributions around their theoretical predictions,
+\begin{align}
+    \label{eq:QuadLoss}
+    \mathcal{L}_t = \frac12 \left(Y - T[f_t]\right)^T C_Y^{-1} \left(Y - T[f_t]\right)\, ,
+\end{align}
+where $C_Y$ is the covariance of the data, which includes statistical and systematic errors given by
+the experiments and also any theoretical error, like \eg\ missing higher orders in the theoretical
+predictions. Indices that are summed over are suppressed to improve the clarity of the equations.
+Note that the loss function at training time $t$ is computed using the theoretical prediction $T[f_t]$,
+\ie\ the result of Eq.~\eqref{eq:TheoryPred} computed using the fields at training time $t$. For a quadratic
+loss, the gradient is
+\begin{align}
+    \nabla_\mu \mathcal{L}_t = - \left(\nabla_\mu f_t\right)^T \left(\frac{\partial T}{\partial f}\right)_t
+      C_Y^{-1} \epsilon_t\, ,
+\end{align}
+where, writing explicitly the data index,
+\begin{align}
+    \label{eq:EpsDef}
+    \epsilon_{t,I} = Y_I - T_I[f_t]\, , \quad I=1, \ldots, \ndat\, .
+\end{align}
+For the specific case of a quadratic loss function, the gradient is proportional to $\epsilon_t$, which
+is the difference between the theoretical prediction and the data at training time $t$. If at some point
+during the training the theoretical predictions reproduce all the data, the training process ends.
+A further simplification is obtained in the case of data that depend linearly on the unknown function $f$.
+In the specific case of NNPDF fits, the integrals in Eq.~\eqref{eq:TheoryPred} are approximated by
+a Riemann sum over the grid of $x$ points,
+\begin{align}
+    \label{eq:FKTabDef}
+    T_I[f] \approx \sum_{i=1}^{\nflav}\sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} f_{i\alpha}\, ,
+\end{align}
+and hence
+\begin{align}
+    \label{eq:dTbydf}
+    \left(\frac{\partial T_I}{\partial f_{i\alpha}}\right)_t =
+        \FKtab_{Ii\alpha}\, ,
+\end{align}
+and is independent of $t$. The flow of parameters $\theta$ translates into a flow for the fields,
+\begin{align}
+    \label{eq:NTKFlow}
+    \ddt &f_{t,i_1\alpha_1} = (\nabla_\mu f_{t,i_1\alpha_1}) \ddt \theta_\mu =
+      \Theta_{t,i_1\alpha_1i_2\alpha_2}
+      \FKtabT_{i_2\alpha_2I} \left(C_Y^{-1}\right)_{IJ} \epsilon_{t,J}\, ,
+\end{align}
+where
+\begin{align}
+    \label{eq:NTKDef}
+    \Theta_{t,i_1\alpha_1i_2\alpha_2} = \sum_\mu
+    \nabla_\mu f_{t,i_1\alpha_1} \nabla_\mu f_{t,i_2\alpha_2}\, .
+\end{align}
+For clarity, we often omit indices and write
+\begin{align}
+    \label{eq:dTdfForLinearObs}
+    \left(\frac{\partial T}{\partial f}\right)_t
+        &= \FKtab\, , \\
+    \label{eq:NTKDefNoIndices}
+    \Theta_t
+        &= \left(\nabla_\mu f_t\right) \left(\nabla_\mu f_t\right)^T\, , \\
+    \label{eq:FlowEquationNoIndices}
+    \ddt f_t
+        &= \Theta_t \FKtabT C_Y^{-1} \epsilon_t\, .
+\end{align}
+Note that these equations do not refer to a specific parametrization and remain valid when some
+explicit functional form is chosen to parametrize the PDFs, as \eg\ in
+Refs.~\cite{Bailey:2020ooq,Hou:2019efy}.
+
+\subsection{Inside the Training Dynamics: an NTK perspective}
+
 The NTK, introduced in Sec.~\ref{sec:GradFlow}, provides a powerful framework for understanding neural
 network dynamics during training. Originally developed by Jacot et
 al.~\cite{jacot2018neural} to analyse infinite-width feed-forward networks, the
@@ -30,15 +122,13 @@ eigenvectors corresponding to the larger eigenvalues can be interpreted as {\em 
 features, while the small (or zero) eigenvalues, correspond to directions in which the field $f$ 
 never evolves during training. 
 
-\subsection{NTK at Initialization}
+\subsubsection{NTK at Initialization}
 \label{sec:NTKAtInit}
 We first discuss the properties of the NTK at initialisation, that is when the
 network is blind to data. We remind that, before training, the NTK depends on the
 $x$-grid of input and on the architecture. 
 
-\subsubsection{Fluctuations of the NTK}
-\label{sec:NTKFluctAtInit}
-
+\paragraph{Fluctuations of the NTK}
 The NTK is a function of the fields $f$, which are stochastic variables described by their joint probability
 distribution as discussed in Sect.~\ref{sec:Init}. Therefore the NTK is also a stochastic variable, with 
 its own probability distribution, which we represent as usual as a set of replicas. It is argued in the literature that,
@@ -70,9 +160,7 @@ due to the finite size of the ensemble. \ac{I can say something more here.}
 
 \FloatBarrier
 
-\subsubsection{Eigenvalues at Initialization}
-\label{sec:NTKEigenAtInit}
-
+\paragraph{Eigenvalues at Initialization}
 In order to get a more quantitative description of the NTK 
 at initialization, its spectrum is shown in Fig.~\ref{fig:NTKSpectrum} for four different architectures. 
 As debated in the literature~\cite{XXX}, the spectrum of the NTK is heavily hierarchical, and only few
@@ -103,7 +191,7 @@ size, as expected.
 
 \FloatBarrier
 
-\subsection{NTK During Training}
+\subsubsection{NTK During Training}
 \label{sec:NTKDuringTraining}
 
 Having established the properties of the NTK at initialisation, we now discuss
@@ -112,8 +200,7 @@ that the NTK remains constant during training provided that the width of the
 network is large enough. Here we show that this is not the case, at least for
 the architectures used in the standard NNPDF methodology. 
 
-\subsubsection{Onset of Lazy Training} 
-\label{sec:OnsetLazyTraining}
+\paragraph{Onset of Lazy Training} 
 
 As a first estimator of the variation of the NTK, we show in Fig.~\ref{fig:NTKTime} the 
 Frobenius norm of the variation during training, normalized by the Frobenius norm of the NTK itself, 
@@ -153,8 +240,7 @@ phase, \ie\ after the NTK has stabilized.
 
 \FloatBarrier
 
-\subsubsection{Eigenvalues During Training}
-\label{sec:EigenvalDuringTrain}
+\paragraph{Eigenvalues During Training}
 
 Further insight on the evolution of the NTK can be obtained by studying its eigensystem as 
 a function of the training time. 

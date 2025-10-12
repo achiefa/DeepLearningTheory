@@ -1,48 +1,11 @@
-%\pagestyle{headings}
-
-\textwidth=440pt
-\hoffset=-0.6truein
-
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{authblk}
-\usepackage{dsfont}
-\usepackage{pifont}
-\usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{siunitx}
-%\usepackage{bbold}
-\usepackage{graphicx}
-\usepackage{epstopdf}
-\usepackage{epsfig}
-%\usepackage{bibunits}
-%\usepackage{theorem}
-%\usepackage[framed]{ntheorem}
-\usepackage{framed}
-%\usepackage{showlabels}
-\usepackage{makeidx}
-\usepackage{simplewick}
-%\usepackage{tikz-feynman}
-\usepackage{hyperref}
-\usepackage{placeins}
-\usepackage{bbold}
-\usepackage[font=small,labelfont=bf]{caption}
-%\tikzfeynmanset{compat=1.0.0}
-\usepackage{tikz}
-\usepackage{braket}
-\usetikzlibrary{positioning}% To get more advances positioning options
-\usetikzlibrary{arrows}
-\usetikzlibrary{colorbrewer}
-
 % barn deprecated by siunitx
-\DeclareSIUnit{\barn}{b}
+% \DeclareSIUnit{\barn}{b}
 
 % General global commands
 %\newcommand{\cov}{C}
 \newcommand{\posterior}[1]{\tilde{#1}}
 \newcommand{\real}{\mathbb{R}}
-\newcommand{\textin}{\text{in}} 
+\renewcommand{\textin}{\text{in}} 
 
 % General inverse Problems
 % map operators
@@ -176,5 +139,3 @@
 % Matrix
 \newcommand{\bpmat}{\begin{pmatrix}}
 \newcommand{\epmat}{\end{pmatrix}}
-
-\graphicspath{{./figs/}}
