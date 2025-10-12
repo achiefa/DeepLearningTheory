@@ -167,6 +167,16 @@ function for that specific layer is the identity, so that
 \end{equation}
 In the following we refer to the preactivation functions as {\em fields}.
 
+% ===================================
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figs/weight_distribution.pdf}
+  \caption{Sampled distribution of a selected weight in function of the
+  number of replicas. The red line represent the underlying Gaussian distribution
+  from which the weights are drawn.}
+  \label{fig:weight_distribution}
+\end{figure}
+% ===================================
 The Glorot normal initialiser draws each weight and bias of the NN from independent Gaussian
 distributions, denoted $p_w$ and $p_b$ respectively, centred at zero and with variances
 rescaled by the number of nodes in adjacent layers,
@@ -175,7 +185,13 @@ rescaled by the number of nodes in adjacent layers,
     \frac{C^{(\ell)}_{w}}{\sqrt{n_{\ell-1} + n_{\ell}}}\, ,
     \quad \frac{C^{(\ell)}_{b}}{\sqrt{n_{\ell-1} + n_{\ell}}}\, .
 \end{equation}
-Following the NNPDF prescription, we have $C^{(\ell)_{w}=C^(\ell)}_{b}=1$. 
+Following the NNPDF prescription, we have $C^{(\ell)_{w}=C^(\ell)}_{b}=1$.
+Fig.~\ref{fig:weight_distribution} shows the binned distribution of a selected
+weight in the network as a function of the number of replicas. Together with the
+histogram, the underlying Gaussian, as dictated by the Glorot normal
+initialization, is also shown. The figure illustrates that the distribution of
+the weights converges to the expected Gaussian as the number of replicas increases.
+
 The probability distribution of the NN parameters induces a probability distribution for the
 preactivations,
 \begin{align}
@@ -316,8 +332,9 @@ Figs.~\ref{Fig:KRecursionOne} and~\ref{Fig:KRecursionTwo}.
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[scale=0.4]{figs/K2_correlations.pdf}
-    \includegraphics[scale=0.4]{figs/K3_correlations.pdf}
+    \includegraphics[scale=0.45]{figs/K2_correlations.pdf}
+    \hspace{0.5cm}
+    \includegraphics[scale=0.45]{figs/K3_correlations.pdf}
     \caption{Same as Fig.~\ref{Fig:KRecursionOne}, but for the second (top) and third (bottom) layers of the
     NNPDF architecture.
     \ac{Here the four indices of the covariance $K_{i_1i_2, \alpha_1\alpha_2}$ are flattened into

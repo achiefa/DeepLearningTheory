@@ -5,35 +5,39 @@ Here, we revisit the training dynamics of the neural networks used in the NNPDF
 methodology.
 
 \subsection{Training in Functional Space}
-The parameter-space/function-space duality described in Sec.~\ref{sec:Init} yields intersting insight
-on the training process. Our main aim in this paper is understanding the dynamics driving the
-training process. Therefore, we work in a simplified setting where we consider standard gradient descent
-and data that depend linearly on the unknwon PDFs, as shown in Eq.~\eqref{eq:TheoryPred}. The generalization
-to other minimizers and non-linear data is left to future investigations, but is expected to yield
-qualitatively similar results. The results
-in this subsection apply to any generic parametrization of the unknown function, they are {\em not}\
-specific to the case of using NNs for the parametrization.
+The parameter-space/function-space duality described in Sec.~\ref{sec:Init}
+yields intersting insight on the training process. Our main aim in this paper is
+understanding the dynamics driving the training process. Therefore, we work in a
+simplified setting where we consider standard gradient descent and data that
+depend linearly on the unknwon PDFs, as shown in Eq.~\eqref{eq:TheoryPred}. The
+generalization to other minimizers and non-linear data is left to future
+investigations, but is expected to yield qualitatively similar results. The
+results in this subsection apply to any generic parametrization of the unknown
+function, they are {\em not}\ specific to the case of using NNs for the
+parametrization.
 
-Gradient descent is described as a continuous flow of the parameters $\theta$ in training time $t$
-along the negative gradient of the loss function $\mathcal{L}$. The parameters and the fields during
-training are labelled by adding an index $t$, so that \eg\ $\theta_{t,\mu}$ identifies the parameter
+Gradient descent is described as a continuous flow of the parameters $\theta$ in
+training time $t$ along the negative gradient of the loss function
+$\mathcal{L}$. The parameters and the fields during training are labelled by
+adding an index $t$, so that \eg\ $\theta_{t,\mu}$ identifies the parameter
 $\theta_\mu$ at training time $t$. The gradient flow is given by
 \begin{align}
     \label{eq:GradientFlowDef}
     \ddt &\theta_{t,\mu} = -\nabla_\mu \mathcal{L}_t\, .
 \end{align}
-We focus here on quadratic loss functions that are obtained as the negative logarithm of Gaussian
-data distributions around their theoretical predictions,
+We focus here on quadratic loss functions that are obtained as the negative
+logarithm of Gaussian data distributions around their theoretical predictions,
 \begin{align}
     \label{eq:QuadLoss}
     \mathcal{L}_t = \frac12 \left(Y - T[f_t]\right)^T C_Y^{-1} \left(Y - T[f_t]\right)\, ,
 \end{align}
-where $C_Y$ is the covariance of the data, which includes statistical and systematic errors given by
-the experiments and also any theoretical error, like \eg\ missing higher orders in the theoretical
-predictions. Indices that are summed over are suppressed to improve the clarity of the equations.
-Note that the loss function at training time $t$ is computed using the theoretical prediction $T[f_t]$,
-\ie\ the result of Eq.~\eqref{eq:TheoryPred} computed using the fields at training time $t$. For a quadratic
-loss, the gradient is
+where $C_Y$ is the covariance of the data, which includes statistical and
+systematic errors given by the experiments and also any theoretical error, like
+\eg\ missing higher orders in the theoretical predictions. Indices that are
+summed over are suppressed to improve the clarity of the equations. Note that
+the loss function at training time $t$ is computed using the theoretical
+prediction $T[f_t]$, \ie\ the result of Eq.~\eqref{eq:TheoryPred} computed using
+the fields at training time $t$. For a quadratic loss, the gradient is
 \begin{align}
     \nabla_\mu \mathcal{L}_t = - \left(\nabla_\mu f_t\right)^T \left(\frac{\partial T}{\partial f}\right)_t
       C_Y^{-1} \epsilon_t\, ,
@@ -43,12 +47,14 @@ where, writing explicitly the data index,
     \label{eq:EpsDef}
     \epsilon_{t,I} = Y_I - T_I[f_t]\, , \quad I=1, \ldots, \ndat\, .
 \end{align}
-For the specific case of a quadratic loss function, the gradient is proportional to $\epsilon_t$, which
-is the difference between the theoretical prediction and the data at training time $t$. If at some point
-during the training the theoretical predictions reproduce all the data, the training process ends.
-A further simplification is obtained in the case of data that depend linearly on the unknown function $f$.
-In the specific case of NNPDF fits, the integrals in Eq.~\eqref{eq:TheoryPred} are approximated by
-a Riemann sum over the grid of $x$ points,
+For the specific case of a quadratic loss function, the gradient is proportional
+to $\epsilon_t$, which is the difference between the theoretical prediction and
+the data at training time $t$. If at some point during the training the
+theoretical predictions reproduce all the data, the training process ends. A
+further simplification is obtained in the case of data that depend linearly on
+the unknown function $f$. In the specific case of NNPDF fits, the integrals in
+Eq.~\eqref{eq:TheoryPred} are approximated by a Riemann sum over the grid of $x$
+points,
 \begin{align}
     \label{eq:FKTabDef}
     T_I[f] \approx \sum_{i=1}^{\nflav}\sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} f_{i\alpha}\, ,
@@ -59,7 +65,8 @@ and hence
     \left(\frac{\partial T_I}{\partial f_{i\alpha}}\right)_t =
         \FKtab_{Ii\alpha}\, ,
 \end{align}
-and is independent of $t$. The flow of parameters $\theta$ translates into a flow for the fields,
+and is independent of $t$. The flow of parameters $\theta$ translates into a
+flow for the fields,
 \begin{align}
     \label{eq:NTKFlow}
     \ddt &f_{t,i_1\alpha_1} = (\nabla_\mu f_{t,i_1\alpha_1}) \ddt \theta_\mu =
@@ -84,66 +91,71 @@ For clarity, we often omit indices and write
     \ddt f_t
         &= \Theta_t \FKtabT C_Y^{-1} \epsilon_t\, .
 \end{align}
-Note that these equations do not refer to a specific parametrization and remain valid when some
-explicit functional form is chosen to parametrize the PDFs, as \eg\ in
-Refs.~\cite{Bailey:2020ooq,Hou:2019efy}.
+Note that these equations do not refer to a specific parametrization and remain
+valid when some explicit functional form is chosen to parametrize the PDFs, as
+\eg\ in Refs.~\cite{Bailey:2020ooq,Hou:2019efy}.
 
 \subsection{Inside the Training Dynamics: an NTK perspective}
 
-The NTK, introduced in Sec.~\ref{sec:GradFlow}, provides a powerful framework for understanding neural
-network dynamics during training. Originally developed by Jacot et
-al.~\cite{jacot2018neural} to analyse infinite-width feed-forward networks, the
-NTK theory has since been extended to diverse architectures including
-convolutional networks~\cite{arora2019exact} and recurrent
+The NTK, introduced in Sec.~\ref{sec:GradFlow}, provides a powerful framework
+for understanding neural network dynamics during training. Originally developed
+by Jacot et al.~\cite{jacot2018neural} to analyse infinite-width feed-forward
+networks, the NTK theory has since been extended to diverse architectures
+including convolutional networks~\cite{arora2019exact} and recurrent
 networks~\cite{alemohammad2021recurrent}. This theoretical framework has proven
 invaluable for characterizing learning dynamics and generalization properties
 across various network designs.
 
-From Eqs.~\eqref{eq:NTKDef} and~\eqref{eq:FlowEquationNoIndices}, we observe that the NTK encodes the
-dependence on the architecture of the network and governs its training dynamics.
-The analysis of the NTK properties is thus crucial for understanding the 
-behaviour of the network during training. We first discuss the properties of the NTK at
-initialisation, before moving to the training phase, where we provide a detailed
-study of the NTK in the context of the NNPDF methodology. To this end, we
-performed a fit of $T_3$ using the NNPDF methodology with the dataset described
-in Sec.~\ref{sec:dataset}. We initialized an ensemble of $\nreps = 100$ replicas with
-identical architecture, training each replica independently using gradient
-descent (GD) optimization. As our focus here is on NTK properties rather than
-physical predictions, we use synthetic data with controlled noise
-characteristics, namely L0, L1, and L2 data generations. Throughout the training process, 
-we track the evolution of the NTK to understand how the network's effective
-dynamics change as it learns the target function.
+From Eqs.~\eqref{eq:NTKDef} and~\eqref{eq:FlowEquationNoIndices}, we observe
+that the NTK encodes the dependence on the architecture of the network and
+governs its training dynamics. The analysis of the NTK properties is thus
+crucial for understanding the behaviour of the network during training. We first
+discuss the properties of the NTK at initialisation, before moving to the
+training phase, where we provide a detailed study of the NTK in the context of
+the NNPDF methodology. To this end, we performed a fit of $T_3$ using the NNPDF
+methodology with the dataset described in Sec.~\ref{sec:dataset}. We initialized
+an ensemble of $\nreps = 100$ replicas with identical architecture, training
+each replica independently using gradient descent (GD) optimization. As our
+focus here is on NTK properties rather than physical predictions, we use
+synthetic data with controlled noise characteristics, namely L0, L1, and L2 data
+generations. Throughout the training process, we track the evolution of the NTK
+to understand how the network's effective dynamics change as it learns the
+target function.
 
-A special role in this discussion is played by the eigenvalues and eigenvectors of the NTK. 
-The eigenvectors of the NTK form a basis in the space of the fields $f$. 
-As shown in Eq.~\eqref{eq:FlowEqTwo} the rate of change of the components of $f$ in the basis 
-made of eigenvectors of the NTK is proportional to the corresponding eigenvalue. Hence the 
-eigenvectors corresponding to the larger eigenvalues can be interpreted as {\em learnable}\ 
-features, while the small (or zero) eigenvalues, correspond to directions in which the field $f$ 
-never evolves during training. 
+A special role in this discussion is played by the eigenvalues and eigenvectors
+of the NTK. The eigenvectors of the NTK form a basis in the space of the fields
+$f$. As shown in Eq.~\eqref{eq:FlowEqTwo} the rate of change of the components
+of $f$ in the basis made of eigenvectors of the NTK is proportional to the
+corresponding eigenvalue. Hence the eigenvectors corresponding to the larger
+eigenvalues can be interpreted as {\em learnable}\ features, while the small (or
+zero) eigenvalues, correspond to directions in which the field $f$ never evolves
+during training. 
 
 \subsubsection{NTK at Initialization}
 \label{sec:NTKAtInit}
 We first discuss the properties of the NTK at initialisation, that is when the
-network is blind to data. We remind that, before training, the NTK depends on the
-$x$-grid of input and on the architecture. 
+network is blind to data. We remind that, before training, the NTK depends on
+the $x$-grid of input and on the architecture. 
 
 \paragraph{Fluctuations of the NTK}
-The NTK is a function of the fields $f$, which are stochastic variables described by their joint probability
-distribution as discussed in Sect.~\ref{sec:Init}. Therefore the NTK is also a stochastic variable, with 
-its own probability distribution, which we represent as usual as a set of replicas. It is argued in the literature that,
-in the large-width limit, the variance of the NTK over the set of replicas tends to zero 
-with the width of the hidden layers (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to
-quantify the variation of the NTK, we start by computing the Frobenius norm of the NTK over
+The NTK is a function of the fields $f$, which are stochastic variables
+described by their joint probability distribution as discussed in
+Sect.~\ref{sec:Init}. Therefore the NTK is also a stochastic variable, with its
+own probability distribution, which we represent as usual as a set of replicas.
+It is argued in the literature that, in the large-width limit, the variance of
+the NTK over the set of replicas tends to zero with the width of the hidden
+layers (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to quantify the
+variation of the NTK, we start by computing the Frobenius norm of the NTK over
 an ensemble of networks for different architectures. For each architecture, we
-consider the mean value and standard deviation of the norm as statistical estimators of the
-variations of the NTK. The result is displayed in Fig.~\ref{fig:NTKInit}. Even though the 
-Frobenius norm is a coaarse indicator of the variations of the NTk,
-the figure shows clearly that the variance of the norm becomes smaller with the size of the
-network, which is consistent with the theoretical expectation that the NTK should not 
-fluctuate for infinite-width networks. Note that, in addition to the scaling $\mathcal{O}(1/n)$ theoretically
-predicted for large networks, the uncertainty bands include bootstrap errors
-due to the finite size of the ensemble. \ac{I can say something more here.}
+consider the mean value and standard deviation of the norm as statistical
+estimators of the variations of the NTK. The result is displayed in
+Fig.~\ref{fig:NTKInit}. Even though the Frobenius norm is a coaarse indicator of
+the variations of the NTk, the figure shows clearly that the variance of the
+norm becomes smaller with the size of the network, which is consistent with the
+theoretical expectation that the NTK should not fluctuate for infinite-width
+networks. Note that, in addition to the scaling $\mathcal{O}(1/n)$ theoretically
+predicted for large networks, the uncertainty bands include bootstrap errors due
+to the finite size of the ensemble. \ac{I can say something more here.}
 \ldd{Yes, you need to be more quantitative}
 
 % ===================================
@@ -151,9 +163,10 @@ due to the finite size of the ensemble. \ac{I can say something more here.}
   \centering
   \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_with_uncertainty.pdf}
   \caption{Frobenius norm of the NTK at initialisation, $\lVert \Theta_0
-  \rVert$, in function of the width of the network. On the left, the central values
-  and uncertainty bands are obtained as the mean and one-sigma deviation of the
-  ensemble of networks. The plot on the right shows the relative uncertainty }
+  \rVert$, in function of the width of the network. On the left, the central
+  values and uncertainty bands are obtained as the mean and one-sigma deviation
+  of the ensemble of networks. The plot on the right shows the relative
+  uncertainty }
   \label{fig:NTKInit}
 \end{figure}
 % ===================================
@@ -161,30 +174,32 @@ due to the finite size of the ensemble. \ac{I can say something more here.}
 \FloatBarrier
 
 \paragraph{Eigenvalues at Initialization}
-In order to get a more quantitative description of the NTK 
-at initialization, its spectrum is shown in Fig.~\ref{fig:NTKSpectrum} for four different architectures. 
-As debated in the literature~\cite{XXX}, the spectrum of the NTK is heavily hierarchical, and only few
-eigenvalues are actually non-zero\footnote{Note that, due to the large
-difference in magnitude of the eigenvalues, the finite precision used in our
-codes introduces noise in the decomposition, so that small eigenvalues
-should be effectively considered zero. We discuss the cut-off tolerance
-later, when we discuss the training process in more details.}. This means that
-only a small subset of active directions can inform the network during training,
-as it will be discussed later. Note that, at least at initialization, these
-observations do not depend on the architecture. The eigenvalues in Fig.~\ref{fig:NTKSpectrum} 
-are mostly independent of the size of the network. There is a downward fluctuation of the third
-eigenvalue for the largest architecture that we considered, but we do not have any 
-evidence that this drop is a physical feature of the system, rather than a fluctuation. 
-the variance of the set of eigenvalues over replicas decreases with increasing 
-size, as expected. 
+In order to get a more quantitative description of the NTK at initialization,
+its spectrum is shown in Fig.~\ref{fig:NTKSpectrum} for four different
+architectures. As debated in the literature~\cite{XXX}, the spectrum of the NTK
+is heavily hierarchical, and only few eigenvalues are actually
+non-zero\footnote{Note that, due to the large difference in magnitude of the
+eigenvalues, the finite precision used in our codes introduces noise in the
+decomposition, so that small eigenvalues should be effectively considered zero.
+We discuss the cut-off tolerance later, when we discuss the training process in
+more details.}. This means that only a small subset of active directions can
+inform the network during training, as it will be discussed later. Note that, at
+least at initialization, these observations do not depend on the architecture.
+The eigenvalues in Fig.~\ref{fig:NTKSpectrum} are mostly independent of the size
+of the network. There is a downward fluctuation of the third eigenvalue for the
+largest architecture that we considered, but we do not have any evidence that
+this drop is a physical feature of the system, rather than a fluctuation. the
+variance of the set of eigenvalues over replicas decreases with increasing size,
+as expected. 
 
 % ===================================
 \begin{figure}[ht!]
   \centering
 
-  \includegraphics[width=0.90\textwidth]{../plots/ntk_pheno/ntk_initialization_arch.pdf}
+  \includegraphics[width=0.45\textwidth]{../plots/ntk_pheno/ntk_initialization_arch.pdf}
   \caption{Spectrum of the NTK at initialization for the architectures shown in
-  Fig.~\ref{fig:NTKInit}. }
+  Fig.~\ref{fig:NTKInit}. Error bands correspond to one-sigma uncertainties over
+  the ensemble of networks.}
   \label{fig:NTKSpectrum}
 \end{figure}
 % ===================================
@@ -202,8 +217,9 @@ the architectures used in the standard NNPDF methodology.
 
 \paragraph{Onset of Lazy Training} 
 
-As a first estimator of the variation of the NTK, we show in Fig.~\ref{fig:NTKTime} the 
-Frobenius norm of the variation during training, normalized by the Frobenius norm of the NTK itself, 
+As a first estimator of the variation of the NTK, we show in
+Fig.~\ref{fig:NTKTime} the Frobenius norm of the variation during training,
+normalized by the Frobenius norm of the NTK itself, 
 \begin{equation}
 \delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
 \label{eq:DeltaNTK}
@@ -221,33 +237,34 @@ for three different datasets, L0, L1, and L2.
 \end{figure}
 % ===================================
 
-It is clear from our data that the NTK does not remain constant during training. 
-Two different phases can be distinguished in the figure. The first one
-covers the initial part of the training. From Fig.~\ref{fig:NTKTime}, we see
-that the norm of the NTK varies significantly in the early stages of the evolution, in strong contrast with 
-the predictions obtained in the infinite-width limit. Note also that this
-initial peak is more pronounced for L2 data. This is consistent with the fact
-that the NTK (\ie\ the architecture) needs to accommodate the noise in
-the data, thus leading to a larger variation of the NTK. On the other hand,
-after this initial phase -- corresponding approximately to the first 20,000 epochs in our experiment --
-the NTK tends to stabilize. As discussed in the previous Section, we refer to this
-second phase as the \textit{lazy training}, in keeping with the terminology
-adopted in the literature. We conclude that, in this phase, the NTK does not
-change significantly. As a consequence, this suggests that a description of 
-the training using a constant NTK, as predicted by the theory of the
-infinite-width networks, can only be applied after the initial
-phase, \ie\ after the NTK has stabilized. 
+It is clear from our data that the NTK does not remain constant during training.
+Two different phases can be distinguished in the figure. The first one covers
+the initial part of the training. From Fig.~\ref{fig:NTKTime}, we see that the
+norm of the NTK varies significantly in the early stages of the evolution, in
+strong contrast with the predictions obtained in the infinite-width limit. Note
+also that this initial peak is more pronounced for L2 data. This is consistent
+with the fact that the NTK (\ie\ the architecture) needs to accommodate the
+noise in the data, thus leading to a larger variation of the NTK. On the other
+hand, after this initial phase -- corresponding approximately to the first
+20,000 epochs in our experiment -- the NTK tends to stabilize. As discussed in
+the previous Section, we refer to this second phase as the \textit{lazy
+training}, in keeping with the terminology adopted in the literature. We
+conclude that, in this phase, the NTK does not change significantly. As a
+consequence, this suggests that a description of the training using a constant
+NTK, as predicted by the theory of the infinite-width networks, can only be
+applied after the initial phase, \ie\ after the NTK has stabilized. 
 
 \FloatBarrier
 
 \paragraph{Eigenvalues During Training}
 
-Further insight on the evolution of the NTK can be obtained by studying its eigensystem as 
-a function of the training time. 
-In Fig.~\ref{fig:EigvalL0Training} we report the variation of the first five eigenvalues 
-of the NTK, using the standard NNPDF architecture and L0 data. We see that the hierachical
-structure observed at initialization is preserved, but the size of the subdominant eigenvalues
-increases significantly in the early stages of training -- by one or two orders of magnitude depending on the 
+Further insight on the evolution of the NTK can be obtained by studying its
+eigensystem as a function of the training time. In
+Fig.~\ref{fig:EigvalL0Training} we report the variation of the first five
+eigenvalues of the NTK, using the standard NNPDF architecture and L0 data. We
+see that the hierachical structure observed at initialization is preserved, but
+the size of the subdominant eigenvalues increases significantly in the early
+stages of training -- by one or two orders of magnitude depending on the
 specific eigenvalues. 
 % ===================================
 \begin{figure}[ht!]
@@ -263,11 +280,11 @@ inspecting these plots. First, we notice that the way in which data is generated
 has an impact on the eigenvalues of the NTK. In general, the uncertainty bands
 for L2 data are larger than those for L1 and L0 data, indicating that the NTK is
 more sensitive to the noise in the data. This is consistent with the observation
-made in Fig.~\ref{fig:NTKTime}. 
-The eigenvalues reach a plateau and do not change significantly once 
-the network enters the lazy training regime. The increase of the subdominant eigenvalues, 
-combined with the analysis of Eqs.~\eqref{eq:FlowParallel} and~\eqref{eq:FlowPerp}, 
-suggests that more ``physical'' features become learnable before lazy training sets in. 
+made in Fig.~\ref{fig:NTKTime}. The eigenvalues reach a plateau and do not
+change significantly once the network enters the lazy training regime. The
+increase of the subdominant eigenvalues, combined with the analysis of
+Eqs.~\eqref{eq:FlowParallel} and~\eqref{eq:FlowPerp}, suggests that more
+``physical'' features become learnable before lazy training sets in. 
 
 % ===================================
 \begin{figure}[ht!]
@@ -289,19 +306,23 @@ suggests that more ``physical'' features become learnable before lazy training s
 \subsubsection{Dependence on the Architecture}
 \label{sec:DepOnArch}
 
-It is interesting to consider what happens to the picture sketched so far as the architecture 
-of the neural networks is varied. In Fig.~\ref{fig:NTKTimeDiffArch}
-we compare the time dependence of the Frobenius norm of the NTK and the variation of the first three eigenvalues
-for two different architectures. The smaller network is the $[28,20]$ used in the standard NNPDF
-analyses and in this work, while the large one is a $[100,100]$ network, which is closer to the infinite-width
-limit. For illustration purposes we focus in this plot on L1 data and only three eigenvalues rather than the five
-we examined above. The quantitative features are exactly the same for L0 and L2 data, and adding the fourth 
-and fifth eigenvalues does not add unexpected behaviours compared to what we observe in Figs.~\ref{fig:NTKTime} 
-and~\ref{fig:EigvalL0Training}. It is interesting to remark that the onset of lazy training is slower 
-for the larger network. This is to be expected if we interpret the early stages of training as a phase where 
-the network identifies the learnable features in the space of functions that it can parametrize. For a 
-larger network, the space of parametrized functions is larger and the identification of the physical 
-features takes a larger number of epochs. 
+It is interesting to consider what happens to the picture sketched so far as the
+architecture of the neural networks is varied. In Fig.~\ref{fig:NTKTimeDiffArch}
+we compare the time dependence of the Frobenius norm of the NTK and the
+variation of the first three eigenvalues for two different architectures. The
+smaller network is the $[28,20]$ used in the standard NNPDF analyses and in this
+work, while the large one is a $[100,100]$ network, which is closer to the
+infinite-width limit. For illustration purposes we focus in this plot on L1 data
+and only three eigenvalues rather than the five we examined above. The
+quantitative features are exactly the same for L0 and L2 data, and adding the
+fourth and fifth eigenvalues does not add unexpected behaviours compared to what
+we observe in Figs.~\ref{fig:NTKTime} and~\ref{fig:EigvalL0Training}. It is
+interesting to remark that the onset of lazy training is slower for the larger
+network. This is to be expected if we interpret the early stages of training as
+a phase where the network identifies the learnable features in the space of
+functions that it can parametrize. For a larger network, the space of
+parametrized functions is larger and the identification of the physical features
+takes a larger number of epochs. 
 % ===================================
 \begin{figure}[ht!]
   \centering
@@ -333,14 +354,14 @@ quantify this alignment, we define the matrix $A$,
 \end{equation}
 where $z^{(k)}$ and $v^{(k')}$ are the $k$-th and $k'$-th eigenvectors of the
 NTK and $M$, respectively. The matrix $A$ is thus a measure of the alignment
-between the eigenspaces of the two matrices. The rows of the matrix correspond to 
-the eigenvectors of the NTK, ordered by the value of the corresponding eigenvalues, 
-with the eigenvectors corresponding to the larger 
-eigenvalues at the top of the matrix. The columns correspond to eigenvectors 
-of the matrix $M$, also ordered by the values of the corresponding eigenvalues, 
-with the largest eigenvalues to the left in this case. In Fig.~\ref{fig:NtkMAlign}, we
-show the matrix $A$ at different epochs of the training for L2 data and a
-single NTK replica. 
+between the eigenspaces of the two matrices. The rows of the matrix correspond
+to the eigenvectors of the NTK, ordered by the value of the corresponding
+eigenvalues, with the eigenvectors corresponding to the larger eigenvalues at
+the top of the matrix. The columns correspond to eigenvectors of the matrix $M$,
+also ordered by the values of the corresponding eigenvalues, with the largest
+eigenvalues to the left in this case. In Fig.~\ref{fig:NtkMAlign}, we show the
+matrix $A$ at different epochs of the training for L2 data and a single NTK
+replica. 
 % ===================================
 \begin{figure}[ht!]
   \centering
@@ -360,23 +381,25 @@ single NTK replica.
   \includegraphics[width=0.45\textwidth]{plots/ntk_pheno/ntk_align_fin_2_L2}
   \caption{Alignment of the eigenvectors of the NTK with the input function
   $f^{\rm(in)}$ used to generate the L2 data, measured in terms of $\cos
-  \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the left
-  panel, the first five eigenvectors of the NTK are shown, while the right panel
-  shows the remaining eigenvectors up to $k=10$.}
+  \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the
+  left panel, the first five eigenvectors of the NTK are shown, while the right
+  panel shows the remaining eigenvectors up to $k=10$.}
   \label{fig:NtkAlignFin}
 \end{figure}
 % ===================================
-The blue rectangle in the top right corner of the matrix shows that the eigenvectors
-of the NTK corresponding to the largest eigenvalues are orthogonal to the eigenvectors
-of $M$ that are in the kernel of $M$, \ie\ the directions that do not contribute to the 
-observables. It is useful to remember that the largest eigenvalues of the NTK correspond 
-to the directions that are orthogonal to $\ker\Theta$, \ie\ the directions that are learnable
-during the training process. In order to have a robust training process, we expect these 
-learnable directions to align with the directions that actually contribute to the loss 
-functions, \ie\ the ones corresponding to the largest eigenvalues of $M$. Consistently with 
-this intuition, we see that the size of this blue rectangle increases with training time. 
-In particular, it is clear from our plot that it becomes deeper by the onset of the lazy 
-training regime: more of the learnable directions -- the {\it features}\ that the network 
-can learn -- are aligned with the directions that contribute most to the observables. 
+The blue rectangle in the top right corner of the matrix shows that the
+eigenvectors of the NTK corresponding to the largest eigenvalues are orthogonal
+to the eigenvectors of $M$ that are in the kernel of $M$, \ie\ the directions
+that do not contribute to the observables. It is useful to remember that the
+largest eigenvalues of the NTK correspond to the directions that are orthogonal
+to $\ker\Theta$, \ie\ the directions that are learnable during the training
+process. In order to have a robust training process, we expect these learnable
+directions to align with the directions that actually contribute to the loss
+functions, \ie\ the ones corresponding to the largest eigenvalues of $M$.
+Consistently with this intuition, we see that the size of this blue rectangle
+increases with training time. In particular, it is clear from our plot that it
+becomes deeper by the onset of the lazy training regime: more of the learnable
+directions -- the {\it features}\ that the network can learn -- are aligned with
+the directions that contribute most to the observables. 
 
 \FloatBarrier
