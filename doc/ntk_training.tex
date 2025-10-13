@@ -259,12 +259,14 @@ for three different datasets, L0, L1, and L2.
 % ===================================
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.45\textwidth]{figs/section_3/delta_ntk.pdf}
-  \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_eigvals_single_plot_L0.pdf}  
+  \includegraphics[width=0.3\textwidth]{section_3/delta_ntk.pdf}
+  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L0.pdf}
+  \includegraphics[width=0.3\textwidth]{section_3/loss_and_eigvals_vs_epochs.pdf}  
   \caption{(Left) Relative variation of the NTK during training for L0, L1, and L2
   data. Error bands correspond to one-sigma uncertainties over the ensemble of
   networks. (Right) Evolution during training of the first five eigenvalues of the NTK using
-  L0 data.}
+  L0 data. (Bottom) Variation of the loss function overlaid with the first five eigenvalues.
+  Left scale refers to the loss, while the right scale refers to the eigenvalues.}
   \label{fig:NTKTime}
 \end{figure}
 % ===================================
@@ -322,12 +324,11 @@ directions in which the field $f$ never evolves during training.
 % ===================================
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_1.pdf}
-  \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_2.pdf}
-  \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_3.pdf}
-  \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_4.pdf}
-  \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_5.pdf}
-  \vspace{0.5cm}
+  \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_1.pdf}
+  \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_2.pdf}
+  \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_3.pdf}
+  \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_4.pdf}
+  \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_5.pdf}
   \caption{The first five eigenvalues of the NTK for L0, L1, and L2 data. Error
   bands correspond to one-sigma uncertainties over the ensemble of networks.}
   \label{fig:EigvalsComparison}
