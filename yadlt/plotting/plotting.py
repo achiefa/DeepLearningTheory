@@ -62,6 +62,7 @@ def produce_pdf_plot(
     plot_dir: Path | None = None,
     legend_title: str = None,
     divide_by_x: bool = False,
+    axs: list[plt.Axes] | None = None,
 ):
     if normalize_to > 0:
         ref_grid = grids[normalize_to - 1].get_mean()
@@ -73,16 +74,17 @@ def produce_pdf_plot(
     if divide_by_x:
         ref_grid /= x_grid
 
-    fig, axs = plt.subplots(
-        2,
-        1,
-        figsize=FIGSIZE,
-        sharex=True,
-        gridspec_kw={
-            "hspace": 0.0,
-            "height_ratios": [3, 1],
-        },
-    )
+    if axs is None:
+        fig, axs = plt.subplots(
+            2,
+            1,
+            figsize=FIGSIZE,
+            sharex=True,
+            gridspec_kw={
+                "hspace": 0.0,
+                "height_ratios": [3, 1],
+            },
+        )
 
     # Absolute plot
     for idx, grid in enumerate(grids):
@@ -125,7 +127,7 @@ def produce_pdf_plot(
 
     # Set the title
     if title is not None:
-        fig.suptitle(title, fontsize=FONTSIZE)
+        axs[0].set_title(title, fontsize=FONTSIZE)
 
     # Set the ratio label
     axs[1].set_ylabel(ratio_label, fontsize=FONTSIZE)
@@ -168,13 +170,15 @@ def produce_pdf_plot(
             else:
                 print(f"Warning: {key} is not a valid attribute of the Axes object.")
 
-    fig.tight_layout()
-    if save_fig:
+    if save_fig and fig is not None:
         plot_dir.mkdir(parents=True, exist_ok=True)
+        fig.tight_layout()
         fig.savefig(plot_dir / filename, bbox_inches="tight")
         plt.close(fig)
-    else:
+    elif axs is None and not save_fig:
         plt.show()
+    else:
+        return axs
 
 
 def produce_plot(
@@ -194,8 +198,10 @@ def produce_plot(
     group_size: int = 1,
     plot_dir: Path | None = None,
     divide_by_x: bool = False,
+    ax: plt.Axes = None,
 ):
-    fig, ax = plt.subplots(figsize=FIGSIZE)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=FIGSIZE)
 
     label_seen = set()
     for idx, grid in enumerate(grids):
@@ -229,7 +235,7 @@ def produce_plot(
 
     # Set the title
     if title is not None:
-        fig.suptitle(title, fontsize=FONTSIZE)
+        ax.set_title(title, fontsize=FONTSIZE)
 
     # Y labels
     ax.set_ylabel(ylabel, fontsize=FONTSIZE)
@@ -257,13 +263,15 @@ def produce_plot(
             print(f"Warning: {key} is not a valid attribute of the Axes object.")
 
     # Save the figure
-    fig.tight_layout()
-    if save_fig:
+    if save_fig and fig is not None:
+        fig.tight_layout()
         plot_dir.mkdir(parents=True, exist_ok=True)
         fig.savefig(plot_dir / filename, bbox_inches="tight")
         plt.close(fig)
-    else:
+    elif ax is None and not save_fig:
         plt.show()
+    else:
+        return ax
 
 
 def produce_errorbar_plot(
@@ -281,6 +289,7 @@ def produce_errorbar_plot(
     filename: str = "plot.pdf",
     plot_dir: Path | None = None,
     save_fig=False,
+    ax: plt.Axes = None,
 ):
     """Produce a plot with error bars for the given grids. Grids are meant to be instances of Distribution.
     In alternative, you can pass a list of dictionaries with 'mean' and 'std' keys if instances of Distribution
@@ -296,7 +305,8 @@ def produce_errorbar_plot(
     ```
     will plot the additional grid with the specified color and linestyle.
     """
-    fig, ax = plt.subplots(figsize=FIGSIZE)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=FIGSIZE)
 
     if grids is None and add_grids is None:
         raise ValueError("At least one of 'grids' or 'add_grids' must be provided.")
@@ -385,14 +395,16 @@ def produce_errorbar_plot(
             print(f"Warning: {key} is not a valid attribute of the Axes object.")
 
     # Save the figure
-    fig.tight_layout()
-    if save_fig:
-        # Create save dir if given
+    if save_fig and fig is not None:
+        fig.tight_layout()
         plot_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Saving plot in {plot_dir/filename}")
         fig.savefig(plot_dir / filename, bbox_inches="tight")
         plt.close(fig)
-    else:
+    elif ax is None and not save_fig:
         plt.show()
+    else:
+        return ax
 
 
 def produce_distance_plot(
@@ -504,6 +516,7 @@ def produce_mat_plot(
     filename: str = "mat_plot.pdf",
     save_fig: bool = False,
     plot_dir: Path = None,
+    colormap: str = "RdBu_r",
 ) -> None:
     """Produce a comparison of delta NTK for different fits."""
     # gridspec_kw = {"left": 0.07, "right": 0.93, "top": 0.99, "bottom": 0.05}
@@ -519,7 +532,7 @@ def produce_mat_plot(
             number_of_matrices + 1,
             1,
             height_ratios=[1] * number_of_matrices + [0.2],
-            hspace=0.2,
+            hspace=0.1,
         )
         cax = fig.add_subplot(gs[-1, 0])  # Colorbar axis
         axs = [fig.add_subplot(gs[i, 0]) for i in range(number_of_matrices)]
@@ -551,7 +564,7 @@ def produce_mat_plot(
         matrix = matrices[idx]
         ms = ax.matshow(
             matrix,
-            cmap=mpl.colormaps["RdBu_r"],
+            cmap=mpl.colormaps[colormap],
             norm=Normalize(
                 vmin=vmin, vmax=vmax, clip=True
             ),  # clip=True will clip out-of-range values4

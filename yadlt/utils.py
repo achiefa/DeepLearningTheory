@@ -3,7 +3,7 @@ import functools
 import numpy as np
 
 from yadlt.context import FitContext
-from yadlt.distribution import Distribution
+from yadlt.distribution import Distribution, combine_distributions
 from yadlt.evolution import EvolutionOperatorComputer
 from yadlt.model import generate_pdf_model, load_trained_model
 
@@ -262,3 +262,23 @@ def compute_covariance_training(
         ft = ft / fk_grid
     C = (ft ^ ft).get_mean() - np.outer(ft.get_mean(), ft.get_mean())
     return C
+
+
+@functools.cache
+def compute_delta_ntk(context: FitContext):
+    """Compute the delta NTK at all epochs."""
+    replicas = context.get_property("nreplicas")
+    ntk_by_time = context.NTK_time
+
+    delta_ntk_t = []
+    for i in range(len(ntk_by_time) - 1):
+        delta_ntk_dist = Distribution(f"Delta NTK {i}")
+        for rep in range(replicas):
+            delta_ntk = np.linalg.norm(
+                ntk_by_time[i + 1][rep] - ntk_by_time[i][rep]
+            ) / np.linalg.norm(ntk_by_time[i][rep])
+            delta_ntk_dist.add(delta_ntk)
+        delta_ntk_t.append(delta_ntk_dist)
+
+    delta_ntk_distribution_by_epoch = combine_distributions(delta_ntk_t)
+    return delta_ntk_distribution_by_epoch

@@ -33,9 +33,9 @@ def helper_zero_kernel_initializer(**args):
 
 
 supported_kernel_initializers = {
-    "RandomNormal": (Kinit.RandomNormal, {"mean": 0.0, "stddev": 1, "seed": 0}),
-    "HeNormal": (Kinit.HeNormal, {"seed": 0}),
-    "GlorotNormal": (Kinit.GlorotNormal, {"seed": 0}),
+    "RandomNormal": (Kinit.RandomNormal, {"mean": 0.0, "stddev": 1}),
+    "HeNormal": (Kinit.HeNormal, {}),
+    "GlorotNormal": (Kinit.GlorotNormal, {}),
     "zeros": (helper_zero_kernel_initializer, {}),
 }
 
@@ -130,7 +130,9 @@ def generate_pdf_model(
 
     ki_function = ki_tuple[0]
     ki_args = ki_tuple[1]
-    current_seed = seed
+    tf.random.set_seed(seed)
+    np.random.seed(seed)
+    # current_seed = seed
 
     # Modify initialization arguments if needed
     if user_ki_args is not None:
@@ -147,14 +149,14 @@ def generate_pdf_model(
         pdf_raw.add(scaled_input)
 
     for l_idx, layer in enumerate(architecture):
-        ki_args_layer = ki_args.copy()
-        ki_args_layer["seed"] = current_seed
-        current_seed += 1  # Increment seed for next layer
+        # ki_args_layer = ki_args.copy()
+        # ki_args_layer["seed"] = current_seed
+        # current_seed += 1  # Increment seed for next layer
         pdf_raw.add(
             tf.keras.layers.Dense(
                 layer,
                 activation=activations[l_idx],
-                kernel_initializer=ki_function(**ki_args_layer),
+                kernel_initializer=ki_function(**ki_args),
                 bias_initializer=bias_initializer,
                 dtype=tf.float32,
                 name="deep_layer_" + str(l_idx),
@@ -162,13 +164,13 @@ def generate_pdf_model(
         )
 
     # Update seed for output layer
-    ki_args_output = ki_args.copy()
-    ki_args_output["seed"] = current_seed
+    # ki_args_output = ki_args.copy()
+    # ki_args_output["seed"] = current_seed
     pdf_raw.add(
         tf.keras.layers.Dense(
             outputs,
             activation="linear",
-            kernel_initializer=ki_function(**ki_args_output),
+            kernel_initializer=ki_function(**ki_args),
             dtype=tf.float32,
             bias_initializer=bias_initializer,
             name="output_layer",
@@ -296,50 +298,25 @@ def get_preactivation(model, layer_idx, input_data):
         input_data: Input data to the model
     """
     keras_model = model
+    if model.layers[0].__class__.__name__ == "InputScaling":
+        layer_idx += 1  # Adjust for InputScaling layer
 
     # Check if the shape of input_data is correct
     if len(np.array(input_data).shape) != 3:
         input_data = tf.reshape(input_data, (1, -1, 1))
 
-    if layer_idx == 0:
-        # For first layer, pre-activations are the inputs
-        return input_data
-
     # Create a function that outputs the pre-activation (input to the layer)
     get_preact_fn = keras.Function(
-        [keras_model.inputs[0]], [keras_model.layers[layer_idx].input]
+        [keras_model.inputs[0]], [keras_model.layers[layer_idx].output]
     )
 
     # Get pre-activations
     return get_preact_fn([input_data])[0]
 
 
-def compute_preactivation_product(model, layer_idx, input_data):
-    """
-    Compute the product of pre-activations for a given layer and input data.
-
-    Args:
-        model (tf.keras.Model): The Keras model from which to extract pre-activations.
-        layer_idx (int): Index of the layer (0-indexed)
-        input_data: Input data to the model
-
-    Returns:
-        tf.Tensor: Tensor containing the product of pre-activations.
-
-          φ_{i1,α1}^(l) * φ_{i2,α2}^(l)
-    """
-    preactivations = get_preactivation(model, layer_idx, input_data)
-
-    phi_alpha1_i1 = preactivations[0, :, :]  # Shape: [data, neuron]
-    phi_alpha2_i2 = preactivations[0, :, :]  # Shape: [data, neuron]
-
-    # Compute outer product
-    tensor_product = tf.einsum("ai,bj->aibj", phi_alpha1_i1, phi_alpha2_i2)
-
-    return tensor_product
-
-
-def compute_K_by_layer(model_ensemble: list, layer_idx: int, input_data):
+def compute_K_by_layer(
+    model_ensemble: list, layer_idx: int, input_data, neuron_pairs=(0, 0)
+):
     """
     Compute the correlation matrix K for each layer in the model ensemble.
 
@@ -354,14 +331,24 @@ def compute_K_by_layer(model_ensemble: list, layer_idx: int, input_data):
 
         K_{i1 α1,i2 α2} = < φ_{i1,α1}^(l) * φ_{i2,α2}^(l) >
     """
-    phi_a1a2_phi_i1i2 = compute_preactivation_product(
-        model_ensemble[0].layers[1], layer_idx, input_data  # Select sequential model
-    )
-    for model in model_ensemble[1:]:
-        phi_a1a2_phi_i1i2 += compute_preactivation_product(
+    # if model_ensemble[0].layers[1].layers[0].__class__.__name__ == "InputScaling":
+    #   layer_neurons = model_ensemble[0].layers[1].layers[layer_idx+1].output.shape[-1]
+    # else:
+    #   layer_neurons = model_ensemble[0].layers[1].layers[layer_idx].output.shape[-1]
+
+    input_size = input_data.size
+    phi_phi_av = np.zeros(shape=(input_size, input_size))
+
+    for model in model_ensemble:
+        preactivations = get_preactivation(
             model.layers[1], layer_idx, input_data
-        )
-    return phi_a1a2_phi_i1i2 / len(model_ensemble)
+        ).numpy()
+        phi_a1i1 = preactivations[0, :, neuron_pairs[0]]  # Shape: [data, neuron]
+        phi_a2i2 = preactivations[0, :, neuron_pairs[1]]  # Shape: [data, neuron]
+        phi_phi_av += np.outer(phi_a1i1, phi_a2i2)
+    phi_phi_av /= len(model_ensemble)
+
+    return phi_phi_av
 
 
 def sample_from_mvg(mean, covmat, num_samples=1000, batch_size=1000):
@@ -444,23 +431,46 @@ def mc_integrate_from_mvg(func, mean, covmat, num_samples=1000, batch_size=1000)
     return res_mean, res_std
 
 
-@functools.cache
 def compute_kernel_from_recursion(
-    model_ensemble: tuple[keras.Model],
+    model,
     layer_idx: int,
     input_data: np.ndarray,
     num_samples: int = 1000,
     batch_size: int = 100,
 ):
     """Compute the kernel from the recursion relation."""
+    # The kernel is exactly computable for the first layer
+    model_pdf = model.layers[1]  # Make sure to use the sequential model
+    has_input_scaling = model_pdf.layers[0].__class__.__name__ == "InputScaling"
     if layer_idx == 0:
-        return np.outer(input_data, input_data)
+        if has_input_scaling:
+            x = np.array([input_data, np.log10(input_data)]).T
+            x = np.reshape(x, (1, -1, 2))
+            layer = model_pdf.layers[1]
+        else:
+            x = np.reshape(input_data, (1, -1, 1))
+            layer = model_pdf.layers[0]
+
+        layer_n_in = layer.input.shape[-1]
+        layer_n_out = layer.output.shape[-1]
+
+        xx = np.zeros((x.shape[1], x.shape[1]))
+        for i in range(x.shape[-1]):
+            xx += np.outer(x[0, :, i], x[0, :, i])
+
+        print(f"size of layer {1}: {layer_n_in} -> {layer_n_out}")
+        Cw = 2 / (layer_n_in + layer_n_out)
+        K = Cw * xx
+        return K
+
     else:
         K_previous_layer = compute_kernel_from_recursion(
-            model_ensemble, layer_idx - 1, input_data, num_samples, batch_size
+            model, layer_idx - 1, input_data, num_samples, batch_size
         )
-        model = model_ensemble[0].layers[1]  # Make sure to use the sequential model
-        layer = model.layers[layer_idx]
+        if has_input_scaling:
+            layer_idx += 1  # Adjust for InputScaling layer
+
+        layer = model_pdf.layers[layer_idx]
         layer_n_in = layer.kernel.shape[0]
         layer_n_out = layer.kernel.shape[1]
 
@@ -481,7 +491,10 @@ def compute_kernel_from_recursion(
             layer.kernel_initializer.__class__.__name__ == "GlorotNormal"
             and layer.bias_initializer.__class__.__name__ == "Zeros"
         ):
-            Cw = 2 / (layer_n_in + layer_n_out)
+            print(
+                f"size of layer {layer_idx if has_input_scaling else layer_idx+1}: {layer_n_in} -> {layer_n_out}"
+            )
+            Cw = 2 / (1 + layer_n_out / layer_n_in)
             K = Cw * rho_rho_mean
         else:
             raise NotImplementedError(
