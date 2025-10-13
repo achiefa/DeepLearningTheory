@@ -5,7 +5,7 @@ In this section, we discuss some non-trivial properties of neural networks at
 initialization. Then, we present the framework adopted in this work and
 introduce the notation used in the rest of the paper.
 
-\subsection{The Inverse Problem for $xT_3$}
+\subsection{The 1-dimensional regression problem of PDFs}
 \label{subsec:inverse_problem}
 
 The extraction of PDFs from experimental data is a classic example of an inverse
@@ -129,8 +129,7 @@ Tab.~\ref{tab:Xvals}.
     \input{tabs/grid.tex}
     \caption{Values of $x_\alpha$ used in the NNPDF grids for the computation of
     observables. The points are equally spaced on a logarithmic scale
-    for $\alpha = 1, \ldots, XXX$, and linearly spacing for $\alpha > XXX$.
-    \ac{Maybe we need to rethink the layout of this table...}
+    for $\alpha = 1, \ldots, 27$, and linearly spacing for $\alpha > 27$.
     \label{tab:Xvals}}
 \end{table}
 
@@ -170,7 +169,7 @@ In the following we refer to the preactivation functions as {\em fields}.
 % ===================================
 \begin{figure}[t!]
   \centering
-  \includegraphics[width=0.95\textwidth]{figs/weight_distribution.pdf}
+  \includegraphics[width=0.95\textwidth]{section_2/weight_distribution.pdf}
   \caption{Sampled distribution of a selected weight in function of the
   number of replicas. The red line represent the underlying Gaussian distribution
   from which the weights are drawn.}
@@ -321,7 +320,7 @@ covariance matrices for the output of the NNs displayed in
 Figs.~\ref{Fig:KRecursionOne} and~\ref{Fig:KRecursionTwo}.
 \begin{figure}[t!]
     \centering
-    \includegraphics[scale=0.4]{figs/K1_correlations.pdf}
+    \includegraphics[scale=0.4]{section_2/K1_correlations.pdf}
     \caption{The empirical (left) and analytical (right) covariance matrices $K^{(1)}$ of the first layer
     of the NNPDF architecture. The covariance in the left panel is computed ``bootstrapping'' over an
     ensemble of 100 replicas, initialised using the Glorot normal distribution. The covariance in the right
@@ -332,16 +331,12 @@ Figs.~\ref{Fig:KRecursionOne} and~\ref{Fig:KRecursionTwo}.
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[scale=0.45]{figs/K2_correlations.pdf}
+    \includegraphics[scale=0.45]{section_2/K2_correlations.pdf}
     \hspace{0.5cm}
-    \includegraphics[scale=0.45]{figs/K3_correlations.pdf}
-    \caption{Same as Fig.~\ref{Fig:KRecursionOne}, but for the second (top) and third (bottom) layers of the
-    NNPDF architecture.
-    \ac{Here the four indices of the covariance $K_{i_1i_2, \alpha_1\alpha_2}$ are flattened into
-    two indices for the sake of graphical representation. Maybe we should group the labels into groups of
-    $N_{\rm grid}$ ticks on the axes.}
+    \includegraphics[scale=0.45]{section_2/K3_correlations.pdf}
+    \caption{Same as Fig.~\ref{Fig:KRecursionOne}, but for the second (top) and
+    third (bottom) layers of the NNPDF architecture.}
     \label{Fig:KRecursionTwo}
-    }
 \end{figure}
 
 As a consequence of the symmetry of the probability distribution, the mean value of the fields at
@@ -362,8 +357,8 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.5]{plots/UoECentredLogo282v1160215.png}
-    \caption{\ldd{Plot of replicas at init}}        
+    \includegraphics[width=0.5\textwidth]{section_2/prior.pdf}
+    \caption{Plot of the ensemble of neural networks at initialisation.}        
     \label{fig:SingletGluonInit} 
 \end{figure}
 

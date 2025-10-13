@@ -1,6 +1,5 @@
 \documentclass[11pt,a4paper]{article}
 
-% \usepackage[inline]{showlabels} % prints labels such as fig:xxxx, REMOVE ONCE DONE
 \usepackage{xcolor}
 \usepackage[colorlinks=true, linkcolor=black!50!blue, urlcolor=blue, citecolor=blue, anchorcolor=blue]{hyperref}
 \usepackage[font=small,labelfont=bf,margin=0mm,labelsep=period,tableposition=top]{caption}
@@ -24,6 +23,7 @@
 \usepackage{bbold}
 \usepackage{braket}
 \graphicspath{{./figs/}}
+\usepackage[inline]{showlabels} % prints labels such as fig:xxxx, REMOVE ONCE DONE
 
 \input{commands}
 \newcommand{\red}[1]{\textcolor{red}{#1}}
@@ -51,6 +51,12 @@ Edinburgh 2025/x
     JCMB, KB, Mayfield Rd, Edinburgh EH9 3JZ, Scotland\\[0.1cm]
   }
   \vspace{0.7cm}
+
+  {\Large \bf \textcolor{red}{Comments}}\\
+  \red{
+    Citation to Maria's paper is missing\\
+    Citation to inconsisten closure test is missing\\
+  }
 \end{center}
 
 \begin{abstract}
@@ -85,10 +91,12 @@ Edinburgh 2025/x
 
 \newpage
 
-\bibliographystyle{unsrt}
-\bibliography{ntk.bib}
 
 \appendix
 \input{dataset.tex}
+\input{ntk_arch_dep.tex}
+
+\bibliographystyle{unsrt}
+\bibliography{ntk.bib}
 
 \end{document}
