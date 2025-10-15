@@ -114,6 +114,14 @@ where we have defined the Neural Tangent Kernel~\cite{jacot2018neural}
     \Theta_{t,i_1\alpha_1i_2\alpha_2} = \sum_\mu
     \nabla_\mu f_{t,i_1\alpha_1} \nabla_\mu f_{t,i_2\alpha_2}\, .
 \end{align}
+As it will become more clear in later, the NTK provides a powerful framework for
+understanding neural network dynamics during training. Originally developed by
+Jacot et al.~\cite{jacot2018neural} to analyse infinite-width feed-forward
+networks, the NTK theory has since been extended to diverse architectures
+including convolutional networks~\cite{arora2019exact} and recurrent
+networks~\cite{alemohammad2021recurrent}. This theoretical framework has proven
+invaluable for characterizing learning dynamics and generalization properties
+across various network designs. 
 
 In order to facilitate the discussion in Sec.~\ref{sec:Lazy},
 Eq.~\eqref{eq:NTKFlow} can be rewritten in a more compact form. We first omit
@@ -153,15 +161,6 @@ to this point in Sec.~\ref{sec:Lazy}, and we now turn to discussing the
 properties of the NTK during training.
 
 \subsection{Inside the Training Dynamics: an NTK perspective}
-
-The NTK introduced above provides a powerful framework for understanding neural
-network dynamics during training. Originally developed by Jacot et
-al.~\cite{jacot2018neural} to analyse infinite-width feed-forward networks, the
-NTK theory has since been extended to diverse architectures including
-convolutional networks~\cite{arora2019exact} and recurrent
-networks~\cite{alemohammad2021recurrent}. This theoretical framework has proven
-invaluable for characterizing learning dynamics and generalization properties
-across various network designs.
 
 From Eqs.~\eqref{eq:NTKDef} and~\eqref{eq:FlowEquationNoIndices}, we observe
 that the NTK encodes the dependence on the architecture of the network and
@@ -208,9 +207,8 @@ norm becomes smaller with the size of the network, which is consistent with the
 theoretical expectation that the NTK should not fluctuate for infinite-width
 networks\footnote{Note that, in addition to the scaling $\mathcal{O}(1/n)$
 theoretically predicted for large networks, the uncertainty bands include
-bootstrap errors due to the finite size of the ensemble. This amounts to $\sim
-10\%$ of the total error quoted in the plots, as explicitly checked using
-bootstrap over the ensemble.}.
+bootstrap errors due to the finite size of the ensemble. Using an ensemble of
+100 replicas, the bootstrap error on the standard deviation is $\sim 10\%$.}.
 
 % ===================================
 \begin{figure}[t]
@@ -225,8 +223,8 @@ bootstrap over the ensemble.}.
 
 In order to get a more quantitative description of the NTK at initialization,
 its spectrum is shown in Fig.~\ref{fig:NTKSpectrum} for four different
-architectures. As debated in the literature~\cite{XXX}, the spectrum of the NTK
-is heavily hierarchical, and only few eigenvalues are actually
+architectures. Inspecting the plot, we see that the spectrum of the NTK is
+heavily hierarchical, and only few eigenvalues are actually
 non-zero\footnote{Note that, due to the large difference in magnitude of the
 eigenvalues, the finite precision used in our codes introduces noise in the
 decomposition, so that small eigenvalues should be effectively considered zero.
@@ -246,13 +244,8 @@ as expected.
 \subsubsection{NTK During Training}
 \label{sec:NTKDuringTraining}
 
-% In the machine learning literature, it is argued that the NTK remains constant
-% during training provided that the width of the network is large enough. Here
-% we show that this is not the case, at least for the architectures used in the
-% standard NNPDF methodology. 
-
 Having established the properties of the NTK at initialisation, we now discuss
-its behaviour during training. TO do so, we performed a fit of $T_3$ using the
+its behaviour during training. To do so, we performed a fit of $T_3$ using the
 NNPDF methodology with the dataset described in App.~\ref{app:dataset}. We
 initialized an ensemble of $\nreps = 100$ replicas with identical architecture,
 training each replica independently using GD optimization. As our focus here is
@@ -263,15 +256,6 @@ process, we track the evolution of the NTK to understand how the network's
 effective dynamics change as it learns the target function.
 
 \paragraph{Onset of Lazy Training} 
-
-As a first estimator of the variation of the NTK, we show in the left panel of
-Fig.~\ref{fig:NTKTime} the Frobenius norm of the variation during training,
-normalized by the Frobenius norm of the NTK itself, 
-\begin{equation}
-\delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
-\label{eq:DeltaNTK}
-\end{equation}
-for three different datasets, L0, L1, and L2. 
 
 % ===================================
 \begin{figure}[t]
@@ -286,23 +270,28 @@ for three different datasets, L0, L1, and L2.
 \end{figure}
 % ===================================
 
-It is clear from our data that the NTK does not remain constant during training.
-Two different phases can be distinguished in the figure. The first one covers
-the initial part of the training. From the left panel of Fig.~\ref{fig:NTKTime},
-we see that the norm of the NTK varies significantly in the early stages of the
-evolution, in strong contrast with the predictions obtained in the
-infinite-width limit. Note also that this initial peak is more pronounced for L2
-data. This is consistent with the fact that the NTK (\ie\ the architecture)
-needs to accommodate the noise in the data, thus leading to a larger variation
-of the NTK. On the other hand, after this initial phase -- corresponding
-approximately to the first 20,000 epochs in our experiment -- the NTK tends to
-stabilize. As discussed in the previous Section, we refer to this second phase
-as the \textit{lazy training}, in keeping with the terminology adopted in the
-literature. We conclude that, in this phase, the NTK does not change
-significantly. As a consequence, this suggests that a description of the
-training using a constant NTK, as predicted by the theory of the infinite-width
-networks, can only be applied after the initial phase, \ie\ after the NTK has
-stabilized. 
+As a first estimator of the variation of the NTK, we show in the left panel of
+Fig.~\ref{fig:NTKTime} the Frobenius norm of the variation during training,
+normalized by the Frobenius norm of the NTK itself, 
+\begin{equation}
+\delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
+\label{eq:DeltaNTK}
+\end{equation}
+for three different datasets, L0, L1, and L2. Inspecting the plot reveals that
+the NTK undergoes significant changes during the initial phase of training, with
+the relative variation $\delta \Theta_t$ reaching values as high as $10\%$. This
+indicates that our settings differ from the standard picture of lazy training in
+the context of very wide networks, as discussed in
+Refs.~\cite{jacot2018neural,Roberts:2021fes,lee2019wide}. We also observe that
+the variation is more pronounced for L2 data, consistent with the fact that the
+architecture needs to accommodate the noise in the data. However, after this
+initial phase -- corresponding approximately to the first 20,000 epochs in our
+experiment -- the NTK tends to stabilize. These two regions will be referred to
+as the \textit{rich} and \textit{lazy} training regimes, respectively, in
+keeping with the standard terminology adopted in the literature (see, \eg
+Ref.~\cite{fort2020dlvk} where two similar regimes where also identified). We do
+not comment any further on the implications of the lazy regime, and postpone the
+discussion to Sec.~\ref{sec:Lazy}.
 
 \FloatBarrier
 
@@ -419,8 +408,7 @@ replica.
   $f^{\rm(in)}$ used to generate the L2 data, measured in terms of $\cos
   \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the
   left panel, the first five eigenvectors of the NTK are shown, while the right
-  panel shows the remaining eigenvectors up to $k=7$. \ac{Is this plot telling
-  us something?}}
+  panel shows the remaining eigenvectors up to $k=7$.}
   \label{fig:NTKAlignFin}
 \end{figure}
 % ===================================

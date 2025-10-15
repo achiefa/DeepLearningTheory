@@ -1,3 +1,4 @@
+\newpage
 \section{Results and Crosschecks}
 \label{sec:TrainClosure}
 
@@ -63,8 +64,7 @@ distributed over the ensemble. We will come to this point soon.
 
 Note that the observation above remains true even in the limit of infinite training.
 This can be shown using
-Interestingly, for $t\to\infty$, \ac{How is
-this limit justified?} we have
+Interestingly, for $t\to\infty$, we have
 \begin{align}
     \label{eq:LevelZeroClosureInfiniteTraining}
     \lim_{t\to\infty} V(t) Y = \finperp + \mathcal{M}_{\infty} M \finpar
@@ -211,43 +211,43 @@ agrees with the trained one for $T=10000$.
 
 
 
-  \begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/distance_from_input/L0/linear/distance_from_input_epoch_20000_L0_linear.pdf}
-    \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/distance_from_input/L2/linear/distance_from_input_epoch_20000_L2_linear.pdf}
-    \caption{PDF distance, as defined in Ref.~\cite{NNPDF:2021njg}, with respect
-    to the input function $\fin$ used to generate the data and the analytical
-    and trained solutions in function of the evaluation epochs. The frozen NTK
-    is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a
-    different ensemble of networks at initialisation. The left panel shows the
-    case for L0 data, while the right panel shows the case for L2 data.}
-    \label{fig:xT3_distance_L0_L2}
-  \end{figure}
-  % ===================================
+  % \begin{figure}[ht!]
+  %   \centering
+  %   \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/distance_from_input/L0/linear/distance_from_input_epoch_20000_L0_linear.pdf}
+  %   \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/distance_from_input/L2/linear/distance_from_input_epoch_20000_L2_linear.pdf}
+  %   \caption{PDF distance, as defined in Ref.~\cite{NNPDF:2021njg}, with respect
+  %   to the input function $\fin$ used to generate the data and the analytical
+  %   and trained solutions in function of the evaluation epochs. The frozen NTK
+  %   is chosen at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a
+  %   different ensemble of networks at initialisation. The left panel shows the
+  %   case for L0 data, while the right panel shows the case for L2 data.}
+  %   \label{fig:xT3_distance_L0_L2}
+  % \end{figure}
+  % % ===================================
 
 
 
-\begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L0/linear/evolution_u_v_100_L0_linear.pdf}
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L0/linear/evolution_u_v_20000_L0_linear.pdf}
-    \caption{Contribution of the $U$ and $V$ terms to the analytical solution.
-    The left panel shows this breakdown at early stages of the analytical
-    training ($T=100$ epochs); the right panel shows the contributions at the
-    end of training, as in Fig.~\ref{fig:xT3_analytical_init_L0}.}
-    \label{fig:xT3_u_v_contributions_L0}
-  \end{figure}
-  % ===================================
+% \begin{figure}[ht!]
+%     \centering
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L0/linear/evolution_u_v_100_L0_linear.pdf}
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L0/linear/evolution_u_v_20000_L0_linear.pdf}
+%     \caption{Contribution of the $U$ and $V$ terms to the analytical solution.
+%     The left panel shows this breakdown at early stages of the analytical
+%     training ($T=100$ epochs); the right panel shows the contributions at the
+%     end of training, as in Fig.~\ref{fig:xT3_analytical_init_L0}.}
+%     \label{fig:xT3_u_v_contributions_L0}
+%   \end{figure}
+%   % ===================================
 
-  \begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L2/linear/evolution_u_v_100_L2_linear.pdf}
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L2/linear/evolution_u_v_20000_L2_linear.pdf}
-    \caption{Same as Fig.~\ref{fig:xT3_u_v_contributions_L0}, but using L2
-    data.}
-    \label{fig:xT3_u_v_contributions_L2}
-  \end{figure}
-  % ===================================
+%   \begin{figure}[ht!]
+%     \centering
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L2/linear/evolution_u_v_100_L2_linear.pdf}
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/u_v_decomposition/L2/linear/evolution_u_v_20000_L2_linear.pdf}
+%     \caption{Same as Fig.~\ref{fig:xT3_u_v_contributions_L0}, but using L2
+%     data.}
+%     \label{fig:xT3_u_v_contributions_L2}
+%   \end{figure}
+%   % ===================================
 
 \FloatBarrier
 
@@ -255,33 +255,33 @@ agrees with the trained one for $T=10000$.
 \label{sec:CovarianceAnlyticalSolution}
 
 
-% L0
-% ===================================
-\begin{figure}[ht!]
-  \centering
-  \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L0/linear/diag_error_decomposition_epoch_0_L0_linear.pdf}
-  \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L0/linear/diag_error_decomposition_epoch_50_L0_linear.pdf}
-  \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L0/linear/diag_error_decomposition_epoch_100_L0_linear.pdf}
-  \caption{Decomposition of the covariance of the analytical solution, as
-  described in Eq.~\eqref{eq:SumOfCovariances}, for different training epochs.
-  The square root of the diagonal elements is shown in the plots. The analytical
-  solution is obtained by using a frozen NTK at $T_{\rm{ref}}=20000$ and the
-  initial function $f_0$ is an ensemble of networks at initialisation different
-  from the one used in the training process.}
-  \label{fig:analytical_covariance_L0}
-\end{figure}
-% ===================================
-% L2
-% ===================================
-\begin{figure}[ht!]
-  \centering
-  \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L2/linear/diag_error_decomposition_epoch_0_L2_linear.pdf}
-  \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L2/linear/diag_error_decomposition_epoch_50_L2_linear.pdf}
-  \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L2/linear/diag_error_decomposition_epoch_100_L2_linear.pdf}
-  \caption{Same as Fig.~\ref{fig:analytical_covariance_L0}, but for L2 data.}
-  \label{fig:analytical_covariance_L2}
-\end{figure}
-% ===================================
+% % L0
+% % ===================================
+% \begin{figure}[ht!]
+%   \centering
+%   \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L0/linear/diag_error_decomposition_epoch_0_L0_linear.pdf}
+%   \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L0/linear/diag_error_decomposition_epoch_50_L0_linear.pdf}
+%   \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L0/linear/diag_error_decomposition_epoch_100_L0_linear.pdf}
+%   \caption{Decomposition of the covariance of the analytical solution, as
+%   described in Eq.~\eqref{eq:SumOfCovariances}, for different training epochs.
+%   The square root of the diagonal elements is shown in the plots. The analytical
+%   solution is obtained by using a frozen NTK at $T_{\rm{ref}}=20000$ and the
+%   initial function $f_0$ is an ensemble of networks at initialisation different
+%   from the one used in the training process.}
+%   \label{fig:analytical_covariance_L0}
+% \end{figure}
+% % ===================================
+% % L2
+% % ===================================
+% \begin{figure}[ht!]
+%   \centering
+%   \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L2/linear/diag_error_decomposition_epoch_0_L2_linear.pdf}
+%   \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L2/linear/diag_error_decomposition_epoch_50_L2_linear.pdf}
+%   \includegraphics[width=0.32\textwidth]{plots/analytical_solution/xT3/covariance/diagonal/decomposition/L2/linear/diag_error_decomposition_epoch_100_L2_linear.pdf}
+%   \caption{Same as Fig.~\ref{fig:analytical_covariance_L0}, but for L2 data.}
+%   \label{fig:analytical_covariance_L2}
+% \end{figure}
+% % ===================================
 
 
 An important criterion that we want to put forward at this point is that the
