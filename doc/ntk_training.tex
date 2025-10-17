@@ -9,13 +9,13 @@ parameters of the network in order to minimise a figure of merit defined
 appropriately. Due to the large number of parameters that characterise a neural
 network, the figure of merit (also known as \textit{error function},
 \textit{loss function}, or simply \textit{loss}) is a non-convex
-high-dimensional function, posing a challenge in the minimisation task. In
+high-dimensional function that poses a challenge in the minimisation task. In
 addition, in order to avoid \textit{over-} and \textit{under-learning}, these
 training algorithms are paired with the so-called \textit{stopping criterion},
 which specifies the optimal condition to end the training process.
 
 In practice, this task is tackled by using gradient methods where the direction
-towards the minimum is defined by the gradient of the loss function. These
+towards the minimum is characterised by the gradient of the loss function. These
 methods are usually improved by including, for instance, stochasticity and
 information on previous iterations. A detailed overview of these extended
 gradient methods is beyond the scope of this work. In the context of PDF
@@ -27,18 +27,30 @@ Our main aim in this paper is understanding the dynamics driving the training
 process. Indeed, while these algorithms have achieved remarkable empirical
 success, a theoretical understanding of the optimization process remains
 elusive. Therefore, we work in a simplified setting where we consider the
-simplest gradient method, \textit{i.e.} Gradient Descent (GD), and and data that
-depend linearly on the unknwon PDFs, as shown in Eq.~\eqref{eq:TheoryPred}.
-Furthermore, we do not split the dataset between training and
-validation\footnote{We are aware that such a framework has limited applicability
+simplest gradient method, \textit{i.e.} Gradient Descent (GD). Furthermore, we
+will consider a dataset for which predictions can be computed using one flavour
+combination in the PDFs, so that the integral in Eq.~\eqref{eq:TheoryPred}
+reduces to
+\begin{equation}
+    \label{eq:TheoryPredSingleFlav}
+    T_I[f] = \int dx\, C_{I}(x) f(x)\,.
+\end{equation}
+The details of the dataset and the definition of the flavour combination
+considered in this work are provided in Appendix~\ref{app:dataset}.
+Cross-validation and stopping criteria are not considered in this simplified
+framework\footnote{We are aware that such a framework has limited applicability
 in the context of PDF determination, and we are far from assuming this as an
 optimal choice. Again, the focus remain on the methodological aspects rather
-than the underlying physics.} The generalization to other minimizers and
-non-linear data is left to future investigations, but is expected to yield
-qualitatively similar results. Finally, we remark that the results in this
-section, although obtained having in mind neural networks, apply to any generic
-parametrization of the unknown function, whether it is a polynomial or a
-kernel~\cite{Costantini:2025wxp}.
+than the underlying physics.}. The generalization to predictions
+quadratic in the PDFs and depending on multiple flavour combinations, as well
+as other minimizers and the inclusion of cross-validation tools are left for
+future work.
+
+Finally, a closing note before we proceed. The results in this section, although
+obtained having in mind neural networks, apply to any generic parametrization of
+the unknown function, whether it is a polynomial or a
+kernel~\cite{Costantini:2025wxp}. These generalizations are straightforward, and
+will be considered in future works.
 
 \subsection{Training in Functional Space}
 \label{sec:GradFlow}
@@ -140,6 +152,7 @@ Eq.~\eqref{eq:NTKFlow} as follows
 where
 \begin{align}
     M &= \FKtabT C_Y^{-1} \FKtab\, , \quad b = \Theta \FKtabT C_Y^{-1} Y\, .
+    \label{eq:MandBDef}
 \end{align}
 Here $M$ is a positive-semidefinite matrix that depends only on the data and the
 theoretical predictions, while $b$ is a vector that depends also on the data.
@@ -183,7 +196,7 @@ the NNPDF methodology.
 \end{figure}
 % ===================================
 
-\subsubsection{NTK at Initialization}
+\subsubsection{NTK at initialisation}
 \label{sec:NTKAtInit}
 
 Before training, the NTK is blind to data and depends, in addition to the
@@ -214,14 +227,14 @@ bootstrap errors due to the finite size of the ensemble. Using an ensemble of
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_initialization_arch.pdf}
-  \caption{Spectrum of the NTK at initialization for the architectures shown in
+  \caption{Spectrum of the NTK at initialisation for the architectures shown in
   Fig.~\ref{fig:NTKInit}. Error bands correspond to one-sigma uncertainties over
   the ensemble of networks.}
   \label{fig:NTKSpectrum}
 \end{figure}
 % ===================================
 
-In order to get a more quantitative description of the NTK at initialization,
+In order to get a more quantitative description of the NTK at initialisation,
 its spectrum is shown in Fig.~\ref{fig:NTKSpectrum} for four different
 architectures. Inspecting the plot, we see that the spectrum of the NTK is
 heavily hierarchical, and only few eigenvalues are actually
@@ -231,7 +244,7 @@ decomposition, so that small eigenvalues should be effectively considered zero.
 We discuss the cut-off tolerance later, when we discuss the training process in
 more details.}. This means that only a small subset of active directions can
 inform the network during training, as it will be discussed later. Note that, at
-least at initialization, these observations do not depend on the architecture.
+least at initialisation, these observations do not depend on the architecture.
 The eigenvalues in Fig.~\ref{fig:NTKSpectrum} are mostly independent of the size
 of the network. There is a downward fluctuation of the third eigenvalue for the
 largest architecture that we considered, but we do not have any evidence that
@@ -244,33 +257,53 @@ as expected.
 \subsubsection{NTK During Training}
 \label{sec:NTKDuringTraining}
 
+\begin{center}
+  \red{\bf Comments}\\
+  \textcolor{blue}{
+    This part needs other iterations
+  }
+\end{center}
+
 Having established the properties of the NTK at initialisation, we now discuss
-its behaviour during training. To do so, we performed a fit of $T_3$ using the
-NNPDF methodology with the dataset described in App.~\ref{app:dataset}. We
-initialized an ensemble of $\nreps = 100$ replicas with identical architecture,
-training each replica independently using GD optimization. As our focus here is
-on NTK properties rather than physical predictions, we use generate three sets
-of data with controlled noise characteristics -- L0, L1, and L2 -- following the
-prescription described in App.~\ref{app:dataset}. Throughout the training
-process, we track the evolution of the NTK to understand how the network's
-effective dynamics change as it learns the target function.
+its behaviour during training. To do so, we performed a fit of the non-single
+triplet combination $T_3$ using the NNPDF methodology with the dataset described
+in Appendix.~\ref{app:dataset}. We initialized an ensemble of $\nreps = 100$
+replicas with identical architecture, training each replica independently using
+GD optimization. As our focus here is on NTK properties rather than physical
+predictions, we use generate three sets of data with controlled noise
+characteristics -- L0, L1, and L2 -- following the prescription described in
+App.~\ref{app:dataset}. Throughout the training process, we track the evolution
+of the NTK to understand how the network's effective dynamics change as it
+learns the target function.
 
 \paragraph{Onset of Lazy Training} 
 
 % ===================================
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.45\textwidth]{section_3/delta_ntk.pdf}
-  \includegraphics[width=0.45\textwidth]{section_3/ntk_eigvals_single_plot_L0.pdf} 
-  \caption{(Left) Relative variation of the NTK during training for L0, L1, and
+  \includegraphics[width=0.60\textwidth]{section_3/delta_ntk.pdf}
+  \caption{Relative variation of the NTK during training for L0, L1, and
   L2 data. Error bands correspond to one-sigma uncertainties over the ensemble
-  of networks. (Right) Evolution during training of the first five eigenvalues
-  of the NTK using L0 data.}
+  of networks.}
   \label{fig:NTKTime}
 \end{figure}
 % ===================================
 
-As a first estimator of the variation of the NTK, we show in the left panel of
+% ===================================
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L0.pdf}
+  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L1.pdf}
+  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L2.pdf} 
+  \caption{Evolution during training of the first five eigenvalues of the NTK
+  using L0 (left), L1 (center), and L2 (right) data. Solid lines represent the
+  median over the ensemble of networks, while solid bands correspond to 68\%
+  confidence level.}
+  \label{fig:NTKEigvalsTime}
+\end{figure}
+% ===================================
+
+As a first estimator of the variation of the NTK, we show in
 Fig.~\ref{fig:NTKTime} the Frobenius norm of the variation during training,
 normalized by the Frobenius norm of the NTK itself, 
 \begin{equation}
@@ -279,29 +312,30 @@ normalized by the Frobenius norm of the NTK itself,
 \end{equation}
 for three different datasets, L0, L1, and L2. Inspecting the plot reveals that
 the NTK undergoes significant changes during the initial phase of training, with
-the relative variation $\delta \Theta_t$ reaching values as high as $10\%$. This
+the relative variation $\delta \Theta_t$ reaching values as high as $6\%$. This
 indicates that our settings differ from the standard picture of lazy training in
 the context of very wide networks, as discussed in
-Refs.~\cite{jacot2018neural,Roberts:2021fes,lee2019wide}. We also observe that
-the variation is more pronounced for L2 data, consistent with the fact that the
-architecture needs to accommodate the noise in the data. However, after this
-initial phase -- corresponding approximately to the first 20,000 epochs in our
-experiment -- the NTK tends to stabilize. These two regions will be referred to
-as the \textit{rich} and \textit{lazy} training regimes, respectively, in
-keeping with the standard terminology adopted in the literature (see, \eg
-Ref.~\cite{fort2020dlvk} where two similar regimes where also identified). We do
-not comment any further on the implications of the lazy regime, and postpone the
-discussion to Sec.~\ref{sec:Lazy}.
+Refs.~\cite{jacot2018neural,Roberts:2021fes,lee2019wide}. Remarkably, we do not
+observe a dependence on how data have been generated, indicating that the NTK is
+able to learn across the noise that affects the data. 
+
+After this initial phase -- corresponding approximately to the first 20,000
+epochs in our experiment -- the NTK tends to stabilize. These two regions will
+be referred to as the \textit{rich} and \textit{lazy} training regimes,
+respectively, in keeping with the standard terminology adopted in the literature
+(see, \eg Ref.~\cite{fort2020dlvk} where two similar regimes where also
+identified). We do not comment any further on the implications of the lazy
+regime, and postpone the discussion to Sec.~\ref{sec:Lazy}.
 
 \FloatBarrier
 
 \paragraph{Eigenvalues During Training}
 
 Further insight on the evolution of the NTK can be obtained by studying its
-eigensystem as a function of the training time. In the right panel of
-Fig.~\ref{fig:NTKTime} we report the variation of the first five eigenvalues of
-the NTK, using the standard NNPDF architecture and L0 data. We see that the
-hierachical structure observed at initialization is preserved, but the size of
+eigensystem as a function of the training time. In Fig.~\ref{fig:NTKEigvalsTime}
+we report the variation of the first five eigenvalues of the NTK, using the
+standard NNPDF architecture, for L0, L1, and L2 data. We see that the
+hierachical structure observed at initialisation is preserved, but the size of
 the subdominant eigenvalues increases significantly in the early stages of
 training -- by one or two orders of magnitude depending on the specific
 eigenvalues. 
@@ -314,44 +348,45 @@ eigenvalues.
   \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_3.pdf}
   \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_4.pdf}
   \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_5.pdf}
-  \caption{The first five eigenvalues of the NTK for L0, L1, and L2 data. Error
-  bands correspond to one-sigma uncertainties over the ensemble of networks.}
+  \caption{The first five eigenvalues of the NTK for L0, L1, and L2 data. Solid
+  lines represent the median over the ensemble of networks, while solid bands
+  correspond to 68\% confidence level.}
   \label{fig:EigvalsComparison}
 \end{figure}
 % ===================================
 
 In Fig.~\ref{fig:EigvalsComparison}, the same first five eigenvalues of the NTK
-are displayed for L0, L1, and L2 data. We can make a few observations upon
-inspecting these plots. First, we notice that the way in which data is generated
-has an impact on the eigenvalues of the NTK. In general, the uncertainty bands
-for L2 data are larger than those for L1 and L0 data, indicating that the NTK is
-more sensitive to the noise in the data. This is consistent with the observation
-made in Fig.~\ref{fig:NTKTime}. The eigenvalues reach a plateau and do not
-change significantly once the network enters the lazy training regime. The
-increase of the subdominant eigenvalues, combined with the analysis of
-Eqs.~\eqref{eq:FlowParallel} and~\eqref{eq:FlowPerp}, suggests that more
-``physical'' features become learnable before lazy training sets in.
+are displayed for L0, L1, and L2 data. We observe a common pattern across all
+data types, consistently with the observation made before in
+Fig.~\ref{fig:NTKTime}. This indicates the the NTK evolution is insensitive to
+the noise included in the synthetic data. The increase of the subdominant
+eigenvalues, combined with the analysis of Eqs.~\eqref{eq:FlowParallel}
+and~\eqref{eq:FlowPerp}, suggests that more ``physical'' features become
+learnable before lazy training sets in.
 
 % ===================================
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.45\textwidth]{section_3/loss_and_eigvals_vs_epochs.pdf}  
+  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L0.pdf}
+  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L1.pdf}
+  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L2.pdf}
   \caption{Variation of the loss function overlaid with the first five
-  eigenvalues for a selected replica over the ensemble. Left scale refers to the
-  loss, while the right scale refers to the eigenvalues.}
+  eigenvalues for a selected replica over the ensemble using L0 (left), L1
+  (center), and L2 (right) data. Left scale refers to the loss, while the right
+  scale refers to the eigenvalues.}
   \label{fig:Loss}
 \end{figure}
 % ===================================
 
-Finally, in Fig.~\ref{fig:Loss} we show the variation of the loss function
-during training, overlaid with the first five eigenvalues of the NTK, for a
-selected replica over the ensemble. It is interesting to see that in
-correspondence with the sudden variation of the subdominant eigenvalues, the
-loss function drops significantly, at the cost of an instability localised in
-the descent. We interpret this as the network learning new features, changing
-its internal representation to accommodate the new information. After this
-initial phase, the eigenvalues stabilize and the loss function decreases
-smoothly, as expected in the lazy training regime.
+\paragraph{Connection with the loss function} Finally, in Fig.~\ref{fig:Loss} we
+show the variation of the loss function during training, overlaid with the first
+five eigenvalues of the NTK, for a selected replica over the ensemble. It is
+interesting to see that in correspondence with the sudden variation of the
+subdominant eigenvalues, the loss function drops significantly, at the cost of
+an instability localised in the descent. We interpret this as the network
+learning new features, changing its internal representation to accommodate the
+new information. After this initial phase, the eigenvalues stabilize and the
+loss function decreases smoothly, as expected in the lazy training regime.
 
 As it will be extensively discussed later in Sec.~\ref{sec:LazyTraining}, the
 eigenvalues and eigenvectors of the NTK play a special role. Indeed, the output
@@ -419,7 +454,8 @@ replica.
   \caption{First five eigenvectors of the combined matrix $H=\Theta M$, as in
   Eq.~\eqref{eq:FlowEquationNoIndices}, at different training time and as
   function of the input $x$-grid. We also show the output of the network at the
-  same training time, which is displayed in gray.}
+  same training time, which is displayed in gray. L1 data is used. \ac{Should we use L0
+  data instead?}}
   \label{fig:NTKMEigVecs}
 \end{figure}
 % ===================================

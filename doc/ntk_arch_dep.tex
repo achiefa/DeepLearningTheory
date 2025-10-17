@@ -18,14 +18,16 @@ the learnable features in the space of functions that it can parametrize. For a
 larger network, the space of parametrized functions is larger and the
 identification of the physical features takes a larger number of epochs. 
 % ===================================
-\begin{figure}[ht!]
+\begin{figure}[t]
   \centering
   \includegraphics[width=0.45\textwidth]{appendix_arch/delta_ntk_arch.pdf}
   \includegraphics[width=0.45\textwidth]{appendix_arch/ntk_eigvals_single_plot_arch.pdf}
   \caption{Comparison of the variation of the NTK during training (left) and the
   first three eigenvalues (right) for two different architectures with sizes
-  $[28,20]$ and $[100,100]$ respectively. In both cases, L1 data is used. Error
-  bands correspond to one-sigma uncertainties over the ensemble of networks.}
+  $[28,20]$ and $[100,100]$ respectively. In both cases, L0 data is used. In the
+  left plot, error bands represent the standard deviation over the ensemble of
+  replicas. In the right plot, solid lines represent the median over the
+  ensemble of networks, while solid bands correspond to 68\% confidence level.}
   \label{fig:NTKTimeDiffArch}
 \end{figure}
 % ===================================

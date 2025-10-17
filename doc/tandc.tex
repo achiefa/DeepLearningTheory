@@ -1,6 +1,6 @@
 \newpage
 \section{Results and Crosschecks}
-\label{sec:TrainClosure}
+% \label{sec:TrainClosure}
 
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} sheds a new light onto the
 behaviour of the numerical neural network training. In order to study the
@@ -23,92 +23,6 @@ allows us to perform a number of crosschecks that validate our implementation
 and provides insight into the training process. These are discussed in the
 following sections.
 
-
-\subsection{Analytical Results and Crosschecks using L0 data}
-\label{sec:AnalyticalChecks}
-Let us start by discussing the case of L0 closure tests. In this case, the realization
-of the dataset is completely determined by the input PDFs, and the values of the data
-are given by
-\begin{equation}
-    \label{eq:DataL0}
-    Y_I = T[\fin]_I
-        = \sum_{i=1}^{\nflav} \sum_{\alpha=1}^{\ngrid} \FKtab_{Ii\alpha} \fin_{i\alpha}\, ,
-\end{equation}
-or equivalently, suppressing the indices,
-\begin{equation}
-    \label{eq:DataL0NoIndices}
-    Y = \FKtab \fin\, .
-\end{equation}
-Note that using L0 data only affects the second term in
-Eq.~\ref{eq:AnalyticSol}\footnote{To be more precise, since the analytical
-solution is requires the NTK to be frozen at a certain epoch $T_{\rm ref}$, the
-NTK will itself depend on the data used in the training.}. We can then rewrite the
-combined term in Eq.~\eqref{eq:DataCorrectedInference} as follows
-\begin{align}
-  \label{eq:TrainingOnLevelZero}
-  \check{U}^\perp(t) f_0 + V(t) Y 
-    &= \mathcal{M}(t)\, \FKtabT C_{Y}^{-1} \FKtab\, 
-      \left[\fin - f_{0}^\parallel\right]\, .
-\end{align}
-The subtraction taking place in the square brackets of
-Eq.~\eqref{eq:TrainingOnLevelZero} suggests us that the effective function that
-the neural network actually sees is not the input function $\fin$ used to
-generate the data, but rather the difference between $\fin$ and the component of
-the initial function $f_0$ that lies in the subspace spanned by the kernel of
-the NTK, \ie\ $f_0^\parallel$. In other words, the parallel component
-$f_0^\parallel$, which we remind does not evolve during the analytic training,
-acts as a constant ``bias'' in the training process, shifting the effective
-input function that the neural network sees. Of course the actual magnitude of
-this irreducible noise depends both on how $f_0$ and the kernel of the NTK are
-distributed over the ensemble. We will come to this point soon.
-
-Note that the observation above remains true even in the limit of infinite training.
-This can be shown using
-Interestingly, for $t\to\infty$, we have
-\begin{align}
-    \label{eq:LevelZeroClosureInfiniteTraining}
-    \lim_{t\to\infty} V(t) Y = \finperp + \mathcal{M}_{\infty} M \finpar
-\end{align}
-and therefore the $V$ component of the trained solution reproduces exactly the
-component of the PDF that lies in  the subspace orthogonal to the kernel of
-$\Theta$. We compare the asymptotic behaviour of $V(t) Y$ and $\finperp$ in
-Fig.~\ref{fig:InfiniteTimeVterm}.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{vy_inf_L0.pdf}  
-  \caption{Test the $t\to\infty$ limit of the L0 training for different frozen
-  NTK. The orange curve represents the projection of the input function $\fin$
-  onto the subspace orthogonal to the kernel of the NTK at $T_{\rm ref}$, \ie\
-  $\finperp$. The blue curve represents the contribution of the operator $V$,
-  computed with the NTK at $T_{\rm ref}$, in the limit of infinite training
-  time.}
-  \label{fig:InfiniteTimeVterm}
-\end{figure}
-
-The second term in the square bracket on the right-hand side of
-Eq.~\eqref{eq:TrainingOnLevelZero} is the contribution from the parallel
-component at initialization that does not evolve in the training process. Given
-that $f_0$ is almost normally distributed around zero, that term does not
-contribute to the central value of the fitted PDF, \ie\ to the average of the
-trained solution over replicas. The time evolution of 
-\begin{align}
-  \label{eq:AverageLevelZeroUcheck}
-  \mathbb{E}\left[\mathcal{M}(t)\, \FKtabT C_{Y}^{-1} \FKtab\, 
-    f_{0}^\parallel\right]\, ,
-\end{align}
-is shown in Fig.~\ref{fig:AverageLevelZeroUcheck}.
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.95\textwidth]{Mcal_M_fpar_L2_linear.pdf} 
-  \caption{Test of the average of the parallel contribution for different
-  epochs. The reference epoch at which the frozen NTK is chosen is $T_{\rm ref}
-  = 10000$. L2 data is used in the plot.}
-  \label{fig:AverageLevelZeroUcheck}
-\end{figure}
-
-\FloatBarrier
-
 \subsection{Fluctuations of the Analytical Solution}
 \label{sec:CheckCovariance}
 
@@ -116,7 +30,7 @@ In Sect.~\ref{sec:CentralValue} and~\ref{sec:Covariance} we obtained some
 simplified expressions for the mean and the covariance of the analytical
 solution under the assumption that the fluctuations of the evolution operators
 $U(t)$ and $V(t)$ are independent of the fluctuations of the networks at
-initialization. Here we quantify this assumption by computing these correlations
+initialisation. Here we quantify this assumption by computing these correlations
 explicitly for the dataset and architectures used in this work. In the absence
 of general theorems, it is necessary to verify the validity of these assumptions
 case by case. The comparison of $\mathbb{E}\left[U(t) f_{0}\right]$ and
@@ -143,11 +57,11 @@ expressions results in an incorrect estimate of the error bars.
 \FloatBarrier
 
 \subsection{Convergence of the Analytical Solution}
-\label{sec:CheckAnalyticalConvergence}
+% \label{sec:CheckAnalyticalConvergence}
 
 At the beginning of the training process there is clearly no difference between
 the analytical solution and the trained solution. By construction both AS and TS
-are given by the outcome of the neural network at initialization, as discussed
+are given by the outcome of the neural network at initialisation, as discussed
 in Sect.~\ref{sec:Init}. In the early stages of training AS and TS differ as
 expected. Indeed, the analytical solution is computed using the frozen NTK at
 $T_{\rm ref}$, while the trained solution evolves with an NTK that is still
@@ -161,50 +75,50 @@ the right column are obtained using L2 data. The analytical solution is obtained
 using a frozen NTK at $T_{\rm ref}=20000$. In both cases the analytical solution
 agrees with the trained one for $T=10000$.
 
-  % ===================================
-  \begin{figure}[ht!]
-    \centering
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L0/linear/evolution_vs_trained_epoch_500_L0_linear.pdf}
-    \hspace{10mm}
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L2/linear/evolution_vs_trained_epoch_500_L2_linear.pdf}
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L0/linear/evolution_vs_trained_epoch_1000_L0_linear.pdf}
-    \hspace{10mm}
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L2/linear/evolution_vs_trained_epoch_1000_L2_linear.pdf}
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L0/linear/evolution_vs_trained_epoch_10000_L0_linear.pdf}
-    \hspace{10mm}
-    \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L2/linear/evolution_vs_trained_epoch_10000_L2_linear.pdf}
-    \caption{Comparison of the analytical solution and the trained solution at
-    different epochs. The analytical solution is computed using the frozen NTK
-    at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different
-    ensemble of networks at initialisation. Left column shows results for L0
-    data, while the right column shows results for L2 data.}
-    \label{fig:xT3_analytical_vs_trained}
-  \end{figure}
-  % ===================================
+%   % ===================================
+%   \begin{figure}[ht!]
+%     \centering
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L0/linear/evolution_vs_trained_epoch_500_L0_linear.pdf}
+%     \hspace{10mm}
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L2/linear/evolution_vs_trained_epoch_500_L2_linear.pdf}
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L0/linear/evolution_vs_trained_epoch_1000_L0_linear.pdf}
+%     \hspace{10mm}
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L2/linear/evolution_vs_trained_epoch_1000_L2_linear.pdf}
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L0/linear/evolution_vs_trained_epoch_10000_L0_linear.pdf}
+%     \hspace{10mm}
+%     \includegraphics[width=0.45\textwidth]{plots/analytical_solution/xT3/evolution/tr_vs_an/L2/linear/evolution_vs_trained_epoch_10000_L2_linear.pdf}
+%     \caption{Comparison of the analytical solution and the trained solution at
+%     different epochs. The analytical solution is computed using the frozen NTK
+%     at $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different
+%     ensemble of networks at initialisation. Left column shows results for L0
+%     data, while the right column shows results for L2 data.}
+%     \label{fig:xT3_analytical_vs_trained}
+%   \end{figure}
+%   % ===================================
 
-% L0 data
-\begin{figure}[ht!]
-  \centering
-  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L0/linear/evolution_epoch_50000_L0_linear.pdf}
-  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L0/linear/evolution_epochs_700_5000_20000_L0_linear.pdf}
-  \caption{Comparison of the trained solution at the end of training and the
-  analytical solution using L0 data. In both panels, the frozen NTK is chosen at
-  $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different ensemble
-  of networks at initialisation. In the left panel, the analytical solution is
-  evolved for $T_{\rm tot}$ epochs, while the right panel shows the same
-  comparison for intermediate epochs.}
-  \label{fig:xT3_analytical_init_L0}
-\end{figure}
-% ===================================
+% % L0 data
+% \begin{figure}[ht!]
+%   \centering
+%   \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L0/linear/evolution_epoch_50000_L0_linear.pdf}
+%   \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L0/linear/evolution_epochs_700_5000_20000_L0_linear.pdf}
+%   \caption{Comparison of the trained solution at the end of training and the
+%   analytical solution using L0 data. In both panels, the frozen NTK is chosen at
+%   $T_{\rm ref} = 20000$ and the initial function $f_0$ is a different ensemble
+%   of networks at initialisation. In the left panel, the analytical solution is
+%   evolved for $T_{\rm tot}$ epochs, while the right panel shows the same
+%   comparison for intermediate epochs.}
+%   \label{fig:xT3_analytical_init_L0}
+% \end{figure}
+% % ===================================
 
-  % L2 data
-\begin{figure}[ht!]
-\centering
-  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L2/linear/evolution_epoch_50000_L2_linear.pdf}
-  \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L2/linear/evolution_epochs_700_5000_20000_L2_linear.pdf}
-\caption{Same as Fig.~\ref{fig:xT3_analytical_init_L0}, but using L2 data.}
-\label{fig:xT3_analytical_init_L2}
-\end{figure}
+%   % L2 data
+% \begin{figure}[ht!]
+% \centering
+%   \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L2/linear/evolution_epoch_50000_L2_linear.pdf}
+%   \includegraphics[width=0.48\textwidth]{plots/analytical_solution/xT3/evolution/from_f0/L2/linear/evolution_epochs_700_5000_20000_L2_linear.pdf}
+% \caption{Same as Fig.~\ref{fig:xT3_analytical_init_L0}, but using L2 data.}
+% \label{fig:xT3_analytical_init_L2}
+% \end{figure}
 
 \FloatBarrier
 
@@ -292,6 +206,6 @@ the statistical error on the data, and not by the fluctuations of the initial
 fields. This is a crucial point, since it guarantees that the ensemble of
 trained PDFs is not biased by the choice of prior that is made by selecting a
 given architecture, activation function, and probability distribution for the
-biases and weights at initialization. \ldd{More plots needed. To be discussed.}
+biases and weights at initialisation.
 
 \FloatBarrier
