@@ -199,6 +199,9 @@ def produce_plot(
     plot_dir: Path | None = None,
     divide_by_x: bool = False,
     ax: plt.Axes = None,
+    percentile: tuple[float] = None,
+    show_68_percentile=False,
+    central_statistics="mean",
 ):
     if ax is None:
         fig, ax = plt.subplots(figsize=FIGSIZE)
@@ -216,14 +219,49 @@ def produce_plot(
 
         if divide_by_x:
             grid = grid / xgrid
-        pl = ax.plot(xgrid, grid.get_mean(), label=label, color=color)
-        plfb = ax.fill_between(
-            xgrid,
-            grid.get_mean() - grid.get_std(),
-            grid.get_mean() + grid.get_std(),
-            alpha=0.3,
-            color=pl[0].get_color(),
-        )
+        if central_statistics == "mode":
+            pl = ax.plot(xgrid, grid.get_mode(), label=label, color=color)
+        elif central_statistics == "mean":
+            pl = ax.plot(xgrid, grid.get_mean(), label=label, color=color)
+        elif central_statistics == "median":
+            pl = ax.plot(xgrid, grid.get_median(), label=label, color=color)
+        else:
+            raise ValueError(
+                f"central_statistics {central_statistics} not recognized. Choose among 'mode', 'mean' or 'median'."
+            )
+
+        if percentile is not None:
+            pflb = ax.fill_between(
+                xgrid,
+                np.percentile(grid.get_data(), percentile[0], axis=0),
+                np.percentile(grid.get_data(), percentile[1], axis=0),
+                alpha=0.3,
+                color=pl[0].get_color(),
+            )
+        else:
+            plfb = ax.fill_between(
+                xgrid,
+                grid.get_mean() - grid.get_std(),
+                grid.get_mean() + grid.get_std(),
+                alpha=0.3,
+                color=pl[0].get_color(),
+            )
+            if show_68_percentile:
+                percentile_68 = grid.get_68_percentile()
+                ax.plot(
+                    xgrid,
+                    percentile_68[0],
+                    linestyle="--",
+                    color=pl[0].get_color(),
+                    alpha=0.7,
+                )
+                ax.plot(
+                    xgrid,
+                    percentile_68[1],
+                    linestyle="--",
+                    color=pl[0].get_color(),
+                    alpha=0.7,
+                )
 
     if additional_grids is not None:
         for additional_grid in additional_grids:
