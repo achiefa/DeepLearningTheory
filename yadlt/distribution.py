@@ -166,6 +166,17 @@ class Distribution:
     def get_std(self, axis=0):
         return np.std(self._data, axis=axis)
 
+    def get_mode(self, axis=0):
+        """Get the mode of the distribution along a given axis."""
+        from scipy import stats
+
+        mode, _ = stats.mode(self._data, axis=axis, keepdims=True)
+        return mode.squeeze()
+
+    def get_median(self, axis=0):
+        """Get the median of the distribution along a given axis."""
+        return np.median(self._data, axis=axis)
+
     def get_68_percentile(self, axis=0):
         """Get the 68% percentile of the distribution along a given axis."""
         cl_high = np.nanpercentile(self._data, 84, axis=0)

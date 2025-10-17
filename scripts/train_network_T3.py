@@ -79,7 +79,7 @@ def main():
     data_type = config["arguments"]["data"]
     if data_type == "real":
         L = np.linalg.cholesky(Cy)
-        y = data + rng_replica.normal(size=(Cy.shape[0])) @ L
+        y = data + L @ rng_replica.normal(size=(Cy.shape[0]))
         log.info(f"Using real data with seed {replica_seed}")
 
     elif data_type in ["L0", "L1", "L2"]:
@@ -89,11 +89,11 @@ def main():
         if data_type == "L1" or data_type == "L2":
             L = np.linalg.cholesky(Cy)
             y_l1 = FK @ f_bcdms
-            y = y_l1 + rng_l1.normal(size=(Cy.shape[0])) @ L
+            y = y_l1 + L @ rng_l1.normal(size=(Cy.shape[0]))
             log.info(f"L1 data generated with seed {int(config['arguments']['seed'])}")
 
             if data_type == "L2":
-                y = y + rng_replica.normal(size=(Cy.shape[0])) @ L
+                y = y + L @ rng_replica.normal(size=(Cy.shape[0]))
                 log.info(f"L2 data generated with seed {replica_seed}")
     else:
         log.error("Please specify --realdata, --L0, --L1 or --L2")
