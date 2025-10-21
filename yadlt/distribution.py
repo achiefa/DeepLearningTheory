@@ -390,6 +390,16 @@ class Distribution:
             res.add(data[index])
         return res
 
+    def resampling(self, indices: np.array):
+        """Resample the distribution using the provided indices."""
+        res = Distribution(
+            f"{self.name} resampled", shape=self.shape, size=len(indices)
+        )
+
+        resampled_data = self.get_data()[indices]
+        res.set_data(resampled_data)
+        return res
+
     def bootstrap(self, size_bootstrap: int = 1000, seed: int = 0):
         """Bootstrap resampling of the distribution."""
         # Initialise the distribution that contains the bootstrap averages
