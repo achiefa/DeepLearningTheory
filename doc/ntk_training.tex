@@ -257,24 +257,31 @@ as expected.
 \subsubsection{NTK During Training}
 \label{sec:NTKDuringTraining}
 
-\begin{center}
-  \red{\bf Comments}\\
-  \textcolor{blue}{
-    This part needs other iterations
-  }
-\end{center}
+We now discuss the behaviour of the NTK during training. 
 
-Having established the properties of the NTK at initialisation, we now discuss
-its behaviour during training. To do so, we performed a fit of the non-single
-triplet combination $T_3$ using the NNPDF methodology with the dataset described
-in Appendix.~\ref{app:dataset}. We initialized an ensemble of $\nreps = 100$
-replicas with identical architecture, training each replica independently using
-GD optimization. As our focus here is on NTK properties rather than physical
-predictions, we use generate three sets of data with controlled noise
-characteristics -- L0, L1, and L2 -- following the prescription described in
-App.~\ref{app:dataset}. Throughout the training process, we track the evolution
-of the NTK to understand how the network's effective dynamics change as it
-learns the target function.
+In order to study the training process, the NNPDF collaboration has successfully
+the developed so-called {\em closure tests}, which we are going to adopt here. A
+closure test uses synthetic data, generated using a known set of PDFs, to train
+the neural network. The PDFs used for generating the data are called here {\em
+input}\ PDFs. The results of the training are then compared to the known input
+PDFs; the performance of the training algorithm and the NN architecture are
+assessed by quantifying the comparison between trained PDFs and input PDFs.
+Following the original presentation in Ref.~\cite{NNPDF:2014otw}, we distinguish
+three levels of closure tests, which are defined by the complexity of the data
+used to train the NNs. We use the standard NNPDF nomenclature and refer to these
+three levels as level-0 (L0), level-1 (L1), and level-2 (L2) closure tests, and
+we denote the input PDFs used to generate the data as $\fin$.
+
+To do so, we performed a
+fit of the non-single triplet combination $T_3$ using the NNPDF methodology with
+the dataset described in Appendix.~\ref{app:dataset}. We initialized an ensemble
+of $\nreps = 100$ replicas with identical architecture, training each replica
+independently using GD optimization. As our focus here is on NTK properties
+rather than physical predictions, we use generate three sets of data with
+controlled noise characteristics -- L0, L1, and L2 -- following the prescription
+described in App.~\ref{app:dataset}. Throughout the training process, we track
+the evolution of the NTK to understand how the network's effective dynamics
+change as it learns the target function.
 
 \paragraph{Onset of Lazy Training} 
 

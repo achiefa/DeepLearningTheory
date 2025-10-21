@@ -51,7 +51,7 @@ In this case, the experimental noise is added on top of L0 data, by sampling fro
 multivariate normal distribution with the full experimental covariance matrix
 $C_Y$ provided by the BCDMS collaboration
 \begin{equation}
-Y_{L1} =  Y_{L0} + \eta, \quad \textrm{where} \quad \eta \sim \mathcal{N}(0, C_Y^{\text{stat}}).
+Y_{L1} =  Y_{L0} + \eta, \quad \textrm{where} \quad \eta \sim \mathcal{N}(0, C_Y).
 \end{equation}
 This case is closer to actual experimental data, where the ``true'' value is
 blurred by the presence of noise. Note however that we are not yet propagating
@@ -62,7 +62,7 @@ noise is fixed over all replicas.
 Finally, we generate L2 pseudo-data by adding a different noise realisation to each
 replica, sampled from the same multivariate normal distribution
 \begin{equation}
-Y_{L2}^{(k)} =  Y_{L1} + \xi^{(k)}, \quad \textrm{where} \quad \xi^{(k)} \sim \mathcal{N}(0, C_Y^{\text{stat}}).
+Y_{L2}^{(k)} =  Y_{L1} + \xi^{(k)}, \quad \textrm{where} \quad \xi^{(k)} \sim \mathcal{N}(0, C_Y).
 \end{equation}
 This represents the most realistic scenario where both model and data uncertainties
 are present. In this case, each neural network replica will be trained on a
