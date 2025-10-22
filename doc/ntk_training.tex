@@ -37,33 +37,27 @@ reduces to
 \end{equation}
 The details of the dataset and the definition of the flavour combination
 considered in this work are provided in Appendix~\ref{app:dataset}.
-Cross-validation and stopping criteria are not considered in this simplified
-framework\footnote{We are aware that such a framework has limited applicability
+For simplicity, we do not implement cross-validation or stopping
+criteria\footnote{ We are aware that such a framework has limited applicability
 in the context of PDF determination, and we are far from assuming this as an
-optimal choice. Again, the focus remain on the methodological aspects rather
-than the underlying physics.}. The generalization to predictions
-quadratic in the PDFs and depending on multiple flavour combinations, as well
-as other minimizers and the inclusion of cross-validation tools are left for
-future work.
+optimal choice. Again, the focus remains on the methodological aspects rather
+than the underlying physics.}. Extensions to theoretical predictions that are
+quadratic in the PDFs, multiple flavour combinations, alternative minimizers,
+and cross-validation tools are left for future work.
 
-Finally, a closing note before we proceed. The results in this section, although
-obtained having in mind neural networks, apply to any generic parametrization of
-the unknown function, whether it is a polynomial or a
-kernel~\cite{Costantini:2025wxp}. These generalizations are straightforward, and
-will be considered in future works.
+Finally, we emphasise that the results in this sections, while obtained having in mind
+neural networks, apply to any fixed parametrisation, including polynomials or
+kernels~\cite{Costantini:2025wxp}.
 
 \subsection{Training in Functional Space}
 \label{sec:GradFlow}
 
-Gradient descent is described as a continuous flow of the parameters $\theta$ in
-training time $t$ along the negative gradient of the loss function
-$\mathcal{L}$. Following from the parameter-space/function-space duality
-introduced in Sec.~\ref{sec:Init}, we aim at rephrasing the optimisation process
-of GD in the space of the network output $f$. To ease the mathematical
-tractability, we employ the continuous version of GD, which has been
-shown~\cite{barrett2022igr} to match the discretised version as long as the
-learning rate is small enough. The continuous Gradient Flow (GF) is then given
-by
+For analytical tractability, GD is described as a continuous flow of the
+parameters $\theta$ in training time $t$ along the negative gradient of the loss
+function $\mathcal{L}$. For sufficient small learning rates, this continuous
+flow approximates the discrete GD trajectory in parameter space, as extensively
+discussed in Ref.~\cite{barrett2022igr}. The continuous Gradient Flow (GF) is
+then given by
 \begin{align}
     \label{eq:GradientFlowDef}
     \ddt &\theta_{t,\mu} = -\nabla_\mu \mathcal{L}_t\, ,
@@ -97,8 +91,9 @@ where, writing explicitly the data index,
 For the specific case of a quadratic loss function, the gradient is proportional
 to $\epsilon_t$, which is the difference between the theoretical prediction and
 the data at training time $t$. If at some point during the training the
-theoretical predictions reproduce all the data, the training process ends. A
-further simplification is obtained in the case of data that depend linearly on
+theoretical predictions reproduce all the data, the training process ends. 
+
+A further simplification is obtained in the case of data that depend linearly on
 the unknown function $f$. In the specific case of NNPDF fits, the integrals in
 Eq.~\eqref{eq:TheoryPred} are approximated by a Riemann sum over the grid of $x$
 points,
@@ -126,14 +121,16 @@ where we have defined the Neural Tangent Kernel~\cite{jacot2018neural}
     \Theta_{t,i_1\alpha_1i_2\alpha_2} = \sum_\mu
     \nabla_\mu f_{t,i_1\alpha_1} \nabla_\mu f_{t,i_2\alpha_2}\, .
 \end{align}
-As it will become more clear in later, the NTK provides a powerful framework for
+As it will become clearer later, the NTK provides a powerful framework for
 understanding neural network dynamics during training. Originally developed by
 Jacot et al.~\cite{jacot2018neural} to analyse infinite-width feed-forward
 networks, the NTK theory has since been extended to diverse architectures
 including convolutional networks~\cite{arora2019exact} and recurrent
 networks~\cite{alemohammad2021recurrent}. This theoretical framework has proven
 invaluable for characterizing learning dynamics and generalization properties
-across various network designs. 
+across various network designs. We will see in the following and in
+Sec.~\ref{sec:LazyTraining} how the NTK can provide useful insights also in the
+context of PDF fitting.
 
 In order to facilitate the discussion in Sec.~\ref{sec:Lazy},
 Eq.~\eqref{eq:NTKFlow} can be rewritten in a more compact form. We first omit
@@ -147,31 +144,31 @@ Then, using the definition of the error in Eq.~\eqref{eq:EpsDef}, we can rewrite
 Eq.~\eqref{eq:NTKFlow} as follows
 \begin{align}
     \label{eq:FlowEquationNoIndices}
-    \ddt f_t = -\Theta M f_t + b\, ,
+    \ddt f_t = -\Theta_t M f_t + b\, ,
 \end{align}
 where
 \begin{align}
-    M &= \FKtabT C_Y^{-1} \FKtab\, , \quad b = \Theta \FKtabT C_Y^{-1} Y\, .
+    M &= \FKtabT C_Y^{-1} \FKtab\, , \quad b_t = \Theta_t \FKtabT C_Y^{-1} Y\, .
     \label{eq:MandBDef}
 \end{align}
 Here $M$ is a positive-semidefinite matrix that depends only on the data and the
 theoretical predictions, while $b$ is a vector that depends also on the data.
 
-Before moving to the next subsection, a few comments are due. First, although
-derived in the context of neural networks, these equations do not refer to a
-specific parameterization. Indeed, these remain valid even when an explicit
-functional form to parametrize the PDFs is chosen, as \eg in
+Before moving to the next subsection, a few comments comments are in order.
+First, although derived in the context of neural networks, these equations do
+not refer to a specific parameterization. Indeed, these remain valid even when
+an explicit functional form to parametrize the PDFs is chosen, as \eg~in
 Refs.~\cite{Bailey:2020ooq,Hou:2019efy,Costantini:2025wxp}. Second, it is
 interesting to observe that the flow equation,
 Eq.~\eqref{eq:FlowEquationNoIndices}, depends on two matrices, $\Theta$ and $M$.
-The former encodes the model dependence, while the latter brings physical
+The former encodes the model dependence, while the latter contains the physical
 information. The interplay between these two matrices is crucial for
 understanding the training dynamics, as it will be discussed in
 Sec.~\ref{sec:NTKAlign}. Finally, the NTK derived in Eq.~\ref{eq:NTKDef} is
-inherently time-dependent in a complex way, which precludes any attempt in
+inherently time-dependent in a complex way, which precludes any attempt at
 integrating Eq.~\ref{eq:FlowEquationNoIndices} analytically. We will come back
-to this point in Sec.~\ref{sec:Lazy}, and we now turn to discussing the
-properties of the NTK during training.
+to this point in Sec.~\ref{sec:Lazy}, and we now discuss the properties of the
+NTK during training.
 
 \subsection{Inside the Training Dynamics: an NTK perspective}
 
@@ -199,13 +196,12 @@ the NNPDF methodology.
 \subsubsection{NTK at initialisation}
 \label{sec:NTKAtInit}
 
-Before training, the NTK is blind to data and depends, in addition to the
-architecture, on the $x$-grid of input and on the architecture, as it can be
-seen from Eq.~\eqref{eq:NTKDef}. The NTK is a function of the fields $f$, which
-are stochastic variables described by their joint probability distribution as
-discussed in Sect.~\ref{sec:Init}. Therefore the NTK is also a stochastic
-variable, with its own probability distribution, which we represent as usual as
-a set of replicas. 
+Before training, the NTK is blind to data and depends on the $x$-grid of input
+and on the architecture, as it can be seen from Eq.~\eqref{eq:NTKDef}. The NTK
+is a function of the fields $f$, which are stochastic variables described by
+their joint probability distribution as discussed in Sect.~\ref{sec:Init}.
+Therefore the NTK is also a stochastic variable, with its own probability
+distribution, which we represent as usual as a set of replicas. 
 
 It is argued in the literature that, in the large-width limit, the variance of
 the NTK over the set of replicas tends to zero with the width of the hidden
@@ -214,7 +210,7 @@ variation of the NTK, we start by computing the Frobenius norm of the NTK over
 an ensemble of networks for different architectures. For each architecture, we
 consider the mean value and standard deviation of the norm as statistical
 estimators of the variations of the NTK. The result is displayed in
-Fig.~\ref{fig:NTKInit}. Even though the Frobenius norm is a coaarse indicator of
+Fig.~\ref{fig:NTKInit}. Even though the Frobenius norm is a coarse indicator of
 the variations of the NTK, the figure shows clearly that the variance of the
 norm becomes smaller with the size of the network, which is consistent with the
 theoretical expectation that the NTK should not fluctuate for infinite-width
@@ -234,21 +230,21 @@ bootstrap errors due to the finite size of the ensemble. Using an ensemble of
 \end{figure}
 % ===================================
 
-In order to get a more quantitative description of the NTK at initialisation,
-its spectrum is shown in Fig.~\ref{fig:NTKSpectrum} for four different
-architectures. Inspecting the plot, we see that the spectrum of the NTK is
+A more quantitative description of the NTK at initialisation is provided by its
+spectrum, which is shown in Fig.~\ref{fig:NTKSpectrum} for four different
+architectures. Inspecting the figure, we see that the spectrum of the NTK is
 heavily hierarchical, and only few eigenvalues are actually
 non-zero\footnote{Note that, due to the large difference in magnitude of the
 eigenvalues, the finite precision used in our codes introduces noise in the
 decomposition, so that small eigenvalues should be effectively considered zero.
-We discuss the cut-off tolerance later, when we discuss the training process in
-more details.}. This means that only a small subset of active directions can
-inform the network during training, as it will be discussed later. Note that, at
-least at initialisation, these observations do not depend on the architecture.
-The eigenvalues in Fig.~\ref{fig:NTKSpectrum} are mostly independent of the size
-of the network. There is a downward fluctuation of the third eigenvalue for the
-largest architecture that we considered, but we do not have any evidence that
-this drop is a physical feature of the system, rather than a fluctuation. the
+We discuss the cut-off tolerance in Appendix~\ref{app:cutoff}.}. This means that
+only a small subset of active directions can inform the network during training,
+as it will be discussed later. Note that, at least at initialisation, these
+observations do not depend on the architecture. The eigenvalues in
+Fig.~\ref{fig:NTKSpectrum} are mostly independent of the size of the network.
+There is a downward fluctuation of the third eigenvalue for the largest
+architecture that we considered, but we do not have any evidence that this drop
+is a physical feature of the system, rather than a fluctuation. Finally, the
 variance of the set of eigenvalues over replicas decreases with increasing size,
 as expected. 
 
@@ -257,34 +253,28 @@ as expected.
 \subsubsection{NTK During Training}
 \label{sec:NTKDuringTraining}
 
-We now discuss the behaviour of the NTK during training. 
+We now discuss the behaviour of the NTK during training. To this end, we are
+going to adopt the so-called {\em closure tests} developed by the NNPDF
+collaboration. A closure test uses synthetic data, generated using a known set
+of PDFs, to train the neural network. The PDFs used for generating the data are
+called here {\em input}\ PDFs. The results of the training are then compared to
+the known input PDFs; the performance of the training algorithm and the NN
+architecture are assessed by quantifying the comparison between trained PDFs and
+input PDFs. Following the original presentation in Ref.~\cite{NNPDF:2014otw}, we
+distinguish three levels of closure tests, which are defined by the complexity
+of the data used to train the NNs. We use the standard NNPDF nomenclature and
+refer to these three levels as level-0 (L0), level-1 (L1), and level-2 (L2)
+closure tests, and we denote the input PDFs used to generate the data as $\fin$.
+The definitions of these three levels of data are given in Appendix~\ref{app:dataset}.
 
-In order to study the training process, the NNPDF collaboration has successfully
-the developed so-called {\em closure tests}, which we are going to adopt here. A
-closure test uses synthetic data, generated using a known set of PDFs, to train
-the neural network. The PDFs used for generating the data are called here {\em
-input}\ PDFs. The results of the training are then compared to the known input
-PDFs; the performance of the training algorithm and the NN architecture are
-assessed by quantifying the comparison between trained PDFs and input PDFs.
-Following the original presentation in Ref.~\cite{NNPDF:2014otw}, we distinguish
-three levels of closure tests, which are defined by the complexity of the data
-used to train the NNs. We use the standard NNPDF nomenclature and refer to these
-three levels as level-0 (L0), level-1 (L1), and level-2 (L2) closure tests, and
-we denote the input PDFs used to generate the data as $\fin$.
-
-To do so, we performed a
-fit of the non-single triplet combination $T_3$ using the NNPDF methodology with
-the dataset described in Appendix.~\ref{app:dataset}. We initialized an ensemble
-of $\nreps = 100$ replicas with identical architecture, training each replica
-independently using GD optimization. As our focus here is on NTK properties
-rather than physical predictions, we use generate three sets of data with
-controlled noise characteristics -- L0, L1, and L2 -- following the prescription
-described in App.~\ref{app:dataset}. Throughout the training process, we track
-the evolution of the NTK to understand how the network's effective dynamics
-change as it learns the target function.
+For each of the closure-test data given above, we perform a fit of the
+non-single triplet combination $T_3$ using the NNPDF methodology. To do so, we
+initialise an ensemble of $\nreps = 100$ replicas with identical architecture,
+training each replica independently using GD optimization. Throughout the
+training process, we track the evolution of the NTK to understand how the
+network's effective dynamics change as it learns the target function.
 
 \paragraph{Onset of Lazy Training} 
-
 % ===================================
 \begin{figure}[t]
   \centering
@@ -317,11 +307,11 @@ normalized by the Frobenius norm of the NTK itself,
 \delta \Theta_t = \frac{\lVert \Theta_{t+1} - \Theta_t \rVert}{\lVert \Theta_t \rVert} \;,
 \label{eq:DeltaNTK}
 \end{equation}
-for three different datasets, L0, L1, and L2. Inspecting the plot reveals that
+for the three different datasets, L0, L1, and L2. Inspecting the plot reveals that
 the NTK undergoes significant changes during the initial phase of training, with
 the relative variation $\delta \Theta_t$ reaching values as high as $6\%$. This
 indicates that our settings differ from the standard picture of lazy training in
-the context of very wide networks, as discussed in
+the context of very wide networks, as discussed \eg~in
 Refs.~\cite{jacot2018neural,Roberts:2021fes,lee2019wide}. Remarkably, we do not
 observe a dependence on how data have been generated, indicating that the NTK is
 able to learn across the noise that affects the data. 
@@ -342,10 +332,10 @@ Further insight on the evolution of the NTK can be obtained by studying its
 eigensystem as a function of the training time. In Fig.~\ref{fig:NTKEigvalsTime}
 we report the variation of the first five eigenvalues of the NTK, using the
 standard NNPDF architecture, for L0, L1, and L2 data. We see that the
-hierachical structure observed at initialisation is preserved, but the size of
+hierarchical structure observed at initialisation is preserved, but the size of
 the subdominant eigenvalues increases significantly in the early stages of
 training -- by one or two orders of magnitude depending on the specific
-eigenvalues. 
+eigenvalue. 
 
 % ===================================
 \begin{figure}[t]
@@ -399,7 +389,7 @@ As it will be extensively discussed later in Sec.~\ref{sec:LazyTraining}, the
 eigenvalues and eigenvectors of the NTK play a special role. Indeed, the output
 $f$ can be decomposed into the basis of eigenvectors of the NTK. Hence the
 eigenvectors corresponding to the larger eigenvalues can be interpreted as {\em
-learnable}\ features, while the small (or zero) eigenvalues, correspond to
+learnable}\ features, while the small (or zero) eigenvalues correspond to
 directions in which the field $f$ never evolves during training.
 
 % \FloatBarrier
@@ -411,7 +401,7 @@ It has been argued before that there is a non-trivial interplay between the
 eigenspace of the NTK and that of the matrix $M$. Indeed, the former encodes the
 model dependence, while the latter brings physical information. Of course the
 two matrices are independent at initialisation, and we do not expect any
-alignment patter between the two. However, this picture does change during
+alignment pattern between the two. However, this picture may change during
 training, as the NTK evolves and the model learns the target function. To
 quantify this alignment, we define the matrix $A$, 
 \begin{equation}
@@ -436,7 +426,7 @@ replica.
   single replica of the NTK. The matrix is shown at different epochs of the
   training process, indicated in the top of each panel. The white dashed line
   indicates the cut-off tolerance that we imposed to the eigenvalues of the NTK
-  (see Appendix...?).}
+  (see Appendix~\ref{app:cutoff}).}
   \label{fig:NtkMAlign}
 \end{figure}
 % ===================================
@@ -486,21 +476,24 @@ A similar analysis can also be performed by studying the alignment of the
 eigenvectors of the NTK with the input function used to generate the data. In
 Fig.~\ref{fig:NTKAlignFin}, we show the cosine of the angle between the two
 vectors for two subsects of eigenvectors, in the right and left panel
-respectively. In these two plots, different pattern can be observed. First, the
-first four angles vary considerably during training. These observations lead us
-to conclude that other than changing the dominant eigenvectors, the NTK is also
-activating some others that were asleep in the first stage of training. This in
+respectively. In these two panels, different patterns can be observed. First,
+the first four angles vary considerably during training, consistent with the
+observations made in the figures before. Furthermore, we see that other than
+changing the dominant eigenvectors, the NTK is also activating the other
+directions that were subdominant in the first stage of training. This in
 accordance to what has been previously observed in
 Figs.~\ref{fig:EigvalsComparison}-\ref{fig:NtkMAlign}. 
 
 A complementary picture is displayed in Fig.~\ref{fig:NTKMEigVecs}. Here, we
-show the eigenvectors of the matrix $H = \Theta M$, labelled with $q^{(i)}$, at
-different training times and as functions of the $x$-grid. Together with the
-eigenvectors, we also show the output of the trained neural network at the
-corresponding training time. From these plots, we see that as the training
-progress, the shape of the eigenvectors become more structured in order to
-reproduce the output function. Again, this conclusion supports the observations
-made previously in various occasions, that during training the neural network is
-changing its internal representation and the NTK encodes this information.
+show the eigenvectors of the product of matrices $\Theta M$, labelled with
+$q^{(i)}$, at different training times and as functions of the $x$-grid. The
+product of these two matrices will become relevant in
+Sec.~\ref{sec:LazyTraining}. Together with the eigenvectors, we also show the
+output of the trained neural network at the corresponding training time. From
+these plots, we see that as the training progresses, the shape of the eigenvectors
+become more structured in order to reproduce the output function. Again, this
+conclusion supports the observations made previously in various occasions, that
+during training the neural network is changing its internal representation and
+the NTK encodes this information.
 
 \FloatBarrier

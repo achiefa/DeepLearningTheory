@@ -3,18 +3,17 @@
 
 
 In the following, we prepare the ground for the study of the training dynamics
-of neural networks used in the NNPDF framework for PDF determination. We start
-by presenting the inverse problem of PDF determination for data depending linear
-in the PDFs, setting the notation used throughout this work. The statistical
-view of the inverse problem is introduced, following the ideas presented in
-Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}. In this perspective, we also
-present some statistical aspects of the neural networks at initialisation, which
-will help us understand the implications in the training process. These
-properties, derived in the large-width limit~\cite{lee2019wide,jacot2018neural},
-are compared to the specific architecture used in the NNPDF fits. A exhaustive
-and detailed review of wide-network properties is beyond the scope of this work,
-and the reader is encouraged to refer to Ref.~\cite{Roberts:2021fes} for a
-comprehensive review.
+of neural networks used in the NNPDF framework. We start by presenting briefly
+the inverse problem of PDF determination for data depending linear in the PDFs,
+setting the notation used throughout this work and introducing the statistical
+vocabulary used in the rest of the work. We then provide an account for some
+statistical aspects of the neural networks at initialisation, which will help us
+understand the implications in the training process. These properties, derived
+in the large-width limit~\cite{lee2019wide,jacot2018neural}, are compared to the
+specific architecture used in the NNPDF methodology. A exhaustive and detailed
+review of wide-network properties is beyond the scope of this work, and the
+reader is encouraged to refer to Ref.~\cite{Roberts:2021fes} for a comprehensive
+review.
 
 \subsection{The 1-dimensional regression problem of PDFs}
 \label{subsec:inverse_problem}
@@ -35,23 +34,15 @@ perturbation theory, $i$ labels the parton flavour, and $f_i(x)$ is the PDF (or
 set of PDFs) that we want to determine.
 
 Attempting to determine a function $f$ in an infinite dimensional space of
-solutions with a finite set of data is inherently ill-posed. The solution will
-inevitably depend on assumptions and prior knowledge, conscious or not,
-introduced to regularise the problem. The solution of the inverse problem
-can be tackled either by using non-parametric methods, as recently proposed
-in Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, or, more commonly in the
-field of PDF determination, by introducing a parameterization for the function
-$f$. Many state-of-the-art PDF determinations belong to the latter, and
-they differ, among other things, in the choice of the parameterization and the
-fitting methodology.
-
-As mentioned, understanding the difference between the various approaches is
-crucial for precision physics. For instance, different parametrisations for the
-PDFs can lead to a bias in the the space of te reconstructed solution.
-Furthermore, the interplay between the parameterization and the fitting
-methodology determines how the uncertainties on the data propagate to the
-uncertainties on the fitted solution. Understanding the bias and variance of the
-fitted PDF is therefore a major challenge for precision physics.
+solutions with a finite set of data is inherently ill-posed. The solution
+inevitably depends on assumptions and prior knowledge -- conscious or not --
+introduced to regularise the problem. Different methodologies, based either on
+non-parametric methods or parametric regression, have been proposed to address
+these challenges, yielding increasingly accurate and precise PDFs. Yet, despite
+the longstanding effort to provide robust uncertainty quantification and
+establish the relationships between different methodologies and their solutions,
+some discrepancies remain unresolved. Understanding such differences between the
+various approaches is thus crucial for precision physics.
 
 Following the ideas highlighted in
 Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, the solution of the inverse
@@ -62,9 +53,10 @@ vector of $\nflav\times\ngrid$ stochastic variables, for which we introduce a
 prior distribution $p(f)$~\footnote{Following the same convention used for the
 data, when omitting the grid index $\alpha$, and/or the flavor index $i$, we
 will always refer to a vector $f \in \mathbb{R}^{\nflav\times\ngrid}$.}. In this
-perspective, any fitting procedure is interpreted as a recipe that yields the posterior
-distribution $\tilde{p}(f)$. In this study, probability distributions are
-represented by ensembles of i.i.d. replicas. So, for instance, the prior
+perspective, any fitting procedure is interpreted as a recipe that yields the
+posterior distribution $\tilde{p}(f)$. In this study, and specifically in the
+context of the NNPDF methodology, probability distributions are represented by
+ensembles of i.i.d. neural network replicas. So, for instance, the prior
 distribution $p(f)$ is described by an ensemble
 \begin{equation}
     \label{eq:RepDef}
@@ -79,10 +71,13 @@ for any observable $O$ that is built from the PDFs.
 
 The prior distribution $p(f)$ is defined by initializing a set of replicas using
 a Glorot normal initializer~\cite{glorot2010understanding}. The result of this
-initialisation is discussed below in Sec.~\ref{sec:Init}. For each replica, a
-new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional Gaussian
-distribution centred at the experimental central value $Y$, with the covariance
-given by the experimental covariance matrix $C_Y$,
+initialisation is discussed below in Sec.~\ref{sec:Init}.
+
+In order to account for the experimental uncertainties and propagate them in the
+final PDFs, the NNPDF has proposed the Monte Carlo replica method. For each
+replica, a new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional
+Gaussian distribution centred at the experimental central value $Y$, with the
+covariance given by the experimental covariance matrix $C_Y$,
 \begin{equation}
     \label{eq:ExpReplicaDistr}
     Y^{(k)} \sim \mathcal{N}\left(Y, C_Y\right)\, .
@@ -103,32 +98,36 @@ All knowledge about the solution of the inverse problem, $f$, is encoded in the
 posterior $\tilde{p}$ and is expressed as expectation values of observables $O$
 using Eq.~\eqref{eq:PostEnsemble}.
 
+Training may yield different posteriors depending on the initial network
+configuration. To understand this dependence, we pause to examine the
+statistical properties of network ensembles at initialization. This analysis
+provides crucial insight into how prior knowledge embedded in the initialization
+interacts with and evolves throughout the training process, as we show in
+Sec.~\ref{sec:LazyTraining}.
+
 \subsection{Neural Networks at Initialisation}
 % \label{subsec:NNinit}
 
-When initializing a neural network, the weights and biases -- which we denote collectively as the {\em parameters}\ 
-of the network -- are drawn from some probability distribution. In 
-the NNPDF formalism, the set of network parameters at initialisation for each replica is an instance 
-of i.i.d. stochastic variables. The probability distribution
-of the network parameters induces a probability distribution for the output of the neural networks at initialisation. 
-It is well known that the probability distribution of these outputs becomes approximately gaussian when the size of
-the hidden layers is increased. We call this limit the {\em large-network} limit. 
-In this section, we review some basic results for the large-network limit at initialisation, and 
-compare these theoretical 
-predictions with the actual results obtained in numerical experiments performed with the typical networks 
-used by the NNPDF collaboration. 
-This preliminary study of the properties of networks at initialisation also allows us to introduce the 
-notation used for the networks in the rest of the paper. 
+When initializing a neural network, the weights and biases -- which we denote
+collectively as the {\em parameters}\ of the network -- are drawn from some
+probability distribution. In the NNPDF formalism, the set of network parameters
+at initialisation for each replica is an instance of i.i.d. stochastic
+variables. More importantly, the probability distribution of the network
+parameters induces a probability distribution for the output of the neural
+networks at initialisation. It is well known that the probability distribution
+of these outputs becomes approximately gaussian when the size of the hidden
+layers is increased. We call this limit the {\em large-network} limit.
 
-As detailed in Ref.~\cite{NNPDF:2021njg}, the NNs used for the NNPDF fit have a 2-25-20-8 architecture,
-a $\tanh$ activation function,
-and are initialized using a Glorot normal distribution~\cite{glorot2010understanding}. The preactivation
-function of a neuron is denoted as $\phi^{(\ell)}_{i,\alpha} = \phi^{(\ell)}_i(x_\alpha)$, where $\ell$
-denotes the layer of the neuron, $i$ identifies the neuron within the layer\footnote{We refer
-to $i$ as the {\em neuron}\ index.}, and $x_{\alpha}$ is a point in the interval $[0,1]$.
-A grid of $\ngrid=50$ points is used to compute observables in the NNPDF formalism and in this work 
-we focus on the vakue of $f$ at those values of $x_\alpha$. For completeness, we list the values of $x_\alpha$ in
-Tab.~\ref{tab:Xvals}.
+As detailed in Ref.~\cite{NNPDF:2021njg}, the NNs used for the NNPDF fit have a
+2-25-20-8 architecture, a $\tanh$ activation function, and are initialized using
+a Glorot normal distribution~\cite{glorot2010understanding}. The preactivation
+function of a neuron is denoted as $\phi^{(\ell)}_{i,\alpha} =
+\phi^{(\ell)}_i(x_\alpha)$, where $\ell$ denotes the layer of the neuron, $i$
+identifies the neuron within the layer\footnote{We refer to $i$ as the {\em
+neuron}\ index.}, and $x_{\alpha}$ is a point in the interval $[0,1]$. A grid of
+$\ngrid=50$ points is used to compute observables in the NNPDF formalism and in
+this work we focus on the value of $f$ at those values of $x_\alpha$. For
+completeness, we list the values of $x_\alpha$ in Tab.~\ref{tab:Xvals}.
 
 \begin{table}[ht]
     \centering

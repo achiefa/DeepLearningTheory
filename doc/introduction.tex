@@ -34,7 +34,7 @@ out explicitly.
 
 On the other hand, state-of-the-art PDF determinations rely on parametric approaches,
 where a specific functional form is assumed for the PDFs at a given initial
-scale $Q_0$. These functions forms are typically chosen to be flexible enough to
+scale $Q_0$. These functions are typically chosen to be flexible enough to
 capture the main features of the PDFs, while their internal parameters are
 optimised to reproduce the experimental data. Several
 groups~\cite{NNPDF:2021njg,Ablat:2024hbm,Bailey:2020ooq,Alekhin:2017kpj} have
@@ -48,14 +48,14 @@ understood~\cite{Harland-Lang:2024kvt}. These differences become significantly
 visible when considering parameter determinations that are particularly
 sensitive to the choice of the PDF set, thus on the central value and the
 associated uncertainty. Examples of such parameters include the strong coupling
-constant $\alpha_s$ and other Standard Model parameters (\ac{to be continued})
+constant $\alpha_s$ and other Standard Model parameters. (\ac{...})
 
 In this paper, we build upon the intents of
 Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, which aim at providing a
 transparent statistical and sound framework for PDF determination, with all
 underlying assumptions clearly stated. Here we focus on the NNPDF approach,
 which pioneered the use of machine learning tools in the context of PDF
-determination and has been continuously developed over the years~[\red{ref}]. The
+determination and has been continuously developed over the years. The
 NNPDF framework, which combines a Monte Carlo sampling of the experimental data
 and a feed-forward neural network parameterisation of the PDFs, has been
 validated through extensive studies, including closure tests~[\red{ref}], future
@@ -69,4 +69,21 @@ as an exploration of foundational aspects, with the understanding that further
 investigations will be needed to extend these ideas to the full complexity of
 modern global PDF fits.
 
-The remainder of this paper is organized as follows. In ...
+The remainder of this paper is organized as follows. In Section~\ref{sec:Init}
+the inverse problem of PDF determination is briefly reviewed in the simplified
+case of theoretical predictions that depend linearly on the PDFs. We then review
+some fundamental statistical aspects of the Neural Networks at initialisation,
+which will be relevant in the rest of the paper. The training dynamics is then
+discussed in Section~\ref{sec:Training}, where the learning process of the
+neural network is reformulated in functional space by means of the Neural
+Tangent Kernel (NTK). The properties of the NTK during training are empirically
+studied in the context of a PDF fit in a closure-test setup. We find that the
+training process, at least in the considered setup, is characterised by two
+distinct regimes -- an initial phase where the NTK evolves significantly,
+followed by a second phase where it becomes approximately constant. The
+implications of this latter regime, which is often referred to as \textit{lazy
+training} in the Machine Learning literature, are then employed in
+Section~\ref{sec:LazyTraining} to derive an analytical description of the
+training dynamics. This allows us to have full control of the training process
+and to characterise how the initial condition and the quoted error evolve during
+training.
