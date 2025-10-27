@@ -237,19 +237,6 @@ analytical solution have a clear physical interpretation:
   \label{fig:OnsetLazyL2}
 \end{figure}
 % =================================================
-% Decomposition L2 ================================
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.9\textwidth]{section_4/u_v_decomposition_L2.pdf} 
-  \caption{Decomposition of the analytical solution into the two contributions
-  from $U$ and $V$ at different training times. The frozen NTK is fixed across
-  panels, and corresponds to the one at $T_{\rm ref} = 10000$. The initial
-  condition is always $f_{T_{\rm ref}}$. As in Fig.~\ref{fig:OnsetLazyL2}, L2 data
-  is used.}
-  \label{fig:FrefDecompositionL2}
-\end{figure}
-% =================================================
-
 The solution in Eq.~\eqref{eq:AnalyticSol} is the main result of this section.
 It shows that the training process can be described as the sum of a linear
 transformation of the initial fields $f_{0,\alpha}$, and a linear transformation
@@ -259,26 +246,41 @@ compares the analytical solution with the trained function at the end of
 training, for different choices of the frozen NTK. The evolution time $T$ used
 in the analytical solution is the difference between the total training time and
 $T_{\rm ref}$. Central value and uncertainty bands are obtained by computing the
-analytical solution for each replicas of the initial condition and frozen NTK\footnote{
+analytical solution for each replicas of the initial condition and frozen NTK.
+\footnote{
   If not stated otherwise, in this section central values and uncertainties are
   always computed as ensemble averages across replicas.
-}.
-The figures agree with the expectation, that the closer $T_{\rm ref}$ is to the
+}
+The figures agree with the expectation; the closer $T_{\rm ref}$ is to the
 onset of the lazy regime, the better the agreement between the analytical
 solution and the trained function.
 
 A complementary perspective is provided in Fig.~\ref{fig:FrefDecompositionL2},
-where then analytical solution is decomposed into the two contributions from $U$
+where the analytical solution is decomposed into the two contributions from $U$
 and $V$. In each panel, the initial condition $f_{T_{\rm ref}}$ is evolved
 analytically for different training times by keeping the frozen NTK fixed. We
 see that as training proceeds, the contribution from $U$ is progressively
 suppressed, in accordance with the observation made above. On the other hand,
 the contribution from $V$ grows and becomes dominant at later epochs, indicating
-that the trained function is mostly determined by the data, rather than the the
+that the trained function is mostly determined by the data, rather than the
 previous condition of the network. We also observe that such behaviour happens
-quite rapidly, as a consequence of the fact the suppression and growth rates are
-determined by the eigenvalues of $H^\perp$, which are typically large.
-
+quite rapidly, as a consequence of the fact the time scales in the analytical solution are
+determined by the inverse of the eigenvalues of $H^\perp$, and latter 
+are typically large.
+% Decomposition L2 ================================
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{section_4/u_v_decomposition_L2.pdf} 
+    \caption{Decomposition of the analytical solution into the two contributions
+    from $U$ and $V$ at different training times. The frozen NTK is fixed across
+    panels, and corresponds to the one at $T_{\rm ref} = 10000$. The initial
+    condition is always $f_{T_{\rm ref}}$. As in Fig.~\ref{fig:OnsetLazyL2}, L2 data
+    is used.}
+    \label{fig:FrefDecompositionL2}
+  \end{figure}
+  % =================================================
+  
+  
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} sheds a new light onto the
 behaviour of the numerical training of a neural network. Given these results, it
 is natural to ask whether the information encoded in the NTK alone can drive
@@ -290,9 +292,10 @@ following section.
 \label{sec:NTKKernelLearning}
 
 The results shown in Sec.~\ref{sec:Lazy} and Sec.~\ref{sec:NTKDuringTraining}
-support the idea that the NTK is capable to encode physical features learned
+support the idea that the NTK is capable to encode in its eigenvectors 
+the physical features learned
 during training. We now probe this idea further by employing the analytical
-solution in Eq.~\eqref{eq:AnalyticSol} \textit{a la} kernel learning, \ie\ by
+solution in Eq.~\eqref{eq:AnalyticSol} \textit{\`a la} kernel learning, \ie\ by
 applying it to an initial condition that represents our prior. In the following,
 we choose the initial condition to be an ensemble of networks at initialisation
 as in Fig.~\ref{fig:prior}, whose architecture is the same as the one used in
@@ -338,7 +341,7 @@ Crucially, if the NTK at $T_{\rm ref}$ has already learned from the data and
 aligned with the solution, the AS converges faster to the target, while the TS
 requires additional epochs before evolving in the correct direction.
 
-\subsubsection{Central value and Covariance of the trained fields}
+\subsubsection{Central Value and Covariance of the Trained Fields}
 \label{sec:CentralAndCovariance}
 
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} is inherently stochastic,
@@ -392,40 +395,41 @@ where
         &= \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
         - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right]\, .
 \end{align}
-Eq.~\eqref{eq:SumOfCovariances} clearly shows that the factorisation between the
+Eq.~\eqref{eq:SumOfCovariances} shows that the factorisation between the
 contribution from the initial condition and the one from the data holds also at
 the level of the covariance matrix. Indeed, $C_t^{(00)}$ quantifies the
 contribution to the covariance matrix that is purely due to the fluctuations of
-the prior condition, while $C_t^{(YY)}$ quantifies the contribution that is
+the initial condition, while $C_t^{(YY)}$ quantifies the contribution that is
 purely due to the statistical fluctuations of the data. The mixed term
 $C_t^{(0Y)}$ accounts for the correlations between the two sources of
 uncertainty.
 
 
-\paragraph{Connection Linear Methods}
+\paragraph{Connection with Linear Methods}
 % ===================================
 \begin{figure}[t!]
   \centering
   \includegraphics[width=0.95\textwidth]{section_4/delta_bootstrap_L2_U.pdf}
   \includegraphics[width=0.95\textwidth]{section_4/delta_bootstrap_L2_V.pdf}
   \caption{Behaviour of $\Delta [U(t)f_0]$ and $\Delta [V(t)Y]$, as defined in
-  Eqs.~\eqref{eq:DeltaExpValUtF0} and~\eqref{eq:DeltaExpValVtY}, in function of the training
-  time. In both cases, the operator is constructed by taking the NTK at $T_{\rm
-  ref} = 10000$, which is fixed across panels. The uncertainties are extracted
-  from the bootstrap ensemble (see main text).}
+  Eqs.~\eqref{eq:DeltaExpValUtF0} and~\eqref{eq:DeltaExpValVtY}, as functions
+  of the training
+  time. The operators $U(T)$ and $V(T)$ are constructed by taking the 
+  NTK at $T_{\rm ref} = 10000$, which is fixed across panels. The uncertainties are extracted
+  from the bootstrap ensemble as discussed in the text.}
     \label{fig:xT3_exp_val}
 \end{figure}
 % ===================================
 
 We can consider a simplifying limit of Eq.~\eqref{eq:MeanValAtT}, where the
-initial condition $f_0$ and the data $Y$ are uncorrelated with the respective
-evolution operators $U(t)$ and $V(t)$. Indeed, the first term on the right-hand
+initial condition $f_0$ and the data $Y$ are statistically independent
+from the respective
+evolution operators $U(t)$ and $V(t)$. Note that the first term on the right-hand
 side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of the
 correlations between $U(t)$ and $f_0$. In the absence of such correlations, the
-first term would be given by the product of the single expectation values and
-would vanish if $f_0$ is an ensemble of networks at initialisation. A similar
-argument applies to the second term, giving a non-zero contribution. Under these
-assumptions the expressions, we have
+first term would be given by the product of the expectation values and therefore
+would vanish if $f_0$ is an ensemble of networks at initialisation. Under these
+assumptions, we have
 \begin{align}
     \label{eq:MeanUt}
     \bar{U}(t)
@@ -461,20 +465,20 @@ following two estimators,
 for different training times, using the same frozen NTK and L2 data. The results
 are shown in Fig.~\ref{fig:xT3_exp_val} for the $U$ (upper panel) and $V$ (lower
 panel) contributions. The error bands are computed using bootstrap error. By
-inspecting the figures, we see two distinct patterns emerging. For the $U$, the
-difference is different from zero for small training times, and thus the
+inspecting the figures, we see two distinct patterns emerging. For the operator 
+$U$, $\Delta[U f_0]$ is different from zero for small training times, and thus the
 correlations between $U(t)$ and $f_0$ are non-negligible. However, as training
-proceeds, the two expressions get closer and closer, and the difference becomes
-closer to zero, suggesting that the correlations are progressively suppressed.
-The case of the $V$ operator is even more striking, as the difference is clearly
+proceeds, the $\Delta[U f_0]$ becomes compatible with zero within the error bars, 
+suggesting that the correlations are progressively suppressed.
+The case of the $V$ operator is even more striking, as $\Delta[V Y]$ is clearly
 non-negligible across all training times, although it also shows a decreasing trend as
 training proceeds. This suggests that the correlations between $V(t)$ and $Y$
 cannot be neglected. 
 
-In concluding, we note that Eq.~\eqref{eq:FlowSolution} resembles the structure
+In conclusion, we note that Eq.~\eqref{eq:MeanValAtTNoCorr} resembles the structure
 of a linear method, like \eg\ Backus-Gilbert or Gaussian Processes. We believe
 that this observation, as well as the results shown in
-Fig.~\ref{fig:xT3_exp_val} deserve further investigations, which we leave for
+Fig.~\ref{fig:xT3_exp_val}, deserve further investigations, which we leave for
 future work.
 
 \paragraph{Error decomposition}
@@ -488,19 +492,21 @@ future work.
 % ===================================
 The analytical expression for the covariance matrix,
 Eq.~\eqref{eq:SumOfCovariances}, allows us to monitor the relative size of the
-three contributions as training proceeds. An important criterion that we want to
-put forward at this point is that the covariance of the trained fields should be
+three contributions as training proceeds. For a properly trained ensemble of 
+networks, the covariance of the trained fields should be
 dominated by the statistical error on the data. We show the diagonal entries of
 the decomposition of the error budget in Fig.~\ref{fig:ErrorBudgetL2}, for
 different frozen NTKs (rows) and different training epochs (columns), using L2
-data as before. In general, we observe that towards the end of training the
+data as before. In general, we observe that towards the end of the training 
+process the
 contribution from the data $C_t^{(YY)}$ (orange band) becomes dominant with
 respect to the contribution coming from the initial condition $C_t^{(00)}$ (blue
 band). We also see that the suppression of the initial condition is more severe
 and happens earlier when the frozen NTK is taken at later stages of training.
 These findings ensure that the quoted error on the PDFs is actually dominated by
 the statistical error on the data, and not by the fluctuations of the initial
-fields. This is a crucial point, since it guarantees that the ensemble of
+fields. This is a crucial point, since it guarantees that the error bars computed
+from the ensemble of
 trained PDFs is not biased by the choice of prior that is made by selecting a
 given architecture, activation function, and probability distribution for the
 biases and weights at initialisation.
@@ -517,9 +523,9 @@ completely determined by the input PDFs
     Y = \FKtab \fin\, .
 \end{equation}
 Note that using L0 data only affects the second term in
-Eq.~\ref{eq:AnalyticSol}\footnote{To be more precise, since the analytical
-solution is requires the NTK to be frozen at a certain epoch $T_{\rm ref}$, the
-NTK will itself depend on the data used in the training.}. We can then rewrite
+Eq.~\ref{eq:AnalyticSol}.\footnote{To be more precise, since the analytical
+solution requires the NTK to be frozen at a certain epoch $T_{\rm ref}$, the
+NTK will depend on the data used in the training.} We can then rewrite
 the combined term in Eq.~\eqref{eq:DataCorrectedInference} as follows
 \begin{align}
   \label{eq:TrainingOnLevelZero}
@@ -540,12 +546,12 @@ this irreducible noise depends both on how $f_0$ and the kernel of the NTK are
 distributed over the ensemble. We will come to this point soon.
 
 Note that the observation above remains true even in the limit of infinite
-training. This can be shown using Interestingly, for $t\to\infty$, we have
+training. This can be shown using 
 \begin{align}
     \label{eq:LevelZeroClosureInfiniteTraining}
-    \lim_{t\to\infty} V(t) Y = \finperp + \mathcal{M}_{\infty} M \finpar
+    \lim_{t\to\infty} V(t) Y = \finperp + \mathcal{M}_{\infty} M \finpar\, ,
 \end{align}
-and therefore the $V$ component of the trained solution reproduces exactly the
+which shows that the $V$ component of the trained solution reproduces exactly the
 component of the PDF that lies in  the subspace orthogonal to the kernel of
 $\Theta$. We compare the asymptotic behaviour of $V(t) Y$ and $\finperp$ in
 Fig.~\ref{fig:InfiniteTimeVterm}.
