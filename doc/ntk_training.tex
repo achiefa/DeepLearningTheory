@@ -1,7 +1,7 @@
 \section{Training Dynamics and the Neural Tangent Kernel}
 \label{sec:Training}
 
-Having defined the physical context of this work and established some properties
+Having defined the physics goals and summarised some properties
 of the neural network at initialisation, we now turn to the optimisation
 process. In the context of machine learning, specifically when dealing with
 neural networks, optimisation is an iterative algorithm that updates the
@@ -9,13 +9,13 @@ parameters of the network in order to minimise a figure of merit defined
 appropriately. Due to the large number of parameters that characterise a neural
 network, the figure of merit (also known as \textit{error function},
 \textit{loss function}, or simply \textit{loss}) is a non-convex
-high-dimensional function that poses a challenge in the minimisation task. In
-addition, in order to avoid \textit{over-} and \textit{under-learning}, these
-training algorithms are paired with the so-called \textit{stopping criterion},
+high-dimensional function, leading to numerical challenges in the minimisation task. In
+addition, in order to avoid \textit{over-} and \textit{under-learning}, 
+training algorithms are complemented by a so-called \textit{stopping criterion},
 which specifies the optimal condition to end the training process.
 
-In practice, this task is tackled by using gradient methods where the direction
-towards the minimum is characterised by the gradient of the loss function. These
+In practice, minimization is performed using gradient methods where the direction
+towards the minimum is defined by the gradient of the loss function. These
 methods are usually improved by including, for instance, stochasticity and
 information on previous iterations. A detailed overview of these extended
 gradient methods is beyond the scope of this work. In the context of PDF
@@ -26,10 +26,10 @@ discussion.
 Our main aim in this paper is understanding the dynamics driving the training
 process. Indeed, while these algorithms have achieved remarkable empirical
 success, a theoretical understanding of the optimization process remains
-elusive. Therefore, we work in a simplified setting where we consider the
-simplest gradient method, \textit{i.e.} Gradient Descent (GD). Furthermore, we
-will consider a dataset for which predictions can be computed using one flavour
-combination in the PDFs, so that the integral in Eq.~\eqref{eq:TheoryPred}
+elusive. Therefore, we work with the
+simplest gradient method, \ie\ Gradient Descent (GD). Furthermore, we
+consider a reduced dataset for which predictions can be computed using one flavour
+combination of the PDFs, so that the integral in Eq.~\eqref{eq:TheoryPred}
 reduces to
 \begin{equation}
     \label{eq:TheoryPredSingleFlav}
@@ -38,10 +38,10 @@ reduces to
 The details of the dataset and the definition of the flavour combination
 considered in this work are provided in Appendix~\ref{app:dataset}.
 For simplicity, we do not implement cross-validation or stopping
-criteria\footnote{ We are aware that such a framework has limited applicability
+criteria\footnote{We are aware that such a framework has limited applicability
 in the context of PDF determination, and we are far from assuming this as an
-optimal choice. Again, the focus remains on the methodological aspects rather
-than the underlying physics.}. Extensions to theoretical predictions that are
+optimal choice. Again, the focus here remains on the methodological aspects.}. 
+Extensions to theoretical predictions that are
 quadratic in the PDFs, multiple flavour combinations, alternative minimizers,
 and cross-validation tools are left for future work.
 
@@ -141,7 +141,7 @@ the indices such that, for instance,
   \label{eq:dTdfForLinearObs}
 \end{align}
 Then, using the definition of the error in Eq.~\eqref{eq:EpsDef}, we can rewrite
-Eq.~\eqref{eq:NTKFlow} as follows
+Eq.~\eqref{eq:NTKFlow} as 
 \begin{align}
     \label{eq:FlowEquationNoIndices}
     \ddt f_t = -\Theta_t M f_t + b\, ,
@@ -170,6 +170,8 @@ integrating Eq.~\ref{eq:FlowEquationNoIndices} analytically. We will come back
 to this point in Sec.~\ref{sec:Lazy}, and we now discuss the properties of the
 NTK during training.
 
+\FloatBarrier
+
 \subsection{Inside the Training Dynamics: an NTK perspective}
 
 From Eqs.~\eqref{eq:NTKDef} and~\eqref{eq:FlowEquationNoIndices}, we observe
@@ -179,19 +181,6 @@ crucial for understanding the behaviour of the network during training. We first
 discuss the properties of the NTK at initialisation, before moving to the
 training phase, where we provide a detailed study of the NTK in the context of
 the NNPDF methodology.
-
-% ===================================
-\begin{figure}[t!]
-  \centering
-  \includegraphics[width=0.90\textwidth]{figs/section_3/ntk_initialization_with_uncertainty.pdf}
-  \caption{Frobenius norm of the NTK at initialisation, $\lVert \Theta_0
-  \rVert$, in function of the width of the network. On the left, the central
-  values and uncertainty bands are obtained as the mean and one-sigma deviation
-  of the ensemble of networks. The plot on the right shows the relative
-  uncertainty.}
-  \label{fig:NTKInit}
-\end{figure}
-% ===================================
 
 \subsubsection{NTK at initialisation}
 \label{sec:NTKAtInit}
@@ -220,13 +209,17 @@ bootstrap errors due to the finite size of the ensemble. Using an ensemble of
 100 replicas, the bootstrap error on the standard deviation is $\sim 10\%$.}.
 
 % ===================================
-\begin{figure}[t]
+\begin{figure}[ht!]
   \centering
-  \includegraphics[width=0.45\textwidth]{figs/section_3/ntk_initialization_arch.pdf}
-  \caption{Spectrum of the NTK at initialisation for the architectures shown in
-  Fig.~\ref{fig:NTKInit}. Error bands correspond to one-sigma uncertainties over
-  the ensemble of networks.}
-  \label{fig:NTKSpectrum}
+  \includegraphics[width=0.90\textwidth]{figs/section_3/ntk_initialization_with_uncertainty.pdf}
+  \caption{Frobenius norm of the NTK at initialisation, $\lVert \Theta_0
+  \rVert$, in function of the width of the network. On the left, the central
+  values and uncertainty bands are obtained as the mean and one-sigma deviation
+  of the ensemble of networks. The plot on the right shows the relative
+  uncertainty. It is interesting to note the decrease of the relative uncertainty as the 
+  architecture of the network is increased. For larger networks, the sensitivity to a change
+  of the network parameters fluctuates less.}
+  \label{fig:NTKInit}
 \end{figure}
 % ===================================
 
@@ -248,7 +241,22 @@ is a physical feature of the system, rather than a fluctuation. Finally, the
 variance of the set of eigenvalues over replicas decreases with increasing size,
 as expected. 
 
-% \FloatBarrier
+% ===================================
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/section_3/ntk_initialization_arch.pdf}
+  \caption{Spectrum of the NTK at initialisation for the architectures shown in
+  Fig.~\ref{fig:NTKInit}. Error bands correspond to one-sigma uncertainties over
+  the ensemble of networks. The hierarchy of the eigenvalues is independent of the size
+  of the network. In agreement with the data in Fig.~\ref{fig:NTKInit}, the fluctuations 
+  of the eigenvalues decrease as the width of the layers is increased. 
+  }
+  \label{fig:NTKSpectrum}
+\end{figure}
+% ===================================
+
+
+\FloatBarrier
 
 \subsubsection{NTK During Training}
 \label{sec:NTKDuringTraining}
@@ -268,37 +276,13 @@ closure tests, and we denote the input PDFs used to generate the data as $\fin$.
 The definitions of these three levels of data are given in Appendix~\ref{app:dataset}.
 
 For each of the closure-test data given above, we perform a fit of the
-non-single triplet combination $T_3$ using the NNPDF methodology. To do so, we
-initialise an ensemble of $\nreps = 100$ replicas with identical architecture,
+triplet combination $T_3$ using the simplified version of the NNPDF methodology that we 
+discussed above. We initialise an ensemble of $\nreps = 100$ replicas with identical architecture,
 training each replica independently using GD optimization. Throughout the
 training process, we track the evolution of the NTK to understand how the
 network's effective dynamics change as it learns the target function.
 
 \paragraph{Onset of Lazy Training} 
-% ===================================
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.60\textwidth]{section_3/delta_ntk.pdf}
-  \caption{Relative variation of the NTK during training for L0, L1, and
-  L2 data. Error bands correspond to one-sigma uncertainties over the ensemble
-  of networks.}
-  \label{fig:NTKTime}
-\end{figure}
-% ===================================
-
-% ===================================
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L0.pdf}
-  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L1.pdf}
-  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L2.pdf} 
-  \caption{Evolution during training of the first five eigenvalues of the NTK
-  using L0 (left), L1 (center), and L2 (right) data. Solid lines represent the
-  median over the ensemble of networks, while solid bands correspond to 68\%
-  confidence level.}
-  \label{fig:NTKEigvalsTime}
-\end{figure}
-% ===================================
 
 As a first estimator of the variation of the NTK, we show in
 Fig.~\ref{fig:NTKTime} the Frobenius norm of the variation during training,
@@ -313,16 +297,27 @@ the relative variation $\delta \Theta_t$ reaching values as high as $6\%$. This
 indicates that our settings differ from the standard picture of lazy training in
 the context of very wide networks, as discussed \eg~in
 Refs.~\cite{jacot2018neural,Roberts:2021fes,lee2019wide}. Remarkably, we do not
-observe a dependence on how data have been generated, indicating that the NTK is
-able to learn across the noise that affects the data. 
+observe a dependence on how data have been generated, indicating that the NTK
+dynamics is basically unaffected by the noise that affects the data. 
 
 After this initial phase -- corresponding approximately to the first 20,000
 epochs in our experiment -- the NTK tends to stabilize. These two regions will
 be referred to as the \textit{rich} and \textit{lazy} training regimes,
 respectively, in keeping with the standard terminology adopted in the literature
-(see, \eg Ref.~\cite{fort2020dlvk} where two similar regimes where also
+(see, \eg\ Ref.~\cite{fort2020dlvk} where two similar regimes where also
 identified). We do not comment any further on the implications of the lazy
 regime, and postpone the discussion to Sec.~\ref{sec:Lazy}.
+
+% ===================================
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.60\textwidth]{section_3/delta_ntk.pdf}
+  \caption{Relative variation of the NTK during training for L0, L1, and
+  L2 data. Error bands correspond to one-sigma uncertainties over the ensemble
+  of networks.}
+  \label{fig:NTKTime}
+\end{figure}
+% ===================================
 
 \FloatBarrier
 
@@ -338,7 +333,32 @@ training -- by one or two orders of magnitude depending on the specific
 eigenvalue. 
 
 % ===================================
-\begin{figure}[t]
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L0.pdf}
+  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L1.pdf}
+  \includegraphics[width=0.3\textwidth]{section_3/ntk_eigvals_single_plot_L2.pdf} 
+  \caption{Evolution during training of the first five eigenvalues of the NTK
+  using L0 (left), L1 (center), and L2 (right) data. Solid lines represent the
+  median over the ensemble of networks, while solid bands correspond to 68\%
+  confidence level.}
+  \label{fig:NTKEigvalsTime}
+\end{figure}
+% ===================================
+
+\FloatBarrier
+
+In Fig.~\ref{fig:EigvalsComparison}, the same first five eigenvalues of the NTK
+are displayed for L0, L1, and L2 data. We observe a common pattern across all
+data types, consistently with the observation made before in
+Fig.~\ref{fig:NTKTime}. This indicates the NTK evolution is insensitive to
+the noise included in the synthetic data. The increase of the subdominant
+eigenvalues, combined with the analysis of Eqs.~\eqref{eq:FlowParallel}
+and~\eqref{eq:FlowPerp} in Sect.~\ref{sec:LazyTraining}, suggests that 
+more ``physical'' features become learnable before lazy training sets in.
+
+% ===================================
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_1.pdf}
   \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_2.pdf}
@@ -352,28 +372,7 @@ eigenvalue.
 \end{figure}
 % ===================================
 
-In Fig.~\ref{fig:EigvalsComparison}, the same first five eigenvalues of the NTK
-are displayed for L0, L1, and L2 data. We observe a common pattern across all
-data types, consistently with the observation made before in
-Fig.~\ref{fig:NTKTime}. This indicates the the NTK evolution is insensitive to
-the noise included in the synthetic data. The increase of the subdominant
-eigenvalues, combined with the analysis of Eqs.~\eqref{eq:FlowParallel}
-and~\eqref{eq:FlowPerp}, suggests that more ``physical'' features become
-learnable before lazy training sets in.
-
-% ===================================
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L0.pdf}
-  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L1.pdf}
-  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L2.pdf}
-  \caption{Variation of the loss function overlaid with the first five
-  eigenvalues for a selected replica over the ensemble using L0 (left), L1
-  (center), and L2 (right) data. Left scale refers to the loss, while the right
-  scale refers to the eigenvalues.}
-  \label{fig:Loss}
-\end{figure}
-% ===================================
+\FloatBarrier
 
 \paragraph{Connection with the loss function} Finally, in Fig.~\ref{fig:Loss} we
 show the variation of the loss function during training, overlaid with the first
@@ -392,16 +391,30 @@ eigenvectors corresponding to the larger eigenvalues can be interpreted as {\em
 learnable}\ features, while the small (or zero) eigenvalues correspond to
 directions in which the field $f$ never evolves during training.
 
-% \FloatBarrier
+% ===================================
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L0.pdf}
+  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L1.pdf}
+  \includegraphics[width=0.30\textwidth]{section_3/loss_and_eigvals_vs_epochs_L2.pdf}
+  \caption{Variation of the loss function overlaid with the first five
+  eigenvalues for a selected replica over the ensemble using L0 (left), L1
+  (center), and L2 (right) data. Left scale refers to the loss, while the right
+  scale refers to the eigenvalues.}
+  \label{fig:Loss}
+\end{figure}
+% ===================================
+
+\FloatBarrier
 
 \subsubsection{Eigenvectors and Alignment of the NTK}
 \label{sec:NTKAlign}
 
 It has been argued before that there is a non-trivial interplay between the
 eigenspace of the NTK and that of the matrix $M$. Indeed, the former encodes the
-model dependence, while the latter brings physical information. Of course the
+model dependence, while the latter yields physical information. Of course the
 two matrices are independent at initialisation, and we do not expect any
-alignment pattern between the two. However, this picture may change during
+alignment pattern between the two. However, this picture does change during
 training, as the NTK evolves and the model learns the target function. To
 quantify this alignment, we define the matrix $A$, 
 \begin{equation}
@@ -428,32 +441,6 @@ replica.
   indicates the cut-off tolerance that we imposed to the eigenvalues of the NTK
   (see Appendix~\ref{app:cutoff}).}
   \label{fig:NtkMAlign}
-\end{figure}
-% ===================================
-
-% ===================================
-\begin{figure}[ht!]
-  \centering
-  \includegraphics[width=0.45\textwidth]{section_3/ntk_alignment_fin_L2_1}
-  \includegraphics[width=0.45\textwidth]{section_3/ntk_alignment_fin_L2_2}
-  \caption{Alignment of the eigenvectors of the NTK with the input function
-  $f^{\rm(in)}$ used to generate the L2 data, measured in terms of $\cos
-  \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the
-  left panel, the first five eigenvectors of the NTK are shown, while the right
-  panel shows the remaining eigenvectors up to $k=7$.}
-  \label{fig:NTKAlignFin}
-\end{figure}
-% ===================================
-% ===================================
-\begin{figure}[ht!]
-  \centering
-  \includegraphics[width=0.90\textwidth]{section_3/q_directions_sign.pdf}
-  \caption{First five eigenvectors of the combined matrix $H=\Theta M$, as in
-  Eq.~\eqref{eq:FlowEquationNoIndices}, at different training time and as
-  function of the input $x$-grid. We also show the output of the network at the
-  same training time, which is displayed in gray. L1 data is used. \ac{Should we use L0
-  data instead?}}
-  \label{fig:NTKMEigVecs}
 \end{figure}
 % ===================================
 
@@ -484,6 +471,21 @@ directions that were subdominant in the first stage of training. This in
 accordance to what has been previously observed in
 Figs.~\ref{fig:EigvalsComparison}-\ref{fig:NtkMAlign}. 
 
+% ===================================
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.45\textwidth]{section_3/ntk_alignment_fin_L2_1}
+  \includegraphics[width=0.45\textwidth]{section_3/ntk_alignment_fin_L2_2}
+  \caption{Alignment of the eigenvectors of the NTK with the input function
+  $f^{\rm(in)}$ used to generate the L2 data, measured in terms of $\cos
+  \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the
+  left panel, the first five eigenvectors of the NTK are shown, while the right
+  panel shows the remaining eigenvectors up to $k=7$.}
+  \label{fig:NTKAlignFin}
+\end{figure}
+% ===================================
+
+
 A complementary picture is displayed in Fig.~\ref{fig:NTKMEigVecs}. Here, we
 show the eigenvectors of the product of matrices $\Theta M$, labelled with
 $q^{(i)}$, at different training times and as functions of the $x$-grid. The
@@ -495,5 +497,18 @@ become more structured in order to reproduce the output function. Again, this
 conclusion supports the observations made previously in various occasions, that
 during training the neural network is changing its internal representation and
 the NTK encodes this information.
+
+% ===================================
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_3/q_directions_sign.pdf}
+  \caption{First five eigenvectors of the combined matrix $H=\Theta M$, as in
+  Eq.~\eqref{eq:FlowEquationNoIndices}, at different training time and as
+  function of the input $x$-grid. We also show the output of the network at the
+  same training time, which is displayed in gray. L1 data is used. \ac{Should we use L0
+  data instead?}}
+  \label{fig:NTKMEigVecs}
+\end{figure}
+% ===================================
 
 \FloatBarrier

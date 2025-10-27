@@ -4,13 +4,13 @@
 
 In the following, we prepare the ground for the study of the training dynamics
 of neural networks used in the NNPDF framework. We start by presenting briefly
-the inverse problem of PDF determination for data depending linear in the PDFs,
-setting the notation used throughout this work and introducing the statistical
-vocabulary used in the rest of the work. We then provide an account for some
+the inverse problem of PDF determination using data depending linearly on the PDFs,
+setting the notation and introducing the statistical
+vocabulary used in the rest of this study. We then discuss some
 statistical aspects of the neural networks at initialisation, which will help us
 understand the implications in the training process. These properties, derived
-in the large-width limit~\cite{lee2019wide,jacot2018neural}, are compared to the
-specific architecture used in the NNPDF methodology. A exhaustive and detailed
+in the large-width limit~\cite{lee2019wide,jacot2018neural}, are analysed for the
+specific architecture used in the NNPDF methodology. An exhaustive and detailed
 review of wide-network properties is beyond the scope of this work, and the
 reader is encouraged to refer to Ref.~\cite{Roberts:2021fes} for a comprehensive
 review.
@@ -30,15 +30,15 @@ given by
     T_I[f] = \sum_{i=1}^{\nflav} \int dx\, C_{Ii}(x) f_{i}(x)\, ,
 \end{equation}
 where $C_{Ii}(x)$ is a coefficient function, known to some given order in
-perturbation theory, $i$ labels the parton flavour, and $f_i(x)$ is the PDF (or
-set of PDFs) that we want to determine.
+perturbation theory, $i = 1, \ldots, \nflav$, labels the parton flavour, 
+and $f_i(x)$ is the PDF (or set of PDFs) that we want to determine.
 
 Attempting to determine a function $f$ in an infinite dimensional space of
-solutions with a finite set of data is inherently ill-posed. The solution
+solutions using a finite set of data is inherently ill-posed. The solution
 inevitably depends on assumptions and prior knowledge -- conscious or not --
 introduced to regularise the problem. Different methodologies, based either on
 non-parametric methods or parametric regression, have been proposed to address
-these challenges, yielding increasingly accurate and precise PDFs. Yet, despite
+these challenges, yielding increasingly precise PDFs. Yet, despite
 the longstanding effort to provide robust uncertainty quantification and
 establish the relationships between different methodologies and their solutions,
 some discrepancies remain unresolved. Understanding such differences between the
@@ -50,12 +50,12 @@ problem is conveniently phrased in a Bayesian framework. The functions $f_i$ are
 promoted to stochastic processes; for any grid of points $x_{\alpha}$,
 $\alpha=1, \ldots, \ngrid$, the vector $f_{i\alpha}=f_{i}(x_{\alpha})$ is a
 vector of $\nflav\times\ngrid$ stochastic variables, for which we introduce a
-prior distribution $p(f)$~\footnote{Following the same convention used for the
+{\em prior}\ distribution $p(f)$~\footnote{Following the same convention used for the
 data, when omitting the grid index $\alpha$, and/or the flavor index $i$, we
 will always refer to a vector $f \in \mathbb{R}^{\nflav\times\ngrid}$.}. In this
 perspective, any fitting procedure is interpreted as a recipe that yields the
-posterior distribution $\tilde{p}(f)$. In this study, and specifically in the
-context of the NNPDF methodology, probability distributions are represented by
+{\em posterior}\ distribution $\tilde{p}(f) = p(f | D_{\ndat})$.
+In this study, following the NNPDF methodology, probability distributions are represented by
 ensembles of i.i.d. neural network replicas. So, for instance, the prior
 distribution $p(f)$ is described by an ensemble
 \begin{equation}
@@ -69,13 +69,13 @@ drawn from the distribution $p$, so that
 \end{equation}
 for any observable $O$ that is built from the PDFs.
 
-The prior distribution $p(f)$ is defined by initializing a set of replicas using
-a Glorot normal initializer~\cite{glorot2010understanding}. The result of this
-initialisation is discussed below in Sec.~\ref{sec:Init}.
+The prior distribution $p(f)$ is defined by initializing a set of neural networks (NNs) 
+replicas using a Glorot normal initializer~\cite{glorot2010understanding}. The result of this
+initialisation is discussed below in Sec.~\ref{sec:NNinit}.
 
-In order to account for the experimental uncertainties and propagate them in the
-final PDFs, the NNPDF has proposed the Monte Carlo replica method. For each
-replica, a new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional
+In order to account for the experimental uncertainties and propagate them to the
+fitted PDFs, the NNPDF collaboration uses Monte Carlo replicas. For each
+replica, labeled by the index $k$, a new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional
 Gaussian distribution centred at the experimental central value $Y$, with the
 covariance given by the experimental covariance matrix $C_Y$,
 \begin{equation}
@@ -85,7 +85,8 @@ covariance given by the experimental covariance matrix $C_Y$,
 Each replica $f^{(k)}$ is trained on its corresponding data set $Y^{(k)}$. We
 denote the replicas at training time $t$, $f^{(k)}_{t} \in
 \mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $T$, the
-posterior probability distribution is represented by the set of replicas
+posterior probability distribution is represented by the set of 
+{\em trained}\ replicas
 $\left\{f^{(k)}_{T}\in \mathbb{R}^{\nflav\times\ngrid}; k=1, \ldots,
 \nreps\right\}$, so that averages over the posterior distribution are computed
 as
@@ -96,17 +97,21 @@ as
 \end{equation}
 All knowledge about the solution of the inverse problem, $f$, is encoded in the
 posterior $\tilde{p}$ and is expressed as expectation values of observables $O$
-using Eq.~\eqref{eq:PostEnsemble}.
+using Eq.~\eqref{eq:PostEnsemble}. Let us stress once again that the expectation values
+with respect to the prior and posterior distributions are both obtained by taking 
+averages over replicas. The expectation value with respect to the prior is the average over
+replicas at initialization. The expectation value with respect to the posterior is the average
+over the replicas at training time $T$. 
 
 Training may yield different posteriors depending on the initial network
 configuration. To understand this dependence, we pause to examine the
 statistical properties of network ensembles at initialization. This analysis
-provides crucial insight into how prior knowledge embedded in the initialization
-interacts with and evolves throughout the training process, as we show in
+provides a quantitative insight into how prior knowledge embedded in the initialization
+interacts with, and evolves throughout the training process, as we show in
 Sec.~\ref{sec:LazyTraining}.
 
 \subsection{Neural Networks at Initialisation}
-% \label{subsec:NNinit}
+\label{sec:NNinit}
 
 When initializing a neural network, the weights and biases -- which we denote
 collectively as the {\em parameters}\ of the network -- are drawn from some
@@ -116,7 +121,7 @@ variables. More importantly, the probability distribution of the network
 parameters induces a probability distribution for the output of the neural
 networks at initialisation. It is well known that the probability distribution
 of these outputs becomes approximately gaussian when the size of the hidden
-layers is increased. We call this limit the {\em large-network} limit.
+layers is increased~~\cite{Roberts:2021fes}. We call this limit the {\em large-network} limit.
 
 As detailed in Ref.~\cite{NNPDF:2021njg}, the NNs used for the NNPDF fit have a
 2-25-20-8 architecture, a $\tanh$ activation function, and are initialized using
@@ -125,7 +130,7 @@ function of a neuron is denoted as $\phi^{(\ell)}_{i,\alpha} =
 \phi^{(\ell)}_i(x_\alpha)$, where $\ell$ denotes the layer of the neuron, $i$
 identifies the neuron within the layer\footnote{We refer to $i$ as the {\em
 neuron}\ index.}, and $x_{\alpha}$ is a point in the interval $[0,1]$. A grid of
-$\ngrid=50$ points is used to compute observables in the NNPDF formalism and in
+$\ngrid=50$ points in $x$ is used to compute observables in the NNPDF formalism and in
 this work we focus on the value of $f$ at those values of $x_\alpha$. For
 completeness, we list the values of $x_\alpha$ in Tab.~\ref{tab:Xvals}.
 
@@ -134,7 +139,7 @@ completeness, we list the values of $x_\alpha$ in Tab.~\ref{tab:Xvals}.
     \input{tabs/grid.tex}
     \caption{Values of $x_\alpha$ used in the NNPDF grids for the computation of
     observables. The points are equally spaced on a logarithmic scale
-    for $\alpha = 1, \ldots, 27$, and linearly spacing for $\alpha > 27$.
+    for $\alpha = 1, \ldots, 27$, and linearly spaced for $\alpha > 27$.
     \label{tab:Xvals}}
 \end{table}
 
@@ -155,8 +160,9 @@ the previous layer, namely
 \end{align}
 The PDFs in the
 so-called evolution basis are parametrized by the preactivation functions of the output layer $L$,
-$x_\alpha f_i(x_\alpha)=A_i \phi^{(L)}_{i,\alpha}$, where $i=1, \ldots, 8$ labels the flavors.
-\footnote{For simplicity, we ignore the preprocessing function $x^{-\alpha_i} (1-x)^{\beta_i}$ that
+$x_\alpha f_i(x_\alpha)=A_i \phi^{(L)}_{i,\alpha}$, where the neuron index on the last layer,
+$i=1, \ldots, 8$, labels the 
+flavors.\footnote{For simplicity, we ignore the preprocessing function $x^{-\alpha_i} (1-x)^{\beta_i}$ that
 is currently used in the NNPDF fits. While the preprocessing may be useful in speeding the training
 it does not affect the current discussion.}
 The input layer is identified by $\ell=0$ and the activation
@@ -177,7 +183,8 @@ In the following we refer to the preactivation functions as {\em fields}.
   \includegraphics[width=0.95\textwidth]{section_2/weight_distribution.pdf}
   \caption{Sampled distribution of a selected weight in function of the
   number of replicas. The red line represent the underlying Gaussian distribution
-  from which the weights are drawn.}
+  from which the weights are drawn. As the number of replicas is increased the 
+  distribution of the weight converges to the expected Gaussian.}
   \label{fig:weight_distribution}
 \end{figure}
 % ===================================
@@ -189,7 +196,7 @@ rescaled by the number of nodes in adjacent layers,
     \frac{C^{(\ell)}_{w}}{\sqrt{n_{\ell-1} + n_{\ell}}}\, ,
     \quad \frac{C^{(\ell)}_{b}}{\sqrt{n_{\ell-1} + n_{\ell}}}\, .
 \end{equation}
-Following the NNPDF prescription, we have $C^{(\ell)_{w}=C^(\ell)}_{b}=1$.
+Following the NNPDF prescription, we have $C^{(\ell)}_{w}=C^{(\ell)}_{b}=1$.
 Fig.~\ref{fig:weight_distribution} shows the binned distribution of a selected
 weight in the network as a function of the number of replicas. Together with the
 histogram, the underlying Gaussian, as dictated by the Glorot normal
@@ -274,7 +281,7 @@ With this convention, and with the scaling of the parameters variances in
 Eq.~\eqref{eq:RescaledGlorotVariances}, the couplings in the action are all $O(1)$
 in the limit where $n_\ell\to\infty$.
 As a consequence, the probability distribution at initialisation is a multidimensional Gaussian at
-leading order in $1/n_\ell$, with quartic corrections that are $O(1/n_\ell)$, while higher powers
+leading order -- \ie\ $\mathcal{O}(1)$ -- in $1/n_\ell$, with quartic corrections that are $O(1/n_\ell)$, while higher powers
 of the invariant bilinear are suppressed by higher powers of the width of the layer. This power counting
 defines an effective field theory, where deviations from Gaussianity can be computed in perturbation
 theory to any given order in $1/n_\ell$, see \eg\ Ref.~\cite{Roberts:2021fes} for a detailed
@@ -335,7 +342,8 @@ networks of moderate size, as those used in the NNPDF fits.
     \includegraphics[width=0.45\textwidth]{section_2/prior_log.pdf}
     \caption{Ensemble of neural networks at initialisation in linear (left) and logarithm (right) scale.
     The blue line represents the mean value computed over an ensemble of 100 replicas, while the
-    shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.}        
+    shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.
+    \ldd{What are we plotting? $f$ or $xf$?}}        
     \label{fig:prior} 
 \end{figure}
 \begin{figure}[t]
@@ -345,6 +353,7 @@ networks of moderate size, as those used in the NNPDF fits.
     of the NNPDF architecture. The covariance in the left panel is computed ``bootstrapping'' over an
     ensemble of 100 replicas, initialised using the Glorot normal distribution. The covariance in the right
     panel is obtained by solving Eq.~\eqref{eq:RecursionForK} numerically.
+    \ldd{What is the level of the agreement?}
     \label{Fig:KRecursionOne}
     }
 \end{figure}
@@ -356,6 +365,7 @@ networks of moderate size, as those used in the NNPDF fits.
     \includegraphics[scale=0.45]{section_2/K3_correlations.pdf}
     \caption{Same as Fig.~\ref{Fig:KRecursionOne}, but for the second (top) and
     third (bottom) layers of the NNPDF architecture.}
+    \ldd{What is the level of the agreement?}
     \label{Fig:KRecursionTwo}
 \end{figure}
 

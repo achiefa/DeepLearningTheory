@@ -53,11 +53,11 @@ where the scalar product has been defined as
   \left(f'_{t'}, f_t\right) = \sum_{i,\alpha} f'_{t',i\alpha} f_{t,i\alpha}\,.
 \end{equation}
 One can readily see that the components in the kernel of $\Theta$, $\text{ker}\
-\Theta$, do not evolve during training,\footnote{Despite this result has been
+\Theta$, do not evolve during training,\footnote{Despite this result having been
 obtained using the frozen NTK, it is worth mentioning that at any time during
 training the kernel of the NTK is always defined and in general non-empty.
 Hence, also in the initial stage, there will be a component that is completely
-determined by the initial condition, \ie by the prior distribution in functional
+determined by the initial condition, \ie\ by the prior distribution in functional
 space.}
 \begin{align}
     \label{eq:FlowParallel}
@@ -79,10 +79,11 @@ where  we introduced
     B^\perp_k &= -\sqrt{\lambda^{(k)}} \left[\left(z^{(k)}, M z^{(k')}\right) f^\parallel_{0,k'}
         - \left(z^{(k)}, \FKtabT C_Y^{-1} Y\right)\right]\, .
 \end{align}
-Here the indices on quantities that have a $\perp$ suffix only span the space
+As discussed above, the indices on quantities that have a $\perp$ suffix only span the space
 orthogonal to the kernel of $\Theta$, while the indices on quantities that have
 a $\parallel$ suffix span the kernel. We refer to $H^\perp$ as the flow (or
-training) Hamiltonian; we see explicitly in the definition above that the flow
+training) Hamiltonian, training can only take place in the space orthogonal
+to the kernel of $\Theta$; we see explicitly in the definition above that the flow
 dynamics is determined by a combination of the architecture of the NN, encoded
 in the NTK, and the data, on which $M$ depends. More specifically, the matrix
 elements of $M$ can be written as
