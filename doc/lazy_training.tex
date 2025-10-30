@@ -394,6 +394,7 @@ where
     C_t^{(YY)}
         &= \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
         - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right]\, .
+        \label{eq:CYYterm}
 \end{align}
 Eq.~\eqref{eq:SumOfCovariances} shows that the factorisation between the
 contribution from the initial condition and the one from the data holds also at
@@ -486,7 +487,13 @@ future work.
 \begin{figure}[t!]
   \centering
   \includegraphics[width=0.9\textwidth]{section_4/error_buddget_L2.pdf}
-  \caption{}
+  \caption{Decomposition of the error budget of the trained fields into the two
+  components from the initial condition (blue) and from the data (orange), as
+  defined in Eqs.~\eqref{eq:C00term} and~\eqref{eq:CYYterm}. Each row
+  corresponds to a different frozen NTK, while the columns represent different
+  training epochs. L2 data is used. We see that if the NTK is taken at later
+  stages of training, the contribution from the initial condition is
+  severely suppressed towards the end of training. }
   \label{fig:ErrorBudgetL2}
 \end{figure}
 % ===================================

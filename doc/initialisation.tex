@@ -343,7 +343,7 @@ networks of moderate size, as those used in the NNPDF fits.
     \caption{Ensemble of neural networks at initialisation in linear (left) and logarithm (right) scale.
     The blue line represents the mean value computed over an ensemble of 100 replicas, while the
     shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.
-    \ldd{What are we plotting? $f$ or $xf$?}}        
+    In the figure, we show $xT_3$ as used in the following sections.}        
     \label{fig:prior} 
 \end{figure}
 \begin{figure}[t]
@@ -367,6 +367,15 @@ networks of moderate size, as those used in the NNPDF fits.
     third (bottom) layers of the NNPDF architecture.}
     \ldd{What is the level of the agreement?}
     \label{Fig:KRecursionTwo}
+\end{figure}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\textwidth]{section_2/delta_K.pdf}
+    \caption{Here we show the relative difference between the empirical
+    kernel computed from an ensemble of 100 replicas at initialisation
+    and the theoretical prediction obtained by iterating
+    Eq.~\eqref{eq:RecursionForK} for the three layers of the NNPDF architecture.
+    \ac{Does this give more information than the previous plots?}}
 \end{figure}
 
 
