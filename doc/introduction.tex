@@ -1,7 +1,7 @@
 \section{Introduction}
 \label{sec:intro}
 
-Parton Distribution Functions (PDFs) play a crucial role in describing
+Parton Distribution Functions (PDFs) are a central ingredient in describing
 experimental data at hadron colliders and in gaining insights into the internal
 structure of the proton. The high-precision era of particle physics that we are
 now witnessing calls for equally precise theoretical predictions. Since PDFs are
@@ -9,9 +9,8 @@ a key ingredient in these predictions, the need for robust PDF determinations
 with reliable uncertainty quantification has become increasingly important for
 both Standard Model measurements and searches for new physics.
 
-As non-perturbative objects, PDFs cannot be computed from first principles but
-must be extracted from global analyses to experimental data. However, PDF
-determination is a classic example of an \textit{inverse problem}, as it
+PDFs are typically extracted from global analyses to experimental and lattice data. 
+Their determination is a classic example of an \textit{inverse problem}, as it
 involves inferring a continuous function from a finite set of data points. This
 process is inherently ill-defined, and the limited amount of experimental
 information prevents us from obtaining a unique solution to the problem. The
@@ -20,17 +19,18 @@ knowledge introduced to regularise the problem, either explicitly stated or
 implicitly embedded in the fitting framework.
 
 The complex nature of inverse problems has prompted the development of
-sophisticated statistical methods, cutting-edge methodologies, and advanced
+sophisticated statistical methods and
 tools to tackle them. In general, PDF determinations can be broadly classified
 into two main categories, depending on whether a specific functional form is
 assumed for the PDFs or whether a non-parametric approach is adopted. Although
 the former approach has been widely used in the literature, non-parametric
 approaches based on Bayesian inference have been successfully applied to the
-problem of PDF determination, even though in a limited
+problem of PDF determination, albeit in a limited
 scenario~\cite{DelDebbio:2021whr,Candido:2024hjt,Medrano:2025cmg}.
 Bayesian-based approaches are promising tools that ensure a rigorous framework
 where prior information and assumptions are spelled out explicitly. Yet, a
-global PDF determination based on these methods has not yet been attempted.
+global PDF determination based on these methods has not yet been attempted, and the 
+impact of the prior needs to be carefully studied in these frameworks. 
 
 On the other hand, state-of-the-art PDF determinations rely on parametric
 approaches, where a specific functional form is assumed for the PDFs at a given
@@ -47,41 +47,45 @@ the various groups lead to PDF sets whose differences are yet to be fully
 understood~\cite{Harland-Lang:2024kvt,PDF4LHCWorkingGroup:2022cjn}. These
 differences become significantly visible when considering parameter
 determinations that are particularly sensitive to the choice of the PDF set,
-thus on the central value and, most importantly, on the associated uncertainty
+both on the central values and, most importantly, on the associated uncertainties
 (see Refs.~\cite{ATLAS:2023lhg,CMS:2024ony,ATLAS:2023fsi} for some recent
 examples).
 
-In this work, we build upon the intents of
-Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, which aim at providing a
-transparent statistical and sound framework for PDF determination, with all
-underlying assumptions clearly stated. Here we focus on the NNPDF
-methodology~\cite{NNPDF:2021njg}, which pioneered the use of machine learning
-tools in the context of PDF determination and has been validated through
+In this work, we build upon the work of
+Refs.~\cite{DelDebbio:2021whr,Candido:2024hjt}, which aims at providing a
+sound statistical framework for PDF determination, with all
+underlying assumptions clearly stated. We focus on the NNPDF
+methodology~\cite{NNPDF:2021njg}, which pioneered the use of ML
+tools in the context of PDF determinations and has been validated through
 extensive studies over the
 years~\cite{DelDebbio:2021whr,Barontini:2025lnl,Cruz-Martinez:2021rgy}. It
 combines a Monte Carlo sampling of the experimental data and a feed-forward
-neural network parameterisation of the PDFs. We adopt a simplified but
-controlled framework to revisit the training process from first principles,
-aiming at providing an explainable reformulation of its key aspects and making
+neural network parameterisation of the PDFs. We adopt a simplified 
+framework to analyse the training process,
+aiming at providing an quantitative description of its key aspects, and making
 transparent the assumptions that are often implicitly embedded in the fitting
 procedure.
 
 We demonstrate that the training dynamics of a neural network can be fully
-reformulated in the functional space, thus providing a more interpretable
+reformulated in functional space, leading to an interpretable
 description of the learning process. We show that the training dynamics is
-completely dictated by the Neural Tangent Kernel
+dictated by the Neural Tangent Kernel
 (NTK)~\cite{DBLP:journals/corr/abs-1806-07572}, which encodes and factorises the
-dependence on the architecture of the neural network and on the parameters. In
+dependence on the architecture and the parameters of the neural network. In
 fact, the spectral properties of the NTK provide a powerful lens through which
-to understand the learning process. At initialisation, the NTK is characterised
-by a wide spectrum of eigenvalues, with only few large eigenvalues being
-significantly different from zero. As training evolves, the NTK hierarchy is
-preserved, but eigenvalues that were initially small or zero grow in magnitude.
+we can understand the learning process: only the directions that are orthogonal to 
+the kernel of the NTK are actually learned in the training process. 
+At initialisation, the NTK is characterised
+by a wide spectrum of eigenvalues, with only a few large eigenvalues being
+significantly different from zero. During the training process, the hierarchy 
+in the NTK spectrum is
+preserved, but eigenvalues that were initially subleading, or zero, grow in magnitude.
 Since the only directions that contribute to the learning process are those
-associated to the non-zero eigenvalues, with the eigenvalue setting the learning
-speed along this direction, this growth indicates that new features in the
-functional space emerge during training and the network thus becomes capable of
-learning more complex functions.
+associated to the non-zero eigenvalues, with the actual value of the eigenvalue 
+setting the learning speed along the corresponding eigenvector direction, 
+the growth of some eigenvalues indicates that new features in the
+functional space emerge during training and that the network thus becomes capable of
+representing more complex functions.
 
 Another key result of this work is that, after an initial transient phase where
 the NTK evolves significantly, the training process enters a second regime where

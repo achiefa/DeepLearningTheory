@@ -60,20 +60,29 @@ Edinburgh 2025/x
 \end{center}
 
 \begin{abstract}
-  Parton Distribution Functions (PDFs) play a crucial role in describing
-  experimental data at hadron colliders and provide insight into proton
-  structure. As the LHC enters an era of high-precision measurements, a robust
+  Parton Distribution Functions (PDFs) play a central role in describing
+  experimental data at colliders and provide insight into the 
+  structure of nucleons. As the LHC enters an era of high-precision measurements, a robust
   PDF determination with a reliable uncertainty quantification has become
-  increasingly important to match the experimental precision. The NNPDF
+  mandatory in order to match the experimental precision. The NNPDF
   collaboration has pioneered the use of Machine Learning (ML) techniques for PDF
-  determination. In this work, we develop a theoretical framework based on the
-  Neural Tangent Kernel (NTK) to analyze the training dynamics of Neural
-  Networks. This approach allows us to derive, under certain assumptions, an
-  analytical description of how the neural network evolves during training,
-  enabling us to better understand the NNPDF methodology and its dependence on
-  the underlying model architecture. Notably, we demonstrate that our results
+  determinations. In this work, we develop a theoretical framework based on the
+  Neural Tangent Kernel (NTK) to analyse the training dynamics of Neural
+  Networks. This approach allows us to derive, under precise assumptions, an
+  analytical description of how neural networks evolve during training,
+  enabling a quantitative understanding of the NNPDF methodology and 
+  its dependence on
+  the underlying model architecture and training algorithm. Interestingly, 
+  the methodology developed in this work can be used to understand the 
+  minimization of a loss function for any kind of parametrization, thereby 
+  providing a unified framework to compare different PDF determinations, like 
+  \eg\ fits based on a particular functional form. 
+  Beyond its relevance for particle physics phenomenology, our analysis of 
+  PDF determinations provides a testbed to apply theoretical ideas about the 
+  learning process developed in the 
+  ML community. We demonstrate that our results
   contrast, to some extent, with the standard picture of the \textit{lazy training}
-  regime commonly discussed in the ML community.
+  regime discussed in the ML literature.
 \end{abstract}
 
 \tableofcontents

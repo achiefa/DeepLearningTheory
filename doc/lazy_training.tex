@@ -469,7 +469,7 @@ panel) contributions. The error bands are computed using bootstrap error. By
 inspecting the figures, we see two distinct patterns emerging. For the operator 
 $U$, $\Delta[U f_0]$ is different from zero for small training times, and thus the
 correlations between $U(t)$ and $f_0$ are non-negligible. However, as training
-proceeds, the $\Delta[U f_0]$ becomes compatible with zero within the error bars, 
+proceeds, $\Delta[U f_0]$ becomes compatible with zero within the error bars, 
 suggesting that the correlations are progressively suppressed.
 The case of the $V$ operator is even more striking, as $\Delta[V Y]$ is clearly
 non-negligible across all training times, although it also shows a decreasing trend as
@@ -517,6 +517,8 @@ from the ensemble of
 trained PDFs is not biased by the choice of prior that is made by selecting a
 given architecture, activation function, and probability distribution for the
 biases and weights at initialisation.
+
+\FloatBarrier
 
 \subsubsection{Crosschecks using L0 data}
 \label{sec:AnalyticalChecks}
@@ -651,7 +653,7 @@ change during training, therefore that contribution is subtracted from the data
 and the orthogonal components of $f$ are adjusted to minimize the $\chi^2$ of
 the corrected data. The minimum of the $\chi^2$ in the orthogonal subspace is
 found applying $\mathcal{M}_{\infty}$, \ie\ by projecting in the orthogonal
-subspace, applying the pseudoinverse and finally recompute the full field as
+subspace, applying the pseudoinverse and finally recomputing the full field as
 detailed above.
 
 
