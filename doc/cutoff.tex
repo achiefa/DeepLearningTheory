@@ -1,2 +1,31 @@
 \section{Cut-off Tolerance of the NTK spectrum}
 \label{app:cutoff}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{appendix_cutoff/cutoff.pdf}
+  \caption{Visualisation of the cut-off tolerance for the NTK spectrum used in
+    Section~\ref{sec:LazyTraining}. Eigenvalues (orange solid line) and singular values (blue dashed
+    line) are shown, together with the cut-off tolerance (black) chosen as described
+    in the text. We also show the corresponding numerical noise (grey shaded area)
+    which occurs at small eigenvalues (or singular values).}
+  \label{fig:cutoff}
+\end{figure}
+
+We determine the effective rank of the NTK by identifying eigenvalues that are
+numerically significant. We classify eigenvalues $\lambda_i$ as numerically zero
+if
+\begin{equation}
+  \lambda_i < \epsilon_{\rm tol} \cdot \lambda_{\rm max} \,,
+\end{equation}
+where $\epsilon_{\rm tol}$ is the relative tolerance and $\lambda_{\rm max}$ is
+the largest eigenvalue of the NTK. Throughout this work, we use $\epsilon_{\rm
+tol} = 10^{-7}$, which is close to machine precision for single-precision
+floating point numbers. This choice is illustrated in Fig.~\ref{fig:cutoff},
+where we show the NTK spectrum at initialization for the NNPDF-like architecture
+discussed in the main text (orange solid line). Together with the eigenvalues,
+we also show the singular values of the NTK (dashed blue line) to illustrate
+that the two spectra are identical until numerical noise sets in. The cut-off
+tolerance, indicated by the black horizontal line, is chosen to be slightly
+above the numerical noise level (grey shaded area) to ensure that only
+numerically significant eigenvalues are retained.

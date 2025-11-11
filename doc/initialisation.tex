@@ -351,9 +351,10 @@ networks of moderate size, as those used in the NNPDF fits.
     \includegraphics[scale=0.8]{section_2/K1_correlations.pdf}
     \caption{The empirical (left) and analytical (right) covariance matrices $K^{(1)}$ of the first layer
     of the NNPDF architecture. The covariance in the left panel is computed ``bootstrapping'' over an
-    ensemble of 100 replicas, initialised using the Glorot normal distribution. The covariance in the right
-    panel is obtained by solving Eq.~\eqref{eq:RecursionForK} numerically.
-    \ldd{What is the level of the agreement?}
+    ensemble of replicas, initialised using the Glorot normal distribution. The covariance in the right
+    panel is obtained by solving Eq.~\eqref{eq:RecursionForK} numerically. In order to reduce
+    the bootstrap errors in the empirical covariance, an ensemble of 1000 replicas has been used for this
+    figure.
     \label{Fig:KRecursionOne}
     }
 \end{figure}
@@ -364,18 +365,18 @@ networks of moderate size, as those used in the NNPDF fits.
     \hspace{0.5cm}
     \includegraphics[scale=0.45]{section_2/K3_correlations.pdf}
     \caption{Same as Fig.~\ref{Fig:KRecursionOne}, but for the second (top) and
-    third (bottom) layers of the NNPDF architecture.}
-    \ldd{What is the level of the agreement?}
+    third (bottom) layers of the NNPDF architecture. Again, an ensemble of 1000 replicas
+    has been used to reduce the bootstrap errors in the empirical covariance.}
     \label{Fig:KRecursionTwo}
 \end{figure}
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.9\textwidth]{section_2/delta_K.pdf}
-    \caption{Here we show the relative difference between the empirical
-    kernel computed from an ensemble of 100 replicas at initialisation
-    and the theoretical prediction obtained by iterating
-    Eq.~\eqref{eq:RecursionForK} for the three layers of the NNPDF architecture.
-    \ac{Does this give more information than the previous plots?}}
+    \caption{Here we show the relative difference between the empirical kernel
+    computed from an ensemble of networks at initialisation and the recursive
+    Kernel obtained by iterating Eq.~\ref{eq:RecursionForK} for the three layers
+    of the NNPDF architecture. An ensemble of 1000 replicas has been used to
+    reduce the bootstrap errors in the empirical covariance.}
 \end{figure}
 
 
