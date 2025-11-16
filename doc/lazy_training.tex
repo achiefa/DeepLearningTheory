@@ -714,8 +714,8 @@ of $H^\perp$ in $d_\perp$ orthogonal subspace. So, the operator
 $\mathcal{M}_{\infty}$ acts as follow on a field $f_{\alpha}$:
 \begin{enumerate}
     \item The term on the right of the square bracket computes the coordinate
-    $f_k$ introduced in Eq.~\eqref{eq:OrthogonalComponents}. The $f_k$ are a set
-    of coordinates for the component $f^\perp$ of the field that evolves during
+    $f_{k'}$ introduced in Eq.~\eqref{eq:OrthogonalComponents}. The $f_k$ are 
+    the coordinates of the component $f^\perp$ that evolves during
     training, 
     \begin{align}
         \label{eq:RightOfTheBracket}
@@ -728,7 +728,7 @@ $\mathcal{M}_{\infty}$ acts as follow on a field $f_{\alpha}$:
         f'_k = \left(H^\perp\right)^+_{kk'} f_{k'}\, .
     \end{align}
     \item The final term on the left of the square bracket reconstructs the full
-    field corresponding to the modified $f'_{k}$,
+    field corresponding to the coordinates $f'_{k}$,
     \begin{align}
         \label{eq:LeftOfTheBracket}
         f^{'\perp} = \sum_{k\in\perp} \sqrt{\lambda^{(k)}} f'_{k}\, z^{(k)}\, .

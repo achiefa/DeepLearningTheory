@@ -36,17 +36,14 @@ reduces to
     T_I[f] = \int dx\, C_{I}(x) f(x)\,.
 \end{equation}
 The details of the dataset and the definition of the flavour combination
-considered in this work are provided in Appendix~\ref{app:dataset}.
-For simplicity, we do not implement cross-validation or stopping
-criteria\footnote{We are aware that such a framework has limited applicability
-in the context of PDF determination, and we are far from assuming this as an
-optimal choice. Again, the focus here remains on the methodological aspects.}. 
-Extensions to theoretical predictions that are
+considered in this work are provided in Appendix~\ref{app:dataset}. 
+Extensions of this analysis to theoretical predictions that are
 quadratic in the PDFs, multiple flavour combinations, alternative minimizers,
 and cross-validation tools are left for future work.
 
 Finally, we emphasise that the results in this sections, while obtained having in mind
-neural networks, apply to any fixed parametrisation, including polynomials or
+neural networks, apply to any fixed parametrisation, including
+fixed functional forms~\cite{Ablat:2024hbm,Bailey:2020ooq,Alekhin:2017kpj} or
 kernels~\cite{Costantini:2025wxp}.
 
 \subsection{Training in Functional Space}
@@ -70,7 +67,7 @@ distributions around their theoretical predictions,
     \label{eq:QuadLoss}
     \mathcal{L}_t = \frac12 \left(Y - T[f_t]\right)^T C_Y^{-1} \left(Y - T[f_t]\right)\, ,
 \end{align}
-where $f_t$ is the output of the network at training time $t$, which follows
+where $f_t$ is the output of the network at training time $t$, obtained
 from the time-dependence of the internal parameters. Here $C_Y$ is the
 covariance of the data, which includes statistical and systematic errors given
 by the experiments and also any theoretical error, like \eg\ missing higher
@@ -107,8 +104,8 @@ and hence
     \left(\frac{\partial T_I}{\partial f_{i\alpha}}\right)_t =
         \FKtab_{Ii\alpha}\, ,
 \end{align}
-which is independent of $t$. With simple algebraic steps, the flow of parameters
-$\theta$ can be translated into a flow for the fields,
+which is independent of $t$. A few algebraic steps allow the flow of parameters
+$\theta$ to be translated into a flow for the fields,
 \begin{align}
     \label{eq:NTKFlow}
     \ddt &f_{t,i_1\alpha_1} = (\nabla_\mu f_{t,i_1\alpha_1}) \ddt \theta_\mu =
@@ -134,7 +131,7 @@ context of PDF fitting.
 
 In order to facilitate the discussion in Sec.~\ref{sec:Lazy},
 Eq.~\eqref{eq:NTKFlow} can be rewritten in a more compact form. We first omit
-the indices such that, for instance,
+the indices and write, for instance,
 \begin{align}
   \left(\frac{\partial T}{\partial f}\right)_t = \FKtab\, , \quad
   \Theta_t = \left(\nabla_\mu f_t\right) \left(\nabla_\mu f_t\right)^T\, .
@@ -152,22 +149,22 @@ where
     \label{eq:MandBDef}
 \end{align}
 Here $M$ is a positive-semidefinite matrix that depends only on the data and the
-theoretical predictions, while $b$ is a vector that depends also on the data.
+theoretical predictions, while $b$ is a vector that depends only on the data.
 
 Before moving to the next subsection, a few comments comments are in order.
 First, although derived in the context of neural networks, these equations do
 not refer to a specific parameterization. Indeed, these remain valid even when
-an explicit functional form to parametrize the PDFs is chosen, as \eg~in
+an explicit functional form is chosen to parametrize the PDFs, as \eg~in
 Refs.~\cite{Bailey:2020ooq,Hou:2019efy,Costantini:2025wxp}. Second, it is
 interesting to observe that the flow equation,
 Eq.~\eqref{eq:FlowEquationNoIndices}, depends on two matrices, $\Theta$ and $M$.
 The former encodes the model dependence, while the latter contains the physical
 information. The interplay between these two matrices is crucial for
-understanding the training dynamics, as it will be discussed in
+understanding the training dynamics, as discussed in
 Sec.~\ref{sec:NTKAlign}. Finally, the NTK derived in Eq.~\ref{eq:NTKDef} is
 inherently time-dependent in a complex way, which precludes any attempt at
-integrating Eq.~\ref{eq:FlowEquationNoIndices} analytically. We will come back
-to this point in Sec.~\ref{sec:Lazy}, and we now discuss the properties of the
+integrating Eq.~\ref{eq:FlowEquationNoIndices} analytically. We come back
+to this point in Sec.~\ref{sec:Lazy}, after discussing the properties of the
 NTK during training.
 
 \FloatBarrier
@@ -186,7 +183,7 @@ the NNPDF methodology.
 \label{sec:NTKAtInit}
 
 Before training, the NTK is blind to data and depends on the $x$-grid of input
-and on the architecture, as it can be seen from Eq.~\eqref{eq:NTKDef}. The NTK
+and on the architecture, as shown in Eq.~\eqref{eq:NTKDef}. The NTK
 is a function of the fields $f$, which are stochastic variables described by
 their joint probability distribution as discussed in Sect.~\ref{sec:Init}.
 Therefore the NTK is also a stochastic variable, with its own probability
@@ -197,8 +194,8 @@ the NTK over the set of replicas tends to zero with the width of the hidden
 layers (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to quantify the
 variation of the NTK, we start by computing the Frobenius norm of the NTK over
 an ensemble of networks for different architectures. For each architecture, we
-consider the mean value and standard deviation of the norm as statistical
-estimators of the variations of the NTK. The result is displayed in
+consider the standard deviation of the norm as a statistical
+estimator of the variations of the NTK. The result is displayed in
 Fig.~\ref{fig:NTKInit}. Even though the Frobenius norm is a coarse indicator of
 the variations of the NTK, the figure shows clearly that the variance of the
 norm becomes smaller with the size of the network, which is consistent with the
@@ -233,7 +230,7 @@ decomposition, so that small eigenvalues should be effectively considered zero.
 We discuss the cut-off tolerance in Appendix~\ref{app:cutoff}.}. This means that
 only a small subset of active directions can inform the network during training,
 as it will be discussed later. Note that, at least at initialisation, these
-observations do not depend on the architecture. The eigenvalues in
+observations do not depend on the architecture: the eigenvalues in
 Fig.~\ref{fig:NTKSpectrum} are mostly independent of the size of the network.
 There is a downward fluctuation of the third eigenvalue for the largest
 architecture that we considered, but we do not have any evidence that this drop
@@ -341,7 +338,9 @@ eigenvalue.
   \caption{Evolution during training of the first five eigenvalues of the NTK
   using L0 (left), L1 (center), and L2 (right) data. Solid lines represent the
   median over the ensemble of networks, while solid bands correspond to 68\%
-  confidence level.}
+  confidence level. Note that the subdominant eigenvalues $\lambda_3$, $\lambda_4$
+  and $\lambda_5$ have increased by one or two orders of magnitude by the end of the rich 
+  training phase.}
   \label{fig:NTKEigvalsTime}
 \end{figure}
 % ===================================
@@ -367,7 +366,12 @@ more ``physical'' features become learnable before lazy training sets in.
   \includegraphics[width=0.30\textwidth]{figs/section_3/ntk_eigvals_L0_L1_L2_n_5.pdf}
   \caption{The first five eigenvalues of the NTK for L0, L1, and L2 data. Solid
   lines represent the median over the ensemble of networks, while solid bands
-  correspond to 68\% confidence level.}
+  correspond to 68\% confidence level. Each plot corresponds to a different eigenvalue, 
+  as indicated by the label on the vertical axis. Note the different scales on the 
+  vertical axes, which reflects the hierarchy of eigenvalues discussed above. Different
+  colours correspond to different synthetic data, the agreement between these bands 
+  confirms that the evolution of the eigensystem of the NTK does not depend on the 
+  level of noise in the data.}
   \label{fig:EigvalsComparison}
 \end{figure}
 % ===================================
@@ -461,15 +465,14 @@ the directions that contribute most to the observables.
 
 A similar analysis can also be performed by studying the alignment of the
 eigenvectors of the NTK with the input function used to generate the data. In
-Fig.~\ref{fig:NTKAlignFin}, we show the cosine of the angle between the two
-vectors for two subsects of eigenvectors, in the right and left panel
-respectively. In these two panels, different patterns can be observed. First,
+Fig.~\ref{fig:NTKAlignFin}, we show the cosine of the angle between the eigenvectors
+$z^{(k)}$ and the input $f^{\mathrm{in}}$ for two subsects of eigenvectors, in the right and left panel
+respectively. In these two panels, different patterns can be observed. Firstly,
 the first four angles vary considerably during training, consistent with the
 observations made in the figures before. Furthermore, we see that other than
 changing the dominant eigenvectors, the NTK is also activating the other
-directions that were subdominant in the first stage of training. This in
-accordance to what has been previously observed in
-Figs.~\ref{fig:EigvalsComparison}-\ref{fig:NtkMAlign}. 
+directions that were subdominant in the first stage of training, in agreement 
+with the observations coming from Figs.~\ref{fig:EigvalsComparison}-\ref{fig:NtkMAlign}. 
 
 % ===================================
 \begin{figure}[ht!]
@@ -479,8 +482,11 @@ Figs.~\ref{fig:EigvalsComparison}-\ref{fig:NtkMAlign}.
   \caption{Alignment of the eigenvectors of the NTK with the input function
   $f^{\rm(in)}$ used to generate the L2 data, measured in terms of $\cos
   \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the
-  left panel, the first five eigenvectors of the NTK are shown, while the right
-  panel shows the remaining eigenvectors up to $k=7$.}
+  left panel, the first four eigenvectors of the NTK are shown, while the right
+  panel shows the remaining eigenvectors up to $k=7$. Note that $f^{\mathrm{in}}$
+  lies entirely in the subspace spun by the first four eigenvactors of the NTK 
+  by the onset of the lazy training regime. We see that the NTK has aligned its
+  features with the physically relevant directions of the problem.}
   \label{fig:NTKAlignFin}
 \end{figure}
 % ===================================

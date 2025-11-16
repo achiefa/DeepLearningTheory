@@ -129,9 +129,11 @@ a Glorot normal distribution~\cite{glorot2010understanding}. The preactivation
 function of a neuron is denoted as $\phi^{(\ell)}_{i,\alpha} =
 \phi^{(\ell)}_i(x_\alpha)$, where $\ell$ denotes the layer of the neuron, $i$
 identifies the neuron within the layer\footnote{We refer to $i$ as the {\em
-neuron}\ index.}, and $x_{\alpha}$ is a point in the interval $[0,1]$. A grid of
+neuron}\ index.}, and $x_{\alpha}$ is the input to the NN, \ie\ a point in the 
+interval $[0,1]$. A grid of
 $\ngrid=50$ points in $x$ is used to compute observables in the NNPDF formalism and in
-this work we focus on the value of $f$ at those values of $x_\alpha$. For
+this work we focus on the values of $f$ at those values of $x_\alpha$, where 
+the index $\alpha = 1, \ldots, \ngrid$ labels the points on the grid. For
 completeness, we list the values of $x_\alpha$ in Tab.~\ref{tab:Xvals}.
 
 \begin{table}[ht]
@@ -197,10 +199,10 @@ rescaled by the number of nodes in adjacent layers,
     \quad \frac{C^{(\ell)}_{b}}{\sqrt{n_{\ell-1} + n_{\ell}}}\, .
 \end{equation}
 Following the NNPDF prescription, we have $C^{(\ell)}_{w}=C^{(\ell)}_{b}=1$.
-Fig.~\ref{fig:weight_distribution} shows the binned distribution of a selected
-weight in the network as a function of the number of replicas. Together with the
+Figure~\ref{fig:weight_distribution} shows the binned distribution of one of the
+weights in the network as a function of the number of replicas. Together with the
 histogram, the underlying Gaussian, as dictated by the Glorot normal
-initialisation, is also shown. The figure illustrates that the distribution of
+initialisation, is also shown. The figure illustrates how the distribution of
 the weights converges to the expected Gaussian as the number of replicas increases.
 
 The probability distribution of the NN parameters induces a probability distribution for the
@@ -321,14 +323,22 @@ where
     \frac{1}{n_\ell}
       \langle \vec{\rho}^{\,(\ell)}_{\alpha_1} \cdot
       \vec{\rho}^{\,(\ell)}_{\alpha_2} \rangle_{K^{(\ell)}} =
-    \int \prod_{\alpha}d\phi_\alpha\,
+    \int \mathcal{D}\phi\,
       \frac{e^{-\frac12 \left(K^{(\ell)}\right)^{-1}_{\beta_1\beta_2}
         \phi_{\beta_1} \phi_{\beta_2}}}
         {\left|2\pi K^{(\ell)}\right|^{1/2}}\,
-        \rho(\phi_{\alpha_1}) \rho(\phi_{\alpha_2})\, .
+        \rho(\phi_{\alpha_1}) \rho(\phi_{\alpha_2})\, , 
 \end{align*}
-Eq.~\eqref{eq:RecursionForK} can be iterated using the NNPDF architecture,
-yielding the covariance at initialisation for various depths. These are compared
+and
+\begin{align}
+    \label{eq:FunctIntDef}
+    \mathcal{D}\phi = \prod_{\alpha=1}^{\ngrid} d\phi_\alpha\, .
+\end{align}
+Note that the integration variables in Eq.~\ref{eq:FunctIntDef} do not have 
+a neuron index and the integrals are $\ngrid$ dimensional integrals. 
+Eq.~\eqref{eq:RecursionForK} is iterated for the NNPDF architecture,
+yielding $K^{(\ell)}$ for arbitrary $\ell$, \ie\ the covariance at initialisation 
+for various depths. These are compared
 with the empirical covariance computed from an ensemble of 100 replicas in
 Fig.~\ref{Fig:KRecursionOne} for the first deep-layer and in
 Fig.~\ref{Fig:KRecursionTwo} for the second-deep layer and output layer. The
@@ -336,16 +346,6 @@ agreement between the theoretical prediction and the empirical computation is
 excellent, confirming the validity of the large-network expansion even for
 networks of moderate size, as those used in the NNPDF fits.
 
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.45\textwidth]{section_2/prior.pdf}
-    \includegraphics[width=0.45\textwidth]{section_2/prior_log.pdf}
-    \caption{Ensemble of neural networks at initialisation in linear (left) and logarithm (right) scale.
-    The blue line represents the mean value computed over an ensemble of 100 replicas, while the
-    shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.
-    In the figure, we show $xT_3$ as used in the following sections.}        
-    \label{fig:prior} 
-\end{figure}
 \begin{figure}[t]
     \centering
     \includegraphics[scale=0.8]{section_2/K1_correlations.pdf}
@@ -372,20 +372,18 @@ networks of moderate size, as those used in the NNPDF fits.
 \begin{figure}[t]
     \centering
     \includegraphics[width=0.9\textwidth]{section_2/delta_K.pdf}
-    \caption{Here we show the relative difference between the empirical kernel
-    computed from an ensemble of networks at initialisation and the recursive
-    Kernel obtained by iterating Eq.~\ref{eq:RecursionForK} for the three layers
+    \caption{Relative difference between the empirical kernel,
+    computed from an ensemble of networks at initialisation, and the recursive
+    kernel obtained by iterating Eq.~\ref{eq:RecursionForK} for the three layers
     of the NNPDF architecture. An ensemble of 1000 replicas has been used to
     reduce the bootstrap errors in the empirical covariance.}
 \end{figure}
 
-
 As a consequence of the symmetry of the probability distribution, the mean value
 of the fields at initialisation needs to vanish, while their variance at each
-point $x_\alpha$ is given by the diagonal matrix elements of $K^{(\ell)}$. In
-the following, we will consider neural networks with the NNPDF architecture, but
-will consider only one output layer. The mean and variance of the output at
-initialisation are shown in Fig.~\ref{fig:prior} for an ensemble of
+point $x_\alpha$ is given by the diagonal matrix elements of $K^{(\ell)}$. 
+The mean and the variance of the output at
+initialisation are shown in Fig.~\ref{fig:prior} for an ensemble with
 $\nreps=100$. The central value is computed as discussed above in
 Eq.~\eqref{eq:ReplicaEnsemble},
 \begin{align}
@@ -397,5 +395,16 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
     \label{eq:VarAtInit}
     O(f) = \frac{\nreps}{\nreps-1} \left(f_i(x_\alpha) - \bar{f}_{i}(x_\alpha)\right)^2\, .
 \end{align}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.45\textwidth]{section_2/prior.pdf}
+    \includegraphics[width=0.45\textwidth]{section_2/prior_log.pdf}
+    \caption{Ensemble of neural networks at initialisation in linear (left) and logarithm (right) scale.
+    The blue line represents the mean value computed over an ensemble of 100 replicas, while the
+    shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.
+    In the figure, we show $xT_3$ as used in the following sections.}        
+    \label{fig:prior} 
+\end{figure}
+
 
 \FloatBarrier
