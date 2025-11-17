@@ -14,14 +14,14 @@ addition, in order to avoid \textit{over-} and \textit{under-learning},
 training algorithms are complemented by a so-called \textit{stopping criterion},
 which specifies the optimal condition to end the training process.
 
-In practice, minimization is performed using gradient methods where the direction
-towards the minimum is defined by the gradient of the loss function. These
-methods are usually improved by including, for instance, stochasticity and
-information on previous iterations. A detailed overview of these extended
-gradient methods is beyond the scope of this work. In the context of PDF
-determinations, the NNPDF collaboration makes intensive use of these tools and
-the reader is encouraged to refer to Ref.~\cite{NNPDF:2021njg} for an extensive
-discussion.
+In practice, minimization is performed using gradient methods where the
+direction towards the minimum is defined by the gradient of the loss function.
+These methods are usually improved by including, for instance, stochasticity and
+information on previous iterations~\cite{amary1993sdg,Nadam2016,kingma2014adam}.
+A detailed overview of these extended gradient methods is beyond the scope of
+this work. In the context of PDF determinations, the NNPDF collaboration makes
+intensive use of these tools and the reader is encouraged to refer to
+Ref.~\cite{NNPDF:2021njg} for an extensive discussion.
 
 Our main aim in this paper is understanding the dynamics driving the training
 process. Indeed, while these algorithms have achieved remarkable empirical
