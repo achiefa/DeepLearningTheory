@@ -222,7 +222,11 @@ We work in a basis where the data covariance $C_Y$ is diagonal. Such a choice ha
     \item Working in a basis where the data covariance is diagonal, requires to compute the eigenvectors
     and eigenvalues of $C_Y$, thereby automatically checking for a potentially large condition number. 
 \end{enumerate}
-Note that, in case we need to apply kinematic cuts, these can be applied before rotating to the diagonal basis. The diagonal basis is then defined by determining the eigensystem of the reduced covariance matrix, i.e. the matrix obtained by removing the lines and columns that correspond to data points that do not pass the kinematic cuts.  
+Note that, in case we need to apply kinematic cuts, these can be applied before
+rotating to the diagonal basis. The diagonal basis is then defined by
+determining the eigensystem of the reduced covariance matrix, i.e. the matrix
+obtained by removing the lines and columns that correspond to data points that
+do not pass the kinematic cuts.  
 
 The loss function is defined to be the Mean Square Error (MSE),
 \begin{align}
@@ -651,10 +655,10 @@ of the grid in $x$-space taken from the FK tables.
 
 We start by looking at the NTK matrix, displayed in the left panel of
 Fig.~\ref{fig:NTKDecomposition}. Upon inspecting the figure, we see that the NTK
-is uniform across flavours and bins in $x$. This is indeed expected, as the NTK
+is uniform across flavors and bins in $x$. This is indeed expected, as the NTK
 does not bring any physical information and it does not favour any particular
-flavour to start with. In other words, the left plot in Fig.~\ref{fig:NTKDecomposition} 
-shows the amount of information per flavour that we can ever reach given 
+flavor to start with. In other words, the left plot in Fig.~\ref{fig:NTKDecomposition} 
+shows the amount of information per flavor that we can ever reach given 
 the network architecture and the choice of the grid in $x$.
 
 The right panel of Fig.~\ref{fig:NTKDecomposition} shows the decomposition of
@@ -942,7 +946,7 @@ yielding the two independent equations
 \end{align}
 Once inverted, the first equation provides the evolution of the components of the vector
 orthogonal to the null space of both NTK and FK tables. To retrieve the original vector
-in flavour basis, we need to apply to the solution for $\hat{\pmb{f}}_{\perp \perp,t}$
+in flavor basis, we need to apply to the solution for $\hat{\pmb{f}}_{\perp \perp,t}$
 the inverse rotations applied so far. This gives
 \begin{equation}
   \pmb{f}_t = \left[ U_{\Theta} \right]_{\perp} L_{\perp}' U_K \hat{\pmb{f}}_{\perp \perp,t},
