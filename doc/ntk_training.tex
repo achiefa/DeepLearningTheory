@@ -70,8 +70,8 @@ distributions around their theoretical predictions,
 where $f_t$ is the output of the network at training time $t$, obtained
 from the time-dependence of the internal parameters. Here $C_Y$ is the
 covariance of the data, which includes statistical and systematic errors given
-by the experiments and also any theoretical error, like \eg\ missing higher
-orders in the theoretical predictions. Indices that are summed over are
+by the experiments and also any theoretical error (\eg\, missing higher
+orders in the theoretical predictions). Indices that are summed over are
 suppressed to improve the clarity of the equations. Note that the loss function
 at training time $t$ is computed using the theoretical prediction $T[f_t]$, \ie\
 the result of Eq.~\eqref{eq:TheoryPred} computed using the fields at training
@@ -191,7 +191,7 @@ distribution, which we represent as usual as a set of replicas.
 
 It is argued in the literature that, in the large-width limit, the variance of
 the NTK over the set of replicas tends to zero with the width of the hidden
-layers (see, \textit{e.g.}, \cite{Roberts:2021fes}). In order to quantify the
+layers (see, \eg, \cite{Roberts:2021fes}). In order to quantify the
 variation of the NTK, we start by computing the Frobenius norm of the NTK over
 an ensemble of networks for different architectures. For each architecture, we
 consider the standard deviation of the norm as a statistical
@@ -292,7 +292,7 @@ for the three different datasets, L0, L1, and L2. Inspecting the plot reveals th
 the NTK undergoes significant changes during the initial phase of training, with
 the relative variation $\delta \Theta_t$ reaching values as high as $6\%$. This
 indicates that our settings differ from the standard picture of lazy training in
-the context of very wide networks, as discussed \eg~in
+the context of very wide networks, as discussed, \eg, in
 Refs.~\cite{jacot2018neural,Roberts:2021fes,lee2019wide}. Remarkably, we do not
 observe a dependence on how data have been generated, indicating that the NTK
 dynamics is basically unaffected by the noise that affects the data. 
@@ -301,7 +301,7 @@ After this initial phase -- corresponding approximately to the first 20,000
 epochs in our experiment -- the NTK tends to stabilize. These two regions will
 be referred to as the \textit{rich} and \textit{lazy} training regimes,
 respectively, in keeping with the standard terminology adopted in the literature
-(see, \eg\ Ref.~\cite{fort2020dlvk} where two similar regimes where also
+(see, \eg, Ref.~\cite{fort2020dlvk} where two similar regimes where also
 identified). We do not comment any further on the implications of the lazy
 regime, and postpone the discussion to Sec.~\ref{sec:Lazy}.
 
