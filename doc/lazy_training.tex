@@ -17,13 +17,15 @@ the field at initialisation and the data.
 \label{sec:Lazy}
 
 The lazy training regime is characterised by a slow-evolving NTK. We denote as
-$T_{\rm ref}$ the time at which the onset of this regime occurs. The NTK is then
-\textit{frozen} to its value at $T_{\rm ref}$, and from this time onward the NTK
+$t_{\rm ref}$ the time at which the onset of this regime occurs. The NTK is then
+\textit{frozen} to its value at $t_{\rm ref}$, and from this time onward the NTK
 is taken to be constant
 \begin{equation}
-  \Theta_t = \Theta_{T_{\rm ref}} \equiv \Theta, \quad \textrm{for } t \geq T_{\rm ref}.
+  \Theta_t = \Theta_{t_{\rm ref}} \equiv \Theta, \quad \textrm{for } t \geq t_{\rm ref}\,,
 \end{equation} 
-The flow equation can then be written as
+and we use the same convention as in Sec.~\ref{sec:Training} to distinguish
+between the continuous time $t_{\rm ref}$ and the discrete epoch $T_{\rm ref}$. The flow
+equation can then be written as
 \begin{align}
   \ddt f_t = -\Theta M f_t + b\, ,
   \label{eq:FlowEqTwo}
@@ -244,19 +246,19 @@ transformation of the initial fields $f_{0,\alpha}$, and a linear transformation
 of the data $Y_I$. The two transformations depend on the flow time $t$ and are
 given by the evolution operators $U(t)$ and $V(t)$. Fig.~\ref{fig:OnsetLazyL2}
 compares the analytical solution with the trained function at the end of
-training, for different choices of the frozen NTK. The evolution time $T$ used
+training, for different choices of the frozen NTK. The evolution time $t$ used
 in the analytical solution is the difference between the total training time and
-$T_{\rm ref}$. Central value and uncertainty bands are obtained by computing the
+$t_{\rm ref}$. Central value and uncertainty bands are obtained by computing the
 analytical solution for each replicas of the initial condition and frozen NTK.
 \footnote{ If not stated otherwise, in this section central values and
 uncertainties are always computed as ensemble averages across replicas. } The
-figures agree with the expectation; the closer $T_{\rm ref}$ is to the onset of
+figures agree with the expectation; the closer $t_{\rm ref}$ is to the onset of
 the lazy regime, the better the agreement between the analytical solution and
 the trained function.
 
 A complementary perspective is provided in Fig.~\ref{fig:FrefDecompositionL2},
 where the analytical solution is decomposed into the two contributions from $U$
-and $V$. In each panel, the initial condition $f_{T_{\rm ref}}$ is evolved
+and $V$. In each panel, the initial condition $f_{t_{\rm ref}}$ is evolved
 analytically for different training times by keeping the frozen NTK fixed. We
 see that as training proceeds, the contribution from $U$ is progressively
 suppressed, in accordance with the observation made above. On the other hand,
@@ -300,7 +302,7 @@ prior. In the following, we choose the initial condition to be an ensemble of
 networks at initialisation as in Fig.~\ref{fig:prior}, whose architecture is the
 same as the one used in the training. This represents our prior assumption on
 the space of functions, which is then updated using the data and the NTK frozen
-at $T_{\rm ref}$.
+at $t_{\rm ref}$.
 
 \subsubsection{Convergence of the Analytical Solution}
 % Grid plot with L2 ================================
@@ -336,9 +338,9 @@ training, there is clearly no difference between AS and TS since both represent
 the neural network output at initialisation (Sec.~\ref{sec:Init}), with
 variations due only to different initialisation seeds. During early training
 stages, AS and TS differ as expected. Indeed, the analytical solution is
-computed using the frozen NTK at $T_{\rm ref}$, while the trained solution
+computed using the frozen NTK at $t_{\rm ref}$, while the trained solution
 evolves with an NTK that is still changing as shown in Sect.~\ref{sec:Training}.
-Crucially, if the NTK at $T_{\rm ref}$ has already learned from the data and
+Crucially, if the NTK at $t_{\rm ref}$ has already learned from the data and
 aligned with the solution, the AS converges faster to the target, while the TS
 requires additional epochs before evolving in the correct direction.
 
@@ -346,7 +348,7 @@ requires additional epochs before evolving in the correct direction.
 \label{sec:CentralAndCovariance}
 
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} is inherently stochastic,
-since the frozen NTK at $T_{\rm ref}$ is actually obtained from an ensemble of
+since the frozen NTK at $t_{\rm ref}$ is actually obtained from an ensemble of
 networks. As a consequence, the operators $U(t)$ and $V(t)$ are both random
 variables. We can then characterize the distribution of the analytical solution
 using the mean and variance across the ensemble, as shown in

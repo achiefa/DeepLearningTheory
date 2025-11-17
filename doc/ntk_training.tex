@@ -51,18 +51,22 @@ kernels~\cite{Costantini:2025wxp}.
 
 For analytical tractability, GD is described as a continuous flow of the
 parameters $\theta$ in training time $t$ along the negative gradient of the loss
-function $\mathcal{L}$. For sufficient small learning rates, this continuous
-flow approximates the discrete GD trajectory in parameter space, as extensively
-discussed in Ref.~\cite{barrett2022igr}. The continuous Gradient Flow (GF) is
-then given by
+function $\mathcal{L}$. For sufficient small learning rates $\eta$, this
+continuous flow approximates the discrete GD trajectory in parameter space, as
+extensively discussed in Ref.~\cite{barrett2022igr}. The continuous Gradient
+Flow (GF) is then given by
 \begin{align}
     \label{eq:GradientFlowDef}
     \ddt &\theta_{t,\mu} = -\nabla_\mu \mathcal{L}_t\, ,
 \end{align}
 where $\theta_{t,\mu}$ and $\mathcal{L}_t$ identify respectively the parameter
-and the loss function at training time $t$. We focus here on quadratic loss
-functions that are obtained as the negative logarithm of Gaussian data
-distributions around their theoretical predictions,
+and the loss function at training time $t$. We distinguish between the
+continuous training time $t$ and the discrete epochs of GD, the latter denoted
+using the capital letter $T$. The two are related through the learning rate, $t
+= \eta T$, and in the following we will use them interchangeably.
+
+We focus here on quadratic loss functions that are obtained as the negative
+logarithm of Gaussian data distributions around their theoretical predictions,
 \begin{align}
     \label{eq:QuadLoss}
     \mathcal{L}_t = \frac12 \left(Y - T[f_t]\right)^T C_Y^{-1} \left(Y - T[f_t]\right)\, ,
