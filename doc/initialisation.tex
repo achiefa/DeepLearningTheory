@@ -271,24 +271,50 @@ The action can be expanded in powers of the invariant bilinear,
             \phi^{(\ell)}_{\alpha_3} \cdot \phi^{(\ell)}_{\alpha_4} + O(1/n_{\ell-1}^2)\, ,
 \end{align}
 so that the probability distribution is fully determined by the couplings 
-$\gamma^{(\ell)}$.\footnote{
-    We have denoted {\em all}\ couplings by $\gamma^{{(\ell)}}$. Different couplings 
-    are indentified by the number of indices, so that $\gamma^{(\ell)}_{\alpha_1\alpha_2}$ 
-    is a two-point coupling, $\gamma^{(\ell)}_{\alpha_1\alpha_2,\alpha_3\alpha_4}$ is a four-point 
-    coupling, etc. 
-} 
-In
-Eq.~\eqref{eq:ExpandAction}, we have factored out inverse powers of $n_\ell$ for each coupling.
-With this convention, and with the scaling of the parameters variances in
-Eq.~\eqref{eq:RescaledGlorotVariances}, the couplings in the action are all $O(1)$
-in the limit where $n_\ell\to\infty$.
-As a consequence, the probability distribution at initialisation is a multidimensional Gaussian at
-leading order -- \ie\ $\mathcal{O}(1)$ -- in $1/n_\ell$, with quartic corrections that are $O(1/n_\ell)$, while higher powers
-of the invariant bilinear are suppressed by higher powers of the width of the layer. This power counting
-defines an effective field theory, where deviations from Gaussianity can be computed in perturbation
-theory to any given order in $1/n_\ell$, see \eg\ Ref.~\cite{Roberts:2021fes} for a detailed
-presentation of these ideas. While the actual calculations become rapidly cumbersome, the
+$\gamma^{(\ell)}$.\footnote{ We have denoted {\em all}\ couplings by
+  $\gamma^{{(\ell)}}$. Different couplings are indentified by the number of
+  indices, so that $\gamma^{(\ell)}_{\alpha_1\alpha_2}$ is a two-point coupling,
+  $\gamma^{(\ell)}_{\alpha_1\alpha_2,\alpha_3\alpha_4}$ is a four-point coupling,
+  etc. } 
+In Eq.~\eqref{eq:ExpandAction}, we have factored out inverse powers of
+$n_\ell$ for each coupling. With this convention, and with the scaling of the
+parameters variances in Eq.~\eqref{eq:RescaledGlorotVariances}, the couplings in
+the action are all $O(1)$ in the limit where $n_\ell\to\infty$. As a
+consequence, the probability distribution at initialisation is a
+multidimensional Gaussian at leading order -- \ie\ $\mathcal{O}(1)$ -- in
+$1/n_\ell$, with quartic corrections that are $O(1/n_\ell)$, while higher powers
+of the invariant bilinear are suppressed by higher powers of the width of the
+layer. This power counting defines an effective field theory, where deviations
+from Gaussianity can be computed in perturbation theory to any given order in
+$1/n_\ell$, see, \eg\, Ref.~\cite{Roberts:2021fes} for a detailed presentation
+of these ideas. While the actual calculations become rapidly cumbersome, the
 conceptual framework is straightforward.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[scale=0.55]{section_2/K1_correlations.pdf}
+    \includegraphics[scale=0.55]{section_2/K2_correlations.pdf}
+    \includegraphics[scale=0.55]{section_2/K3_correlations.pdf}
+    \caption{The empirical (left) and analytical (right) covariance matrices of
+    the first, second and output layers of the NNPDF architecture (top to
+    bottom). The covariance in the left panel is computed ``bootstrapping'' over
+    an ensemble of replicas, initialised using the Glorot normal distribution.
+    The covariance in the right panel is obtained by solving
+    Eq.~\eqref{eq:RecursionForK} numerically. In order to reduce the bootstrap
+    errors in the empirical covariance, an ensemble of 1000 replicas has been
+    used for this figure.}
+    \label{Fig:KRecursion}
+\end{figure}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{section_2/delta_K.pdf}
+    \caption{Relative difference between the empirical kernel,
+    computed from an ensemble of networks at initialisation, and the recursive
+    kernel obtained by iterating Eq.~\ref{eq:RecursionForK} for the three layers
+    of the NNPDF architecture. An ensemble of 1000 replicas has been used to
+    reduce the bootstrap errors in the empirical covariance.}
+    \label{fig:delta_K}
+\end{figure}
 
 At leading order, the second and fourth cumulant are respectively
 \begin{align}
@@ -334,49 +360,29 @@ and
     \label{eq:FunctIntDef}
     \mathcal{D}\phi = \prod_{\alpha=1}^{\ngrid} d\phi_\alpha\, .
 \end{align}
-Note that the integration variables in Eq.~\ref{eq:FunctIntDef} do not have 
-a neuron index and the integrals are $\ngrid$ dimensional integrals. 
-Eq.~\eqref{eq:RecursionForK} is iterated for the NNPDF architecture,
-yielding $K^{(\ell)}$ for arbitrary $\ell$, \ie\ the covariance at initialisation 
-for various depths. These are compared
-with the empirical covariance computed from an ensemble of 100 replicas in
-Fig.~\ref{Fig:KRecursionOne} for the first deep-layer and in
-Fig.~\ref{Fig:KRecursionTwo} for the second-deep layer and output layer. The
-agreement between the theoretical prediction and the empirical computation is
-excellent, confirming the validity of the large-network expansion even for
-networks of moderate size, as those used in the NNPDF fits.
+Note that the integration variables in Eq.~\eqref{eq:FunctIntDef} do not have a
+neuron index and the integrals are $\ngrid$ dimensional integrals.
+Eq.~\eqref{eq:RecursionForK} is iterated for the NNPDF architecture, yielding
+$K^{(\ell)}$ for arbitrary $\ell$, \ie\ the covariance at initialisation for
+various depths. These are compared with the empirical covariance computed from
+an ensemble replicas in Fig.~\ref{Fig:KRecursion} for the first two deep-layers
+and the output layer. Furthermore, the relative difference between the empirical
+covariance and the theoretical prediction is shown in Fig.~\ref{fig:delta_K}. In
+order to reduce the bootstrap errors in the empirical covariance, an ensemble
+with $\nreps=1000$ has been used for these figures. The agreement between the
+theoretical prediction and the empirical computation is excellent, confirming
+the validity of the large-network expansion even for networks of moderate size,
+as those used in the NNPDF fits.
 
-\begin{figure}[t]
+\begin{figure}[!t]
     \centering
-    \includegraphics[scale=0.8]{section_2/K1_correlations.pdf}
-    \caption{The empirical (left) and analytical (right) covariance matrices $K^{(1)}$ of the first layer
-    of the NNPDF architecture. The covariance in the left panel is computed ``bootstrapping'' over an
-    ensemble of replicas, initialised using the Glorot normal distribution. The covariance in the right
-    panel is obtained by solving Eq.~\eqref{eq:RecursionForK} numerically. In order to reduce
-    the bootstrap errors in the empirical covariance, an ensemble of 1000 replicas has been used for this
-    figure.
-    \label{Fig:KRecursionOne}
-    }
-\end{figure}
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[scale=0.45]{section_2/K2_correlations.pdf}
-    \hspace{0.5cm}
-    \includegraphics[scale=0.45]{section_2/K3_correlations.pdf}
-    \caption{Same as Fig.~\ref{Fig:KRecursionOne}, but for the second (top) and
-    third (bottom) layers of the NNPDF architecture. Again, an ensemble of 1000 replicas
-    has been used to reduce the bootstrap errors in the empirical covariance.}
-    \label{Fig:KRecursionTwo}
-\end{figure}
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.9\textwidth]{section_2/delta_K.pdf}
-    \caption{Relative difference between the empirical kernel,
-    computed from an ensemble of networks at initialisation, and the recursive
-    kernel obtained by iterating Eq.~\ref{eq:RecursionForK} for the three layers
-    of the NNPDF architecture. An ensemble of 1000 replicas has been used to
-    reduce the bootstrap errors in the empirical covariance.}
+    \includegraphics[width=0.45\textwidth]{section_2/prior.pdf}
+    \includegraphics[width=0.45\textwidth]{section_2/prior_log.pdf}
+    \caption{Ensemble of neural networks at initialisation in linear (left) and logarithm (right) scale.
+    The blue line represents the mean value computed over an ensemble of 100 replicas, while the
+    shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.
+    In the figure, we show $xT_3$ as used in the following sections.}        
+    \label{fig:prior} 
 \end{figure}
 
 As a consequence of the symmetry of the probability distribution, the mean value
@@ -395,16 +401,5 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
     \label{eq:VarAtInit}
     O(f) = \frac{\nreps}{\nreps-1} \left(f_i(x_\alpha) - \bar{f}_{i}(x_\alpha)\right)^2\, .
 \end{align}
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.45\textwidth]{section_2/prior.pdf}
-    \includegraphics[width=0.45\textwidth]{section_2/prior_log.pdf}
-    \caption{Ensemble of neural networks at initialisation in linear (left) and logarithm (right) scale.
-    The blue line represents the mean value computed over an ensemble of 100 replicas, while the
-    shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.
-    In the figure, we show $xT_3$ as used in the following sections.}        
-    \label{fig:prior} 
-\end{figure}
-
 
 \FloatBarrier
