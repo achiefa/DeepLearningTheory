@@ -7,7 +7,7 @@ main features of the training process, and that its time evolution is
 characterised by a rapid initial transient, followed by a slower evolution
 during the rest of the training. We now turn our attention on this last stage of
 the training, where the NTK has stabilised and becomes approximately constant.
-In doing so, we will build upon the results presented in
+In doing so, we build upon the results presented in
 Refs.~\cite{jacot2018neural,lee2019wide} and extend them to the case of NNPDF.
 In the following, we derive the analytical solution of the flow equation, which
 allows us to write an explicit expression for the trained field as a function of
@@ -56,15 +56,15 @@ One can readily see that the components in the kernel of $\Theta$, $\text{ker}\
 \Theta$, do not evolve during training,\footnote{Despite this result having been
 obtained using the frozen NTK, it is worth mentioning that at any time during
 training the kernel of the NTK is always defined and in general non-empty.
-Hence, also in the initial stage, there will be a component that is completely
-determined by the initial condition, \ie\ by the prior distribution in
+Hence, even in the initial stages of the training process, there is a component 
+that is completely determined by the initial condition, \ie\ by the prior distribution in
 functional space.}
 \begin{align}
     \label{eq:FlowParallel}
     \ddt f^\parallel_{t,k} = 0
         \quad \Longrightarrow \quad f^\parallel_{t,k} = f^\parallel_{0,k}\, .
 \end{align}
-This means that the final solution will be affected by an irreducible noise that
+This means that the final solution is affected by an irreducible noise that
 is purely dictated by the initial condition. 
 
 The flow equation for the orthogonal components can be written as
@@ -82,7 +82,7 @@ where  we introduced
 As discussed above, the indices on quantities that have a $\perp$ suffix only
 span the space orthogonal to the kernel of $\Theta$, while the indices on
 quantities that have a $\parallel$ suffix span the kernel. We refer to $H^\perp$
-as the flow (or training) Hamiltonian, training can only take place in the space
+as the flow (or training) Hamiltonian, emphasizing that training can only take place in the space
 orthogonal to the kernel of $\Theta$; we see explicitly in the definition above
 that the flow dynamics is determined by a combination of the architecture of the
 NN, encoded in the NTK, and the data, on which $M$ depends. More specifically,
@@ -137,7 +137,7 @@ then
 \end{align}
 where the sum only involves the non-zero modes of $H^\perp$, is a particular
 solution of the inhomogeneous equation, which satisfies the boundary condition
-$\check{f}^{\perp}_{0,k}=0$. Finally, the solution of the flow equation in the
+$\check{f}^{\perp}_{0,k}=0$. Hence, the solution of the flow equation in the
 subspace orthogonal to $\text{ker}\ \Theta$ is
 \begin{align}
     f^\perp_{t,k}
@@ -262,10 +262,11 @@ see that as training proceeds, the contribution from $U$ is progressively
 suppressed, in accordance with the observation made above. On the other hand,
 the contribution from $V$ grows and becomes dominant at later epochs, indicating
 that the trained function is mostly determined by the data, rather than the
-previous condition of the network. We also observe that such behaviour happens
-quite rapidly, as a consequence of the fact the time scales in the analytical
+initial condition of the network. We also observe that such behaviour happens
+quite rapidly -- in a training time interval $\Delta T \approx 200$ --
+as a consequence of the fact that the time scales in the analytical
 solution are determined by the inverse of the eigenvalues of $H^\perp$, and
-latter are typically large.
+the latter are typically large.
 % Decomposition L2 ================================
 \begin{figure}[ht]
     \centering
@@ -315,7 +316,8 @@ at $T_{\rm ref}$.
 % =================================================
 We start by comparing the analytical solution (AS), obtained using an ensemble
 of networks at initialisation as the initial condition, with the trained
-solution (TS), obtained after training a neural network from a different initial
+solution (TS), obtained after training a neural network using GD and 
+starting from a different initial
 condition. This comparison is shown in Fig.~\ref{fig:EvolutionGridF0L2} for L2
 data, where the rows in the grid correspond to different frozen NTKs, while the
 columns represent numerical and analytical evolution after $T=50, 500$ and 5000
@@ -325,8 +327,8 @@ The first observation is that the NTK at early stages of training is not able to
 drive the prior towards the true function, as shown in the first and, though
 less dramatically, in the second row of Fig.~\ref{fig:EvolutionGridF0L2}. This
 is expected, as we extensively discussed in Sec.~\ref{sec:NTKDuringTraining},
-since at early stages the NTK has not yet aligned its internal representation
-with the data.
+since at early stages of training by GD the NTK has not yet aligned its 
+internal representation with the data.
 
 More significantly, we observe a significant discrepancy between the AS and the
 TS even at $T=5000$. This can be explained as follows. At the beginning of
@@ -348,7 +350,7 @@ since the frozen NTK at $T_{\rm ref}$ is actually obtained from an ensemble of
 networks. As a consequence, the operators $U(t)$ and $V(t)$ are both random
 variables. We can then characterize the distribution of the analytical solution
 using the mean and variance across the ensemble, as shown in
-Eq.~\eqref{eq:ReplicaEnsemble}. The central value of the trained field is thus
+Eq.~\eqref{eq:ReplicaEnsemble}. The central value of the analytical solution is thus
 defined as
 \begin{align}
     \label{eq:MeanValAtT}
@@ -356,8 +358,7 @@ defined as
         = \mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right]
             + \mathbb{E}\left[V(t)_{\alpha I} Y_I\right] \, .
 \end{align}
-More interestingly, we can also compute the covariance matrix of the trained
-fields at any time $t$,
+More interestingly, we can also compute their covariance matrix at any time $t$,
 \begin{align}
     \cov[f_t,f_t^T]
         &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
@@ -395,9 +396,8 @@ where
         - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right]\, .
         \label{eq:CYYterm}
 \end{align}
-Eq.~\eqref{eq:SumOfCovariances} shows that the factorisation between the
-contribution from the initial condition and the one from the data holds also at
-the level of the covariance matrix. Indeed, $C_t^{(00)}$ quantifies the
+Eq.~\eqref{eq:SumOfCovariances} shows explicitly the various contributions to 
+the covariance matrix. Indeed, $C_t^{(00)}$ quantifies the
 contribution to the covariance matrix that is purely due to the fluctuations of
 the initial condition, while $C_t^{(YY)}$ quantifies the contribution that is
 purely due to the statistical fluctuations of the data. The mixed term
@@ -474,11 +474,13 @@ non-negligible across all training times, although it also shows a decreasing
 trend as training proceeds. This suggests that the correlations between $V(t)$
 and $Y$ cannot be neglected. 
 
-In conclusion, we note that Eq.~\eqref{eq:MeanValAtTNoCorr} resembles the
-structure of a linear method, like \eg\ Backus-Gilbert or Gaussian Processes. We
+Let us conclude this brief discussion by noting that Eq.~\eqref{eq:MeanValAtTNoCorr} 
+resembles the structure of a linear method, like \eg\ Backus-Gilbert or 
+Gaussian Processes. We
 believe that this observation, as well as the results shown in
 Fig.~\ref{fig:xT3_exp_val}, deserve further investigations, which we leave for
-future work.
+future work. Understanding the relation between different methods is important 
+in order to assess the robustness of the solution. 
 
 \paragraph{Error decomposition}
 % ===================================
@@ -509,8 +511,9 @@ band). We also see that the suppression of the initial condition is more severe
 and happens earlier when the frozen NTK is taken at later stages of training.
 These findings ensure that the quoted error on the PDFs is actually dominated by
 the statistical error on the data, and not by the fluctuations of the initial
-fields. This is a crucial point, since it guarantees that the error bars
-computed from the ensemble of trained PDFs is not biased by the choice of prior
+fields. This is an important step in our study of the error estimates, since it 
+guarantees that the error bars computed from the ensemble of trained PDFs is not 
+biased by the choice of prior
 that is made by selecting a given architecture, activation function, and
 probability distribution for the biases and weights at initialisation.
 
@@ -519,7 +522,7 @@ Finally, we can use the analytical solution to compute the bias and variance of
 the trained ensemble of networks. Following the definition of
 Ref.~\cite{NNPDF:2021njg}, we define the bias as
 \begin{align}
-  \mathcal{B} 
+  \mathcal{B}_t 
   &= \frac{1}{N_{\rm dat}} \left( \bar{T}[f_t] - Y_{\rm L0} \right)^T C_Y^{-1} \left( \bar{T}[f_t] - Y_{\rm L0} \right) \\
   &= \frac{1}{N_{\rm dat}} \left( \bar{f_t} - \fin \right)^T M \left( \bar{f_t} - \fin \right)
   \label{eq:BiasDef}
@@ -533,17 +536,17 @@ the definition of the matrix $M$ given in Eq.~\eqref{eq:MandBDef}, which encodes
 the physical information enclosed in the FK tables. The bias thus assumes a
 clear interpretation -- it measures the ability of the training process in
 inverting the forward map used to generate the data. In fact, we recall that the
-inversion is not exact even with level-0 data 
+inversion is not exact even with level-0 data; the minimum of the loss is achieved for
 \begin{equation}
-  \fin_{M^{\perp}} = M^{+} (FK)^T C_Y^{-1} Y_{L0} \neq \fin \,,
+  \fin_{M^{\perp}} = M^{+} (FK)^T C_Y^{-1} Y_{L0} = M^{+} M \fin \neq \fin \,,
   \label{eq:NaiveInversion}
 \end{equation}
 where $M^{+}$ is the pseudo-inverse of $M$. As in the case of the NTK, there is
-a residual component of the input vector in the eigenspace of $M$,
+a residual component of the input vector in the null eigenspace of $M$,
 $\fin_{M^{\parallel}}$, that is not constrained by the forward map, similarly to
 the residual noise introduced by the NTK when training the network,
-Sec.~\ref{sec:Lazy}. Given that this component does not receive any restriction
-from the data, the parametrisation, together with the fitting methodology, has
+Sec.~\ref{sec:Lazy}. Given that this component is not constrained by
+the data, the parametrisation, together with the fitting methodology, has
 complete freedom to fix it. In our analytical solution,
 Eq.~\eqref{eq:AnalyticSol}, this freedom is brought in by the linear
 transformation of the fields $f_0$. On the other hand, $\fin_{M^{\perp}}$
@@ -564,19 +567,19 @@ limit of infinite training time.
 
 These arguments motivate us to reshape Eq.~\eqref{eq:BiasDef} as follows
 \begin{equation}
-  \mathcal{B} = \mathcal{B}_{U} + \mathcal{B}_{V} + \mathcal{B}_{UV} \,,
+  \mathcal{B}_t = \mathcal{B}_{t,U} + \mathcal{B}_{t,V} + \mathcal{B}_{t,UV} \,,
 \end{equation}
 where
 \begin{align}
-  \mathcal{B}_{U} &= \frac{1}{N_{\rm dat}} 
+  \mathcal{B}_{t,U} &= \frac{1}{N_{\rm dat}} 
   \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr)^T
   M 
   \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr) \,, \\
-  \mathcal{B}_{V} &= \frac{1}{N_{\rm dat}} 
+  \mathcal{B}_{t,V} &= \frac{1}{N_{\rm dat}} 
   \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr)^T
   M
   \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr) \,, \\
-  \mathcal{B}_{UV} &= \frac{2}{N_{\rm dat}} 
+  \mathcal{B}_{t,UV} &= \frac{2}{N_{\rm dat}} 
   \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr)^T
   M
   \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr) \,.
@@ -585,7 +588,7 @@ where
 Continuing in this vein and following Ref.~\cite{NNPDF:2021njg}, we define the
 variance as
 \begin{align}
-  \mathcal{V} 
+  \mathcal{V}_t 
   &= \frac{1}{N_{\rm dat}} \mathbb{E} \biggl[\bigl( \bar{T}[f_t] - T[f_t] \bigr)^T C_Y^{-1}\bigl( \bar{T}[f_t] - T[f_t] \bigr)\biggr] \\
   &= \frac{1}{N_{\rm dat}} \mathbb{E} \biggl[\bigl( \bar{f_t} - f_t \bigr)^T M \bigl( \bar{f_t} - f_t \bigr)\biggr] \,,
 \end{align}
@@ -594,19 +597,19 @@ This expression therefore serves as a measure of the spread of the trained
 fields in the space of data. Similarly to the bias, we can decompose the
 variance into three components
 \begin{equation}
-  \mathcal{V} = \mathcal{V}_{U} + \mathcal{V}_{V} + \mathcal{V}_{UV} \,,
+  \mathcal{V}_t = \mathcal{V}_{t,U} + \mathcal{V}_{t,V} + \mathcal{V}_{t,UV} \,,
 \end{equation}
 where now the contributions are
 \begin{align}
-  \mathcal{V}_U
+  \mathcal{V}_{t,U}
     &= \frac{1}{\ndat} \mathbb{E} \biggl[
       \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)^T M \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)
     \biggr]\,, \\
-  \mathcal{V}_V
+  \mathcal{V}_{t,V}
     &= \frac{1}{\ndat} \mathbb{E} \biggl[
       \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)^T M \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)
   \biggr]\,, \\
-  \mathcal{V}_{UV}
+  \mathcal{V}_{t,UV}
     &= \frac{2}{\ndat} \mathbb{E} \biggl[
       \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)^T M \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)
   \biggr]\,.
@@ -629,7 +632,7 @@ determined by the input PDFs
 Note that using L0 data only affects the second term in
 Eq.~\ref{eq:AnalyticSol}.\footnote{To be more precise, since the analytical
 solution requires the NTK to be frozen at a certain epoch $T_{\rm ref}$, the NTK
-will depend on the data used in the training.} We can then rewrite the combined
+depends on the data used in the training.} We can then rewrite the combined
 term in Eq.~\eqref{eq:DataCorrectedInference} as follows
 \begin{align}
   \label{eq:TrainingOnLevelZero}
@@ -647,18 +650,26 @@ $f_0^\parallel$, which we remind does not evolve during the analytic training,
 acts as a constant ``bias'' in the training process, shifting the effective
 input function that the neural network sees. Of course the actual magnitude of
 this irreducible noise depends both on how $f_0$ and the kernel of the NTK are
-distributed over the ensemble. We will come to this point soon.
+distributed over the ensemble. 
 
 Note that the observation above remains true even in the limit of infinite
-training. This can be shown using 
+training, 
 \begin{align}
     \label{eq:LevelZeroClosureInfiniteTraining}
     \lim_{t\to\infty} V(t) Y = \finperp + \mathcal{M}_{\infty} M \finpar\, ,
 \end{align}
 which shows that the $V$ component of the trained solution reproduces exactly
-the component of the PDF that lies in  the subspace orthogonal to the kernel of
+the component of the PDF that lies in the subspace orthogonal to the kernel of
 $\Theta$. We compare the asymptotic behaviour of $V(t) Y$ and $\finperp$ in
-Fig.~\ref{fig:InfiniteTimeVterm}.
+Fig.~\ref{fig:InfiniteTimeVterm}, where we see that the analytical solution at
+infinite training time reproduces the expected result, \ie, it coincides 
+with $\finperp$, as long as $T_{\mathrm{ref}}>\ldd{XXX}$. The second term in 
+the square bracket on the right-hand side of
+Eq.~\eqref{eq:TrainingOnLevelZero} is the contribution from the parallel
+component at initialisation that does not evolve in the training process. Given
+that $f_0$ is almost normally distributed around zero, that term does not
+contribute to the central value of the fitted PDF, \ie\ to the average of the
+trained solution over replicas. 
 
 \begin{figure}[t]
   \centering
@@ -672,12 +683,7 @@ Fig.~\ref{fig:InfiniteTimeVterm}.
   \label{fig:InfiniteTimeVterm}
 \end{figure}
 
-The second term in the square bracket on the right-hand side of
-Eq.~\eqref{eq:TrainingOnLevelZero} is the contribution from the parallel
-component at initialisation that does not evolve in the training process. Given
-that $f_0$ is almost normally distributed around zero, that term does not
-contribute to the central value of the fitted PDF, \ie\ to the average of the
-trained solution over replicas. The time evolution of 
+The time evolution of 
 \begin{align}
   \label{eq:AverageLevelZeroUcheck}
   \mathbb{E}\left[\mathcal{M}(t)\, \FKtabT C_{Y}^{-1} \FKtab\, 
