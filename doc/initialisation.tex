@@ -129,7 +129,7 @@ a Glorot normal distribution~\cite{glorot2010understanding}. The preactivation
 function of a neuron is denoted as $\phi^{(\ell)}_{i,\alpha} =
 \phi^{(\ell)}_i(x_\alpha)$, where $\ell$ denotes the layer of the neuron, $i$
 identifies the neuron within the layer\footnote{We refer to $i$ as the {\em
-neuron}\ index.}, and $x_{\alpha}$ is the input to the NN, \ie\ a point in the 
+neuron}\ index.}, and $x_{\alpha}$ is the input to the NN, \ie, a point in the 
 interval $[0,1]$. A grid of
 $\ngrid=50$ points in $x$ is used to compute observables in the NNPDF formalism and in
 this work we focus on the values of $f$ at those values of $x_\alpha$, where 
@@ -229,7 +229,7 @@ $n_{\ell}\times\ngrid$ components of $\phi^{(\ell)}$,
 \end{align}
 This duality between parameter-space and function-space provides a powerful framework to study
 the behaviour of an ensemble of NNs, and in particular the symmetry properties of the distribution
-$p(\phi^{(\ell)})$ (see, \eg, Ref.~\cite{Maiti:2021fpy}). Working in parameter space, \ie\ computing the
+$p(\phi^{(\ell)})$ (see, \eg, Ref.~\cite{Maiti:2021fpy}). Working in parameter space, \ie, computing the
 expectation values of correlators of fields as integrals over the NN parameter, one can readily
 show that
 \begin{align}
@@ -281,7 +281,7 @@ $n_\ell$ for each coupling. With this convention, and with the scaling of the
 parameters variances in Eq.~\eqref{eq:RescaledGlorotVariances}, the couplings in
 the action are all $O(1)$ in the limit where $n_\ell\to\infty$. As a
 consequence, the probability distribution at initialisation is a
-multidimensional Gaussian at leading order -- \ie\ $\mathcal{O}(1)$ -- in
+multidimensional Gaussian at leading order -- \ie, $\mathcal{O}(1)$ -- in
 $1/n_\ell$, with quartic corrections that are $O(1/n_\ell)$, while higher powers
 of the invariant bilinear are suppressed by higher powers of the width of the
 layer. This power counting defines an effective field theory, where deviations
@@ -329,7 +329,7 @@ where
     \label{eq:DefineKmat}
     K^{(\ell)}_{\alpha_1\alpha_2} = \left(\gamma^{(\ell)}\right)^{-1}_{\alpha_1\alpha_2}\, .
 \end{equation}
-The ``evolution'' of the couplings as we go deep in the NN, \ie\ the dependence of the couplings on
+The ``evolution'' of the couplings as we go deep in the NN, \ie, the dependence of the couplings on
 $\ell$, is governed by Renormalization Group (RG) equations, which preserve the power counting in
 powers of $1/n_{\ell}$. At leading order,
 \begin{align}
@@ -363,7 +363,7 @@ and
 Note that the integration variables in Eq.~\eqref{eq:FunctIntDef} do not have a
 neuron index and the integrals are $\ngrid$ dimensional integrals.
 Eq.~\eqref{eq:RecursionForK} is iterated for the NNPDF architecture, yielding
-$K^{(\ell)}$ for arbitrary $\ell$, \ie\ the covariance at initialisation for
+$K^{(\ell)}$ for arbitrary $\ell$, \ie, the covariance at initialisation for
 various depths. These are compared with the empirical covariance computed from
 an ensemble replicas in Fig.~\ref{Fig:KRecursion} for the first two deep-layers
 and the output layer. Furthermore, the relative difference between the empirical

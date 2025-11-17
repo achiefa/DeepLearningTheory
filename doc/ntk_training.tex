@@ -27,7 +27,7 @@ Our main aim in this paper is understanding the dynamics driving the training
 process. Indeed, while these algorithms have achieved remarkable empirical
 success, a theoretical understanding of the optimization process remains
 elusive. Therefore, we work with the
-simplest gradient method, \ie\ Gradient Descent (GD). Furthermore, we
+simplest gradient method, \ie, Gradient Descent (GD). Furthermore, we
 consider a reduced dataset for which predictions can be computed using one flavor
 combination of the PDFs, so that the integral in Eq.~\eqref{eq:TheoryPred}
 reduces to
@@ -77,7 +77,7 @@ covariance of the data, which includes statistical and systematic errors given
 by the experiments and also any theoretical error (\eg\, missing higher
 orders in the theoretical predictions). Indices that are summed over are
 suppressed to improve the clarity of the equations. Note that the loss function
-at training time $t$ is computed using the theoretical prediction $T[f_t]$, \ie\
+at training time $t$ is computed using the theoretical prediction $T[f_t]$, \ie,
 the result of Eq.~\eqref{eq:TheoryPred} computed using the fields at training
 time $t$. For a quadratic loss, the gradient is
 \begin{align}
@@ -454,13 +454,13 @@ replica.
 
 The blue rectangle in the top right corner of the matrix shows that the
 eigenvectors of the NTK corresponding to the largest eigenvalues are orthogonal
-to the eigenvectors of $M$ that are in the kernel of $M$, \ie\ the directions
+to the eigenvectors of $M$ that are in the kernel of $M$, \ie, the directions
 that do not contribute to the observables. It is useful to remember that the
 largest eigenvalues of the NTK correspond to the directions that are orthogonal
-to $\ker\Theta$, \ie\ the directions that are learnable during the training
+to $\ker\Theta$, \ie, the directions that are learnable during the training
 process. In order to have a robust training process, we expect these learnable
 directions to align with the directions that actually contribute to the loss
-functions, \ie\ the ones corresponding to the largest eigenvalues of $M$.
+functions, \ie, the ones corresponding to the largest eigenvalues of $M$.
 Consistently with this intuition, we see that the size of this blue rectangle
 increases with training time. In particular, it is clear from our plot that it
 becomes deeper by the onset of the lazy training regime: more of the learnable
