@@ -3,7 +3,7 @@
 
 
 In the following, we prepare the ground for the study of the training dynamics
-of neural networks used in the NNPDF framework. We start by presenting briefly
+of neural networks used in the NNPDF framework. We start by briefly presenting
 the inverse problem of PDF determination using data depending linearly on the PDFs,
 setting the notation and introducing the statistical
 vocabulary used in the rest of this study. We then discuss some
@@ -158,7 +158,7 @@ The preactivation function in layer $(\ell+1)$ is a weighted average of the outp
 the previous layer, namely
 \begin{align}
     \label{eq:RecursionNN}
-    \phi^{(\ell+1)}_{i\alpha} = \sum_{j=1}^{n_\ell} w^{(\ell+1)}_{ij} \rho^{(\ell)}_{i\alpha} + b^{(\ell+1)}_{i}\, .
+    \phi^{(\ell+1)}_{i\alpha} = \sum_{j=1}^{n_\ell} w^{(\ell+1)}_{ij} \rho^{(\ell)}_{j\alpha} + b^{(\ell+1)}_{i}\, .
 \end{align}
 The PDFs in the
 so-called evolution basis are parametrized by the preactivation functions of the output layer $L$,
@@ -184,7 +184,7 @@ In the following we refer to the preactivation functions as {\em fields}.
   \centering
   \includegraphics[width=0.95\textwidth]{section_2/weight_distribution.pdf}
   \caption{Sampled distribution of a selected weight in function of the
-  number of replicas. The red line represent the underlying Gaussian distribution
+  number of replicas. The red line represents the underlying Gaussian distribution
   from which the weights are drawn. As the number of replicas is increased the 
   distribution of the weight converges to the expected Gaussian.}
   \label{fig:weight_distribution}
@@ -272,7 +272,7 @@ The action can be expanded in powers of the invariant bilinear,
 \end{align}
 so that the probability distribution is fully determined by the couplings 
 $\gamma^{(\ell)}$.\footnote{ We have denoted {\em all}\ couplings by
-  $\gamma^{{(\ell)}}$. Different couplings are indentified by the number of
+  $\gamma^{{(\ell)}}$. Different couplings are identified by the number of
   indices, so that $\gamma^{(\ell)}_{\alpha_1\alpha_2}$ is a two-point coupling,
   $\gamma^{(\ell)}_{\alpha_1\alpha_2,\alpha_3\alpha_4}$ is a four-point coupling,
   etc. } 
@@ -303,14 +303,14 @@ conceptual framework is straightforward.
     Eq.~\eqref{eq:RecursionForK} numerically. In order to reduce the bootstrap
     errors in the empirical covariance, an ensemble of 1000 replicas has been
     used for this figure.}
-    \label{Fig:KRecursion}
+    \label{fig:KRecursion}
 \end{figure}
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.86\textwidth]{section_2/delta_K.pdf}
     \caption{Relative difference between the empirical kernel,
     computed from an ensemble of networks at initialisation, and the recursive
-    kernel obtained by iterating Eq.~\ref{eq:RecursionForK} for the three layers
+    kernel obtained by iterating Eq.~\eqref{eq:RecursionForK} for the three layers
     of the NNPDF architecture. An ensemble of 1000 replicas has been used to
     reduce the bootstrap errors in the empirical covariance.}
     \label{fig:delta_K}
@@ -365,7 +365,7 @@ neuron index and the integrals are $\ngrid$ dimensional integrals.
 Eq.~\eqref{eq:RecursionForK} is iterated for the NNPDF architecture, yielding
 $K^{(\ell)}$ for arbitrary $\ell$, \ie, the covariance at initialisation for
 various depths. These are compared with the empirical covariance computed from
-an ensemble replicas in Fig.~\ref{Fig:KRecursion} for the first two deep-layers
+an ensemble replicas in Fig.~\ref{fig:KRecursion} for the first two deep-layers
 and the output layer. Furthermore, the relative difference between the empirical
 covariance and the theoretical prediction is shown in Fig.~\ref{fig:delta_K}. In
 order to reduce the bootstrap errors in the empirical covariance, an ensemble

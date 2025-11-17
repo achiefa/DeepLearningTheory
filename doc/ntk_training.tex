@@ -41,7 +41,7 @@ Extensions of this analysis to theoretical predictions that are
 quadratic in the PDFs, multiple flavour combinations, alternative minimizers,
 and cross-validation tools are left for future work.
 
-Finally, we emphasise that the results in this sections, while obtained having in mind
+Finally, we emphasise that the results in this section, while obtained having in mind
 neural networks, apply to any fixed parametrisation, including
 fixed functional forms~\cite{Ablat:2024hbm,Bailey:2020ooq,Alekhin:2017kpj} or
 kernels~\cite{Costantini:2025wxp}.
@@ -51,7 +51,7 @@ kernels~\cite{Costantini:2025wxp}.
 
 For analytical tractability, GD is described as a continuous flow of the
 parameters $\theta$ in training time $t$ along the negative gradient of the loss
-function $\mathcal{L}$. For sufficient small learning rates $\eta$, this
+function $\mathcal{L}$. For sufficiently small learning rates $\eta$, this
 continuous flow approximates the discrete GD trajectory in parameter space, as
 extensively discussed in Ref.~\cite{barrett2022igr}. The continuous Gradient
 Flow (GF) is then given by
@@ -130,7 +130,7 @@ including convolutional networks~\cite{arora2019exact} and recurrent
 networks~\cite{alemohammad2021recurrent}. This theoretical framework has proven
 invaluable for characterizing learning dynamics and generalization properties
 across various network designs. We will see in the following and in
-Sec.~\ref{sec:LazyTraining} how the NTK can provide useful insights also in the
+Sec.~\ref{sec:LazyTraining} how the NTK can also provide useful insights in the
 context of PDF fitting.
 
 In order to facilitate the discussion in Sec.~\ref{sec:Lazy},
@@ -155,7 +155,7 @@ where
 Here $M$ is a positive-semidefinite matrix that depends only on the data and the
 theoretical predictions, while $b$ is a vector that depends only on the data.
 
-Before moving to the next subsection, a few comments comments are in order.
+Before moving to the next subsection, a few comments are in order.
 First, although derived in the context of neural networks, these equations do
 not refer to a specific parameterization. Indeed, these remain valid even when
 an explicit functional form is chosen to parametrize the PDFs, as in
@@ -165,9 +165,9 @@ Eq.~\eqref{eq:FlowEquationNoIndices}, depends on two matrices, $\Theta$ and $M$.
 The former encodes the model dependence, while the latter contains the physical
 information. The interplay between these two matrices is crucial for
 understanding the training dynamics, as discussed in
-Sec.~\ref{sec:NTKAlign}. Finally, the NTK derived in Eq.~\ref{eq:NTKDef} is
+Sec.~\ref{sec:NTKAlign}. Finally, the NTK derived in Eq.~\eqref{eq:NTKDef} is
 inherently time-dependent in a complex way, which precludes any attempt at
-integrating Eq.~\ref{eq:FlowEquationNoIndices} analytically. We come back
+integrating Eq.~\eqref{eq:FlowEquationNoIndices} analytically. We come back
 to this point in Sec.~\ref{sec:Lazy}, after discussing the properties of the
 NTK during training.
 
@@ -231,7 +231,7 @@ heavily hierarchical, and only few eigenvalues are actually
 non-zero\footnote{Note that, due to the large difference in magnitude of the
 eigenvalues, the finite precision used in our codes introduces noise in the
 decomposition, so that small eigenvalues should be effectively considered zero.
-We discuss the cut-off tolerance in Appendix~\ref{app:cutoff}.}. This means that
+We discuss the cut-off tolerance in Appendix~\ref{sec:cutoff}.}. This means that
 only a small subset of active directions can inform the network during training,
 as it will be discussed later. Note that, at least at initialisation, these
 observations do not depend on the architecture: the eigenvalues in
@@ -305,7 +305,7 @@ After this initial phase -- corresponding approximately to the first 20,000
 epochs in our experiment -- the NTK tends to stabilize. These two regions will
 be referred to as the \textit{rich} and \textit{lazy} training regimes,
 respectively, in keeping with the standard terminology adopted in the literature
-(see, \eg, Ref.~\cite{fort2020dlvk} where two similar regimes where also
+(see, \eg, Ref.~\cite{fort2020dlvk} were two similar regimes where also
 identified). We do not comment any further on the implications of the lazy
 regime, and postpone the discussion to Sec.~\ref{sec:Lazy}.
 
@@ -446,8 +446,8 @@ replica.
   \caption{Matrix $A$ as defined in Eq.~\eqref{eq:MatrixA} for L2 data and for a
   single replica of the NTK. The matrix is shown at different epochs of the
   training process, indicated in the top of each panel. The white dashed line
-  indicates the cut-off tolerance that we imposed to the eigenvalues of the NTK
-  (see Appendix~\ref{app:cutoff}).}
+  indicates the cut-off tolerance that we impose on the eigenvalues of the NTK
+  (see Appendix~\ref{sec:cutoff}).}
   \label{fig:NtkMAlign}
 \end{figure}
 % ===================================
@@ -488,7 +488,7 @@ with the observations coming from Figs.~\ref{fig:EigvalsComparison}-\ref{fig:Ntk
   \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the
   left panel, the first four eigenvectors of the NTK are shown, while the right
   panel shows the remaining eigenvectors up to $k=7$. Note that $f^{\mathrm{in}}$
-  lies entirely in the subspace spun by the first four eigenvactors of the NTK 
+  lies entirely in the subspace spun by the first four eigenvectors of the NTK 
   by the onset of the lazy training regime. We see that the NTK has aligned its
   features with the physically relevant directions of the problem.}
   \label{fig:NTKAlignFin}
@@ -503,7 +503,7 @@ product of these two matrices will become relevant in
 Sec.~\ref{sec:LazyTraining}. Together with the eigenvectors, we also show the
 output of the trained neural network at the corresponding training time. From
 these plots, we see that as the training progresses, the shape of the eigenvectors
-become more structured in order to reproduce the output function. Again, this
+becomes more structured in order to reproduce the output function. Again, this
 conclusion supports the observations made previously in various occasions, that
 during training the neural network is changing its internal representation and
 the NTK encodes this information.
@@ -515,8 +515,7 @@ the NTK encodes this information.
   \caption{First five eigenvectors of the combined matrix $H=\Theta M$, as in
   Eq.~\eqref{eq:FlowEquationNoIndices}, at different training time and as
   function of the input $x$-grid. We also show the output of the network at the
-  same training time, which is displayed in gray. L1 data is used. \ac{Should we use L0
-  data instead?}}
+  same training time, which is displayed in gray. L1 data is used.}
   \label{fig:NTKMEigVecs}
 \end{figure}
 % ===================================

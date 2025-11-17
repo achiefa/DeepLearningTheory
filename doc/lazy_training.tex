@@ -44,7 +44,7 @@ necessary to distinguish the components of $f_t$ that are in the kernel of
 $\Theta$ from the ones that are in the orthogonal complement. We introduce the
 notation
 \begin{align}
-    \label{eq:ParallelCompnents}
+    \label{eq:ParallelComponents}
     &f^\parallel_{t,k} = \left(z^{(k)}, f_t\right)\, , \quad \text{if}\ \lambda^{(k)} = 0\, , \\
     \label{eq:OrthogonalComponents}
     &f^\perp_{t,k} = \frac{1}{\sqrt{\lambda^{(k)}}} \left(z^{(k)}, f_t\right)\, , \quad
@@ -249,7 +249,7 @@ compares the analytical solution with the trained function at the end of
 training, for different choices of the frozen NTK. The evolution time $t$ used
 in the analytical solution is the difference between the total training time and
 $t_{\rm ref}$. Central value and uncertainty bands are obtained by computing the
-analytical solution for each replicas of the initial condition and frozen NTK.
+analytical solution for each replica of the initial condition and frozen NTK.
 \footnote{ If not stated otherwise, in this section central values and
 uncertainties are always computed as ensemble averages across replicas. } The
 figures agree with the expectation; the closer $t_{\rm ref}$ is to the onset of
@@ -632,7 +632,7 @@ determined by the input PDFs
     Y = \FKtab \fin\, .
 \end{equation}
 Note that using L0 data only affects the second term in
-Eq.~\ref{eq:AnalyticSol}.\footnote{To be more precise, since the analytical
+Eq.~\eqref{eq:AnalyticSol}.\footnote{To be more precise, since the analytical
 solution requires the NTK to be frozen at a certain epoch $T_{\rm ref}$, the NTK
 depends on the data used in the training.} We can then rewrite the combined
 term in Eq.~\eqref{eq:DataCorrectedInference} as follows
@@ -643,12 +643,12 @@ term in Eq.~\eqref{eq:DataCorrectedInference} as follows
       \left[\fin - f_{0}^\parallel\right]\, .
 \end{align}
 The subtraction taking place in the square brackets of
-Eq.~\eqref{eq:TrainingOnLevelZero} suggests us that the effective function that
+Eq.~\eqref{eq:TrainingOnLevelZero} suggests that the effective function that
 the neural network actually sees is not the input function $\fin$ used to
 generate the data, but rather the difference between $\fin$ and the component of
 the initial function $f_0$ that lies in the subspace spanned by the kernel of
 the NTK, \ie, $f_0^\parallel$. In other words, the parallel component
-$f_0^\parallel$, which we remind does not evolve during the analytic training,
+$f_0^\parallel$, which, we remind the reader, does not evolve during the analytic training,
 acts as a constant ``bias'' in the training process, shifting the effective
 input function that the neural network sees. Of course the actual magnitude of
 this irreducible noise depends both on how $f_0$ and the kernel of the NTK are
@@ -718,8 +718,8 @@ function. For large training times, we have
 and explicit expressions for $\check{U}^\perp_{\infty}$ and $V_{\infty}$ are
 obtained from $\mathcal{M}_{\infty}$. The term in the square bracket in
 Eq.~\eqref{eq:MOperatorInfty} is the spectral decomposition of the pseudo-inverse
-of $H^\perp$ in $d_\perp$ orthogonal subspace. So, the operator
-$\mathcal{M}_{\infty}$ acts as follow on a field $f_{\alpha}$:
+of $H^\perp$ in $d_\perp$-dimensional orthogonal subspace. So, the operator
+$\mathcal{M}_{\infty}$ acts as follows on a field $f_{\alpha}$:
 \begin{enumerate}
     \item The term on the right of the square bracket computes the coordinate
     $f_{k'}$ introduced in Eq.~\eqref{eq:OrthogonalComponents}. The $f_k$ are 
