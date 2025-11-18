@@ -570,6 +570,7 @@ limit of infinite training time.
 These arguments motivate us to reshape Eq.~\eqref{eq:BiasDef} as follows
 \begin{equation}
   \mathcal{B}_t = \mathcal{B}_{t,U} + \mathcal{B}_{t,V} + \mathcal{B}_{t,UV} \,,
+  \label{eq:BiasDecomposition}
 \end{equation}
 where
 \begin{align}
@@ -600,6 +601,7 @@ fields in the space of data. Similarly to the bias, we can decompose the
 variance into three components
 \begin{equation}
   \mathcal{V}_t = \mathcal{V}_{t,U} + \mathcal{V}_{t,V} + \mathcal{V}_{t,UV} \,,
+  \label{eq:VarianceDecomposition}
 \end{equation}
 where now the contributions are
 \begin{align}
@@ -616,6 +618,29 @@ where now the contributions are
       \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)^T M \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)
   \biggr]\,.
 \end{align}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L0.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L1.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L2.pdf}
+  \caption{Bias decomposition as in Eq.~\eqref{eq:BiasDecomposition} in function
+  of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
+  are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
+  column corresponds to a different frozen NTK.
+  \label{fig:BiasDecomposition}}
+\end{figure}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L0.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L1.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L2.pdf}
+  \caption{Variance decomposition as in Eq.~\eqref{eq:VarianceDecomposition} in function
+  of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
+  are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
+  column corresponds to a different frozen NTK.
+  \label{fig:VarianceDecomposition}}
+\end{figure}
 
 
 \FloatBarrier
