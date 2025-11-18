@@ -1,3 +1,4 @@
+from functools import lru_cache
 import logging
 from pathlib import Path
 
@@ -31,24 +32,11 @@ class EvolutionOperatorComputer:
         """
         self.context = context
 
-    def compute_evolution_operator(self, reference_epoch, t):
+    @lru_cache(maxsize=None)
+    def collect_evolution_data(self, reference_epoch):
         """
-        Computes the evolution operator U(t) based on equation 41 in the solution.
-
-        Parameters:
-        -----------
-        reference_epoch : int
-            The reference epoch for which to compute the evolution
-        t : float
-            Time parameter for evolution
-
-        Returns:
-        --------
-        U : Distribution
-            Evolution operator U at time t
-        V : Distribution
-            Second operator V needed for the full solution
-        """
+        Utility function to collect evolution data for a given reference epoch and
+        store them in cache."""
         # Extract index of the reference epoch
         if reference_epoch not in self.context.common_epochs:
             raise ValueError(
@@ -72,6 +60,31 @@ class EvolutionOperatorComputer:
         Qtilde = Qt @ M @ P_parallel
         T_tilde = Qt @ FK.T @ Cinv
 
+        return Q, Qinv, P_parallel, h, hinv, Qtilde, T_tilde
+
+    def compute_evolution_operator(self, reference_epoch, t, return_all=False):
+        """
+        Computes the evolution operator U(t) based on equation 41 in the solution.
+
+        Parameters:
+        -----------
+        reference_epoch : int
+            The reference epoch for which to compute the evolution
+        t : float
+            Time parameter for evolution
+
+        Returns:
+        --------
+        U : Distribution
+            Evolution operator U at time t
+        V : Distribution
+            Second operator V needed for the full solution
+        """
+
+        Q, Qinv, P_parallel, h, hinv, Qtilde, T_tilde = self.collect_evolution_data(
+            reference_epoch
+        )
+
         exp_ht = h.apply_operator(
             b=t,
             operator=lambda a, b: np.exp(-a * b),
@@ -89,8 +102,10 @@ class EvolutionOperatorComputer:
         U_check = Q @ hinv @ one_minus_exp @ Qtilde
         V = Q @ hinv @ one_minus_exp @ T_tilde
 
-        U = U_hat + U_check + P_parallel
+        if return_all:
+            return U_hat, U_check, P_parallel, V
 
+        U = U_hat + U_check + P_parallel
         return U, V
 
     def compute_U_check(self, reference_epoch, t):

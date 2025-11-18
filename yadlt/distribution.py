@@ -207,35 +207,58 @@ class Distribution:
 
     def transpose(self):
         """Transpose the data of each replica."""
-        res = Distribution(
-            f"{self.name} transposed", shape=self.shape[::-1], size=self.size
-        )
-        for rep in range(self.size):
-            res.add(self._data[rep].T)
+        if len(self.shape) == 1:
+            res = Distribution(
+                f"{self.name} transposed", shape=(1, self.shape[0]), size=self.size
+            )
+            for rep in range(self.size):
+                res.add(self._data[rep].reshape(1, -1))
+        else:
+            res = Distribution(
+                f"{self.name} transposed", shape=self.shape[::-1], size=self.size
+            )
+            for rep in range(self.size):
+                res.add(self._data[rep].T)
+
         return res
 
-    @validate_type
     @validate_shape
-    @validate_size
     def __add__(self, other):
         """Apply the operator + to each replica"""
         res = Distribution(
             f"{self.name} + {other.name}", shape=self.shape, size=self.size
         )
-        for rep in range(self.size):
-            res.add(self._data[rep] + other._data[rep])
+        if isinstance(other, Distribution):
+            for rep in range(self.size):
+                res.add(self._data[rep] + other._data[rep])
+        elif isinstance(other, np.ndarray):
+            for rep in range(self.size):
+                res.add(self._data[rep] + other)
+        else:
+            raise TypeError(
+                f"Expected a Distribution instance or ndarray, got {type(other)}"
+            )
         return res
 
-    @validate_type
     @validate_shape
-    @validate_size
     def __sub__(self, other):
         """Apply the operator - to each replica"""
-        res = Distribution(
-            f"{self.name} - {other.name}", shape=self.shape, size=self.size
-        )
-        for rep in range(self.size):
-            res.add(self._data[rep] - other._data[rep])
+        if isinstance(other, Distribution):
+            res = Distribution(
+                f"{self.name} - {other.name}", shape=self.shape, size=self.size
+            )
+            for rep in range(self.size):
+                res.add(self._data[rep] - other._data[rep])
+        elif isinstance(other, np.ndarray):
+            res = Distribution(
+                f"{self.name} - np.ndarray", shape=self.shape, size=self.size
+            )
+            for rep in range(self.size):
+                res.add(self._data[rep] - other)
+        else:
+            raise TypeError(
+                f"Expected a Distribution instance or ndarray, got {type(other)}"
+            )
         return res
 
     @check_empty
@@ -289,6 +312,33 @@ class Distribution:
 
         else:
             raise TypeError(f"Expected a Distribution instance, got {type(other)}")
+
+    def __rmatmul__(self, other):
+        """Right matrix multiplication: other @ Distribution"""
+        if isinstance(other, np.ndarray):
+            # Calculate the resulting shape
+            if len(self.shape) < 2:
+                # Vector case: other @ vector -> depends on other's shape
+                if len(other.shape) == 1:
+                    shape = ()  # Scalar result
+                else:
+                    shape = (other.shape[0],)
+            else:
+                # Matrix case: other @ matrix
+                if len(other.shape) == 1:
+                    shape = (self.shape[1],)
+                else:
+                    shape = (other.shape[0], self.shape[1])
+
+            res = Distribution(f"ndarray @ {self.name}", shape=shape, size=self.size)
+            for rep in range(self.size):
+                result = other @ self._data[rep]
+                res.add(result)
+            return res
+        else:
+            raise TypeError(
+                f"Expected numpy array for left operand, got {type(other).__name__}"
+            )
 
     @check_empty
     @check_size
