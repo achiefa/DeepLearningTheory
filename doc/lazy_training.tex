@@ -642,6 +642,29 @@ where now the contributions are
   \label{fig:VarianceDecomposition}}
 \end{figure}
 
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L0_func.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L1_func.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L2_func.pdf}
+  \caption{Same as Fig.~\ref{fig:BiasDecomposition}, but measuring the bias in the
+  functional space of the PDF. Formally, this corresponds to replacing the matrix $M$ in
+  Eq.~\eqref{eq:BiasDef} with the identity matrix. Each column corresponds to a different
+  frozen NTK.
+  \label{fig:BiasDecompositionFunc}}
+\end{figure}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L0_func.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L1_func.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L2_func.pdf}
+  \caption{Same as Fig.~\ref{fig:VarianceDecomposition}, but measuring the variance in the
+  functional space of the PDF. Formally, this corresponds to replacing the matrix $M$ in
+  Eq.~\eqref{eq:VarianceDecomposition} with the identity matrix. Each column corresponds to a different
+  frozen NTK.
+  \label{fig:VarianceDecompositionFunc}}
+\end{figure}
+
 
 \FloatBarrier
 
@@ -690,7 +713,7 @@ the component of the PDF that lies in the subspace orthogonal to the kernel of
 $\Theta$. We compare the asymptotic behaviour of $V(t) Y$ and $\finperp$ in
 Fig.~\ref{fig:InfiniteTimeVterm}, where we see that the analytical solution at
 infinite training time reproduces the expected result, \ie, it coincides 
-with $\finperp$, as long as $T_{\mathrm{ref}}>\ldd{XXX}$. The second term in 
+with $\finperp$, as long as $T_{\mathrm{ref}}> 1000$. The second term in 
 the square bracket on the right-hand side of
 Eq.~\eqref{eq:TrainingOnLevelZero} is the contribution from the parallel
 component at initialisation that does not evolve in the training process. Given
