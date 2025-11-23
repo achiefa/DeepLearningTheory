@@ -619,6 +619,58 @@ where now the contributions are
   \biggr]\,.
 \end{align}
 
+Bias and variance, together with their decompositions introduced above, are
+shown in Figs.~\ref{fig:BiasDecomposition} and~\ref{fig:VarianceDecomposition},
+respectively. We show these curves as functions of the training time for
+different frozen NTKs and for L0, L1 and L2 data. We now discuss these figures
+in turn.
+
+Starting from the bias, we see that $\mathcal{B}_{t,V}$ contributes the most to
+the total budget of the bias, in accordance with the observations made in
+Fig.~\ref{fig:FrefDecompositionL2}. Furthermore, the bias decreases more rapidly
+when the NTK is frozen at later stages of training, as the NTK has had more time
+to align with the data and therefore is more effective in reducing the bias. We
+also observe that the behaviour of the bias at larger epochs is different
+depending on the closure level. For L0 data, the bias decreases monotonically
+with training time, approaching zero asymptotically. This is expected, since L0
+data do not contain any noise and the bias can be reduced indefinitely by
+training longer. On the other hand, the bias for L1 and L2 data presents a
+minimum at large epochs, after which the bias increases again (see the
+inset in each figure). Here the dependence on the frozen NTK determines the
+location of the minimum -- the later the NTK is frozen, the earlier the bias
+reaches its minimum. That both L1 and L2 have a similar behaviour tells us that
+the central value of the analytical solution is mostly insensitive to the
+experimental uncertainty propagated through the Monte Carlo fluctuations of the
+data.
+ 
+Turning now to the variance, we see again that the dominant contribution comes
+from $\mathcal{V}_{t,V}$, unless the NTK is frozen at very early stages of
+training. This agrees with Fig.~\ref{fig:ErrorBudgetL2}, where we observed that
+the contribution of the $U$ contribution is significant only at early epochs. In
+general, the variance exhibits a peak at intermediate epochs, after which it
+decreases. This stands out particularly for $T_{\rm ref} = 3000$ (second column
+in Fig.~\ref{fig:VarianceDecomposition}), where the height of the peak has its
+maximum for the case of L2 data. When the NTK is frozen at later stages of
+training, the peak is less pronounced and located at earlier epochs. Note that,
+contrary to the bias, the behaviour at large epochs of the variance differs
+between L1 and L2 data. In fact, while the variance for L0 and L1 data
+approaches zero asymptotically, for L2 data the variance converges to a residual
+value shifted from zero. Finally, a closer inspection of the figures reveals a
+strong correlation between the eigenvalues of $H^\perp$, introduced in
+Sec.~\ref{sec:Lazy}, and the transitions in the slope of the variance. Indeed,
+the components of the analytical solution contribute with different timescales,
+characterised by the inverse of the eigenvalues of $H^\perp$. This is
+particularly evident for the case at $T_{\rm ref}=5000$, where in correspondence
+of the timescale $1/h_i$, shown as vertical dashed lines in grey, the variance
+shows a change in slope. This remains true across all closure-test data,
+although slightly mitigated for L2 data.
+
+We remark that the interplay between bias and variance, as well as the presence
+of extrema in both curves, may have practical implications in the choice of the
+optimal stopping time. For this reason, in Fig.~\ref{fig:BiasVarianceComparison}
+we show the total contributions of bias and variance together as functions of
+the training time for different frozen NTKs and for L0, L1 and L2 data.
+
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L0.pdf}
@@ -641,29 +693,29 @@ where now the contributions are
   column corresponds to a different frozen NTK.
   \label{fig:VarianceDecomposition}}
 \end{figure}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L0.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L1.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L2.pdf}
+  \caption{Comparison of the total contribution of bias and variance in the
+  space of the data as a function of the training time for L0 (top), L1 (middle)
+  and L2 (bottom) data. The curves are the same as in
+  Figs.~\ref{fig:BiasDecomposition} and~\ref{fig:VarianceDecomposition},
+  displayed here together. Each column corresponds to a different frozen NTK. In
+  first column, the bias is off-scale.
+  \label{fig:BiasVarianceComparison}}
+\end{figure}
 
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L0_func.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L1_func.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L2_func.pdf}
-  \caption{Same as Fig.~\ref{fig:BiasDecomposition}, but measuring the bias in the
-  functional space of the PDF. Formally, this corresponds to replacing the matrix $M$ in
-  Eq.~\eqref{eq:BiasDef} with the identity matrix. Each column corresponds to a different
-  frozen NTK.
-  \label{fig:BiasDecompositionFunc}}
-\end{figure}
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L0_func.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L1_func.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L2_func.pdf}
-  \caption{Same as Fig.~\ref{fig:VarianceDecomposition}, but measuring the variance in the
-  functional space of the PDF. Formally, this corresponds to replacing the matrix $M$ in
-  Eq.~\eqref{eq:VarianceDecomposition} with the identity matrix. Each column corresponds to a different
-  frozen NTK.
-  \label{fig:VarianceDecompositionFunc}}
-\end{figure}
+% \begin{figure}[!h]
+%   \centering
+%   \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L0_func.pdf}
+%   \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L1_func.pdf}
+%   \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L2_func.pdf}
+%   \caption{Same as Fig.~\ref{fig:BiasVarianceComparison}, but measuring bias and variance in the
+%   functional space of the PDF.}
+%   \label{fig:BiasVarianceComparisonFunc}
+% \end{figure}
 
 
 \FloatBarrier
