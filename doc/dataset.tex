@@ -2,52 +2,49 @@
 \section{The BCDMS dataset for $T_3$}
 \label{app:dataset}
 
-In this analysis we employ a simplified framework where one single flavor in
-the PDFs is required to compute the theory predictions as in
-Eq.~\eqref{eq:TheoryPred}. In this respect, following
-Ref.~\cite{Candido:2024hjt}, we focus on the determination of the non-singlet
-triplet PDF combination, defined as
-\begin{equation}
-T_3 = u^+ - d^+,
-\end{equation}
-where $u^+ = u + \bar{u}$ and $d^+ = d + \bar{d}$. By combining measurements of
-the structure function $F_2$ on proton and deuterium targets from the BCDMS
-collaboration~\cite{Benvenuti:1989fm}, one can construct the observable $F_2^p -
-F_2^d$ which, at next-to-next-to-leading order (NNLO) in QCD and under the
-assumption of isoscalarity for the deuterium nucleus, provides a clean probe of
-the nonsinglet triplet PDF combination $T_3$. The factorization formula reads
+The analysis presented in this work employs a set of synthetic data points
+generated using a known underlying law $\fin$ that we seek to reconstruct.
+Analogous to Ref.~\cite{Candido:2024hjt}, the pseudo-data are constructed by
+convolving $\fin$ with FK tables whose kinematic dependence is specified by
+measurements of the structure function $F_2$ on proton and deuterium targets
+from the BCDMS collaboration~\cite{Benvenuti:1989fm}. By combining these
+measurements, one can construct the observable $F_2^p - F_2^d$ that, at
+next-to-next-to-leading order (NNLO) in QCD and under the assumption of
+isoscalarity for the deuterium nucleus, provides a clean probe of the
+non-singlet triplet PDF combination $T_3 = u^+ - d^+$, where $u^+ = u + \bar{u}$
+and $d^+ = d + \bar{d}$. The factorisation formula in Eq.~\eqref{eq:TheoryPred}
+then simplifies to 
 \begin{equation}
 F_2^p - F_2^d = C_{T_3} \otimes T_3,
 \end{equation}
 where $C_{T_3}$ is the corresponding Wilson coefficient computed in perturbative
 QCD, and $\otimes$ is a short-hand notation that denotes the convolution as in
-Eq.~\eqref{eq:TheoryPred}. The construction of the FK-tables needed to compute
-the predictions, as well as the application of kinematic cuts and the
-construction of the covariance matrix, are identical to
-Ref.~\cite{Candido:2024hjt}, to which the reader is referred for further
-details. In order to study the training dynamics in a clean environment where the
-noise is controlled, we generate synthetic data using the closure test framework
-developed by the NNPDF collaboration~\cite{NNPDF:2021njg,DelDebbio:2021whr}
-where pseudo-data are generated from a known underlying law. We use the central
-value of the non-singlet triplet $xT_3$ from the NNPDF4.0~\cite{NNPDF:2021njg}
-release as the input law $\fin$. Furthermore, we generate three levels of
-synthetic data following the standard NNPDF convention for closure tests. These
-levels differ by the way the noise is included, and are labelled as Level 0 (L0),
-Level 1 (L1) and Level 2 (L2) data. We now summarise their definitions in turn.
+Eq.~\eqref{eq:TheoryPred}. The construction of the FK tables needed to compute
+the predictions, as well as the construction of the covariance matrix, are
+identical to Ref.~\cite{Candido:2024hjt}, to which the reader is referred for
+further details. This yields a total of 333 data points, which then reduce to
+248 points after applying the kinematic cuts.
+
+Following the closure test framework developed by the NNPDF
+collaboration~\cite{DelDebbio:2021whr,NNPDF:2021njg}, we generate
+data with three different levels of noise, labelled as Level 0 (L0), Level 1 (L1)
+and Level 2 (L2) data. Furthermore, we use the non-singlet triplet $xT_3$ from the
+NNPDF4.0 parton set~\cite{NNPDF:2021njg} as the input law $\fin$. In the following,
+we summarise the definition of the different levels of pseudo-data.
 
 \paragraph{Level 0}
-The pseudo-data are generated without any experimental noise, \ie, by simply using
-the input function and the FK-tables as follows
+The pseudo-data are generated without any experimental noise, \ie, by using
+the input function and the FK tables as follows
 \begin{equation}
 Y_{L0} =  \FKtab \fin.
 \end{equation}
 In this ideal scenario, the analysis should reproduce the input $\fin$, though
 some residual reconstruction error may remain in the kinematic region not
-covered by the FK-tables. Level 0 assess the intrinsic bias of the methodology,
+covered by the FK tables. Level 0 assesses the intrinsic bias of the methodology,
 as any neural network replica will be trained on the same data points $Y_{L0}$.
 
 \paragraph{Level 1}
-In this case, the experimental noise is added on top of L0 data, by sampling from the
+In this case, the experimental noise is added on top of the L0 data, by sampling from the
 multivariate normal distribution with the full experimental covariance matrix
 $C_Y$ provided by the BCDMS collaboration
 \begin{equation}
