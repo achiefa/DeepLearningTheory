@@ -665,11 +665,32 @@ of the timescale $1/h_i$, shown as vertical dashed lines in grey, the variance
 shows a change in slope. This remains true across all closure-test data,
 although slightly mitigated for L2 data.
 
-We remark that the interplay between bias and variance, as well as the presence
-of extrema in both curves, may have practical implications in the choice of the
-optimal stopping time. For this reason, in Fig.~\ref{fig:BiasVarianceComparison}
-we show the total contributions of bias and variance together as functions of
-the training time for different frozen NTKs and for L0, L1 and L2 data.
+The interplay between bias and variance, as well as the presence of extrema in
+both curves, may have practical implications in the choice of the optimal
+stopping time. In Fig.~\ref{fig:BiasVarianceComparison} we compare the total
+contributions of bias and variance as functions of the training time, for
+different frozen NTKs, and for L0, L1 and L2 data. One major observation that
+emerges from these figures is that the intersection point between bias and
+variance -- which defines a bias-variance ratio equal to one -- is not
+sufficient to determine whether the fit has converged optimally. For instance,
+for L0 data with the NTK frozen at $T_{\rm ref}=3000$ (first row, third column),
+the two curves intersect at around $T \sim 1000$ and $T> 10000$. Clearly, only
+the latter represents a good fit. This becomes even more evident for L2 data
+(third row), in particular when the NTK is frozen at $T_{\rm ref}=10000$ (last
+column). Interestingly, there are no intersection points between bias and
+variance for L0 data and when the NTKs are frozen at $T_{\rm ref} > 3000$. This
+is a direct consequence of the observations made above, namely that the bias is
+insensitive to the noise in the data, while the variance is. Indeed, as is clear
+by comparing L1 and L2 data for $T_{\rm ref} = 10000$, adding the Monte Carlo
+fluctuations in the data leaves the bias almost unchanged but increases the
+variance, resulting in the intersection of the two curves.
+
+We conclude by remarking that bias and variance are computed using the
+analytical solution in Eq.~\eqref{eq:AnalyticSol}, hence from an ensemble of
+frozen NTKs. The results shown above provide evidence that the NTK is capable
+of encoding not only the physical features of the data, but also the statistical
+features of the methodology. Such a finding deserves further attention in
+future assessments of PDF determinations.
 
 \begin{figure}[!h]
   \centering
@@ -706,17 +727,6 @@ the training time for different frozen NTKs and for L0, L1 and L2 data.
   first column, the bias is off-scale.
   \label{fig:BiasVarianceComparison}}
 \end{figure}
-
-% \begin{figure}[!h]
-%   \centering
-%   \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L0_func.pdf}
-%   \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L1_func.pdf}
-%   \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L2_func.pdf}
-%   \caption{Same as Fig.~\ref{fig:BiasVarianceComparison}, but measuring bias and variance in the
-%   functional space of the PDF.}
-%   \label{fig:BiasVarianceComparisonFunc}
-% \end{figure}
-
 
 \FloatBarrier
 
