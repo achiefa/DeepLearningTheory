@@ -391,10 +391,13 @@ as those used in the NNPDF fits.
     \centering
     \includegraphics[width=0.45\textwidth]{section_2/prior.pdf}
     \includegraphics[width=0.45\textwidth]{section_2/prior_log.pdf}
-    \caption{Ensemble of neural networks at initialisation in linear (left) and logarithm (right) scale.
-    The blue line represents the mean value computed over an ensemble of 100 replicas, while the
-    shaded band represents the one-sigma uncertainty computed as the variance over the same ensemble.
-    In the figure, we show $xT_3$ as used in the following sections.}
+    \caption{The output of the ensemble of neural networks at initialisation
+    using the NNPDF architecture in linear (left) and logarithm (right) scale.
+    We show the case of linear input $f(x)$ (blue) and logarithmic-scaled input
+    $f(x, \log x)$ (orange). The solid lines represent the mean value computed
+    over an ensemble of 100 replicas, while the shaded bands represent the
+    one-sigma uncertainty computed as the variance over the same ensemble. In
+    the figure, we show $xT_3$ as used in the following sections.}
     \label{fig:prior}
 \end{figure}
 
@@ -405,12 +408,15 @@ Fig.~\ref{fig:OutputDist}, the expected distribution is compared against the
 empirical distribution of output fields for a selected value of $x$, using two
 ensembles of replicas with $\nreps=100$ and $\nreps=1000$, respectively.
 Inspecting the figures, we conclude that the recursion formula,
-Eq.~\eqref{eq:RecursionForK}, accurately reproduces the output distribution
-of the NNPDF networks at initialisation, provided that a sufficiently large
-ensemble of replicas is used to sample the distribution. Finally, the mean and
-the variance of the output at initialisation for all values of $x$ are shown in
-Fig.~\ref{fig:prior} for an ensemble with $\nreps=100$. The central value is
-computed as discussed above in Eq.~\eqref{eq:ReplicaEnsemble},
+Eq.~\eqref{eq:RecursionForK}, accurately reproduces the output distribution of
+the NNPDF networks at initialisation, provided that a sufficiently large
+ensemble of replicas is used to sample the distribution. Finally,
+Fig.~\ref{fig:prior} shows the mean and variance of the output at initialisation
+across all values of $x$ for an ensemble of $\nreps=100$ neural networks
+generated using the NNPDF architecture. We compare two cases: linear input
+$f(x)$ and scaled input $f(x, \log x)$ as defined in
+Eq.~\eqref{eq:InitLayerPhi}. The central value is computed according to
+Eq.~\eqref{eq:ReplicaEnsemble},
 \begin{align}
     \label{eq:MeanValAtInit}
     \bar{f}_{i\alpha} = \bar{f}_{i}(x_\alpha) = \frac{1}{\nreps} \sum_{k=1}^{\nreps} f^{(k)}_i(x_\alpha)\, ,
@@ -420,5 +426,8 @@ and the variance $\sigma^2_{i\alpha}$ is computed using the same formula with
     \label{eq:VarAtInit}
     O(f) = \frac{\nreps}{\nreps-1} \left(f_i(x_\alpha) - \bar{f}_{i}(x_\alpha)\right)^2\, .
 \end{align}
+As is clear from the figure, the choice of input scaling has a significant impact
+of the prior uncertainty, especially in the small-$x$ region. In the following,
+we neglect this effect and focus on the case of linear input $f(x)$.
 
 \FloatBarrier
