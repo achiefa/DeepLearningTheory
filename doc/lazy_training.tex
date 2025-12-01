@@ -227,19 +227,6 @@ analytical solution have a clear physical interpretation:
     the data, before the inference is performed.
 \end{itemize}
 
-% Onset Lazy L2 ===================================
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.9\textwidth]{section_4/evolution_vs_trained_ftref_L2.pdf} 
-  \caption{Comparison of the trained and analytical evolution at the end of
-  training. Each panel corresponds to a different frozen NTK, whereby the
-  analytical solution is computed starting from $f_{T_{\rm Ref}}$. The orange
-  curve represents the final trained function after 50000 iterations of GD, and
-  is the same across panels. Error bands represent one-sigma uncertainties
-  across replicas. L2 data is used.}
-  \label{fig:OnsetLazyL2}
-\end{figure}
-% =================================================
 The solution in Eq.~\eqref{eq:AnalyticSol} is the main result of this section.
 It shows that the training process can be described as the sum of a linear
 transformation of the initial fields $f_{0,\alpha}$, and a linear transformation
@@ -255,6 +242,21 @@ uncertainties are always computed as ensemble averages across replicas. } The
 figures agree with the expectation; the closer $t_{\rm ref}$ is to the onset of
 the lazy regime, the better the agreement between the analytical solution and
 the trained function.
+% Onset Lazy L2 ===================================
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.9\textwidth]{section_4/evolution_vs_trained_ftref_L2.pdf} 
+  \caption{Comparison of the trained and analytical evolution at the end of
+  training. Each panel corresponds to a different frozen NTK, whereby the
+  analytical solution is computed starting from $f_{T_{\rm Ref}}$. The orange
+  curve represents the final trained function after 50000 iterations of GD, and
+  is the same across panels. Error bands represent one-sigma uncertainties
+  across replicas. L2 data is used.}
+  \label{fig:OnsetLazyL2}
+\end{figure}
+% =================================================
+
+\FloatBarrier
 
 A complementary perspective is provided in Fig.~\ref{fig:FrefDecompositionL2},
 where the analytical solution is decomposed into the two contributions from $U$
