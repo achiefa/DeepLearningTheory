@@ -13,7 +13,10 @@ In the following, we derive the analytical solution of the flow equation, which
 allows us to write an explicit expression for the trained field as a function of
 the field at initialisation and the data.
 
-\subsection{Solution of the Flow Equation}
+\subsection{Analytical Results}
+\label{eq:AnlyticalLazySolution}
+
+\subsubsection{Solution of the Flow Equation}
 \label{sec:Lazy}
 
 The lazy training regime is characterised by a slow-evolving NTK. We denote as
@@ -288,449 +291,9 @@ the latter are typically large.
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} sheds a new light onto the
 behaviour of the numerical training of a neural network. Given these results, it
 is natural to ask whether the information encoded in the NTK alone can drive
-training beyond its original initial condition, \ie, whether the analytical
+training, independently of the initial condition, \ie, whether the analytical
 solution can be used to perform kernel learning. We address this question in the
 following section.
-
-\subsection{Lazy Training as Kernel Learning}
-\label{sec:NTKKernelLearning}
-
-The results shown in Sec.~\ref{sec:Lazy} and Sec.~\ref{sec:NTKDuringTraining}
-support the idea that the NTK is capable to encode in its eigenvectors the
-physical features learned during training. We now probe this idea further by
-employing the analytical solution in Eq.~\eqref{eq:AnalyticSol} \textit{\`a la}
-kernel learning, \ie, by applying it to an initial condition that represents our
-prior. In the following, we choose the initial condition to be an ensemble of
-networks at initialisation as in Fig.~\ref{fig:prior}, whose architecture is the
-same as the one used in the training. This represents our prior assumption on
-the space of functions, which is then updated using the data and the NTK frozen
-at $t_{\rm ref}$.
-
-\subsubsection{Convergence of the Analytical Solution}
-% Grid plot with L2 ================================
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.9\textwidth]{section_4/evolution_f0_vs_trained_grid_L2.pdf} 
-  \caption{Comparison of the trained (orange) and analytical (blue) evolution
-  starting from an ensemble of networks at initialisation as the initial
-  condition. Each row corresponds to a different frozen NTK, while the columns
-  represent different training times. L2 data is used.}
-  \label{fig:EvolutionGridF0L2}
-\end{figure}
-% =================================================
-We start by comparing the analytical solution (AS), obtained using an ensemble
-of networks at initialisation as the initial condition, with the trained
-solution (TS), obtained after training a neural network using GD and 
-starting from a different initial
-condition. This comparison is shown in Fig.~\ref{fig:EvolutionGridF0L2} for L2
-data, where the rows in the grid correspond to different frozen NTKs, while the
-columns represent numerical and analytical evolution after $T=50, 500$ and 5000
-epochs. These results deserve a few comments.
-
-The first observation is that the NTK at early stages of training is not able to
-drive the prior towards the true function, as shown in the first and, though
-less dramatically, in the second row of Fig.~\ref{fig:EvolutionGridF0L2}. This
-is expected, as we extensively discussed in Sec.~\ref{sec:NTKDuringTraining},
-since at early stages of training by GD the NTK has not yet aligned its 
-internal representation with the data.
-
-More significantly, we observe a significant discrepancy between the AS and the
-TS even at $T=5000$. This can be explained as follows. At the beginning of
-training, there is clearly no difference between AS and TS since both represent
-the neural network output at initialisation (Sec.~\ref{sec:Init}), with
-variations due only to different initialisation seeds. During early training
-stages, AS and TS differ as expected. Indeed, the analytical solution is
-computed using the frozen NTK at $t_{\rm ref}$, while the trained solution
-evolves with an NTK that is still changing as shown in Sect.~\ref{sec:Training}.
-Crucially, if the NTK at $t_{\rm ref}$ has already learned from the data and
-aligned with the solution, the AS converges faster to the target, while the TS
-requires additional epochs before evolving in the correct direction.
-
-\subsubsection{Central Value and Covariance of the Trained Fields}
-\label{sec:CentralAndCovariance}
-
-The analytical solution in Eq.~\eqref{eq:AnalyticSol} is inherently stochastic,
-since the frozen NTK at $t_{\rm ref}$ is actually obtained from an ensemble of
-networks. As a consequence, the operators $U(t)$ and $V(t)$ are both random
-variables. We can then characterize the distribution of the analytical solution
-using the mean and variance across the ensemble, as shown in
-Eq.~\eqref{eq:ReplicaEnsemble}. The central value of the analytical solution is thus
-defined as
-\begin{align}
-    \label{eq:MeanValAtT}
-    \bar{f}_{t,\alpha} = \mathbb{E}\left[f_{t,\alpha}\right]
-        = \mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right]
-            + \mathbb{E}\left[V(t)_{\alpha I} Y_I\right] \, .
-\end{align}
-More interestingly, we can also compute their covariance matrix at any time $t$,
-\begin{align}
-    \cov[f_t,f_t^T]
-        &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
-            - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[f_0^T U(t)^T\right]  \nonumber \\
-        &\quad + \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
-            - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[Y^T V(t)^T\right] \nonumber \\
-        &\quad + \mathbb{E}\left[V(t) Y f_0^T U(t)^T\right]
-            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[f_0^T U(t)^T\right] \nonumber \\
-    \label{eq:CovAtT}
-        &\quad + \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
-            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right] \, .
-\end{align}
-Note that the first and the fourth lines above yield symmetric matrices, while
-the third line is just the transpose of the second, thereby ensuring that the
-whole covariance matrix is the sum of three symmetric matrices and therefore is
-symmetric, 
-\begin{align}
-    \label{eq:SumOfCovariances}
-    \cov[f_t,f_t^T] = C_t^{(00)} + C_t^{(0Y)} + C_t^{(YY)}\, ,
-\end{align}
-where
-\begin{align}
-    \label{eq:C00term}
-    C_t^{(00)} 
-        &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
-        - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[f_0^T U(t)^T\right]\, ,\\
-    C_t^{(0Y)}
-        &= \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
-        - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[Y^T V(t)^T\right] \nonumber \\
-        \label{eq:C0Yterm}
-        &\quad + \mathbb{E}\left[V(t) Y f_0^T U(t)^T\right]
-            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[f_0^T U(t)^T\right] \, ,\\
-    C_t^{(YY)}
-        &= \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
-        - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right]\, .
-        \label{eq:CYYterm}
-\end{align}
-Eq.~\eqref{eq:SumOfCovariances} shows explicitly the various contributions to 
-the covariance matrix. Indeed, $C_t^{(00)}$ quantifies the
-contribution to the covariance matrix that is purely due to the fluctuations of
-the initial condition, while $C_t^{(YY)}$ quantifies the contribution that is
-purely due to the statistical fluctuations of the data. The mixed term
-$C_t^{(0Y)}$ accounts for the correlations between the two sources of
-uncertainty.
-
-
-\paragraph{Connection with Linear Methods}
-% ===================================
-\begin{figure}[t!]
-  \centering
-  \includegraphics[width=0.95\textwidth]{section_4/delta_bootstrap_L2_U.pdf}
-  \includegraphics[width=0.95\textwidth]{section_4/delta_bootstrap_L2_V.pdf}
-  \caption{Behaviour of $\Delta [U(t)f_0]$ and $\Delta [V(t)Y]$, as defined in
-  Eqs.~\eqref{eq:DeltaExpValUtF0} and~\eqref{eq:DeltaExpValVtY}, as functions of
-  the training time. The operators $U(T)$ and $V(T)$ are constructed by taking
-  the NTK at $T_{\rm ref} = 10000$, which is fixed across panels. The
-  uncertainties are extracted from the bootstrap ensemble as discussed in the
-  text.}
-    \label{fig:xT3_exp_val}
-\end{figure}
-% ===================================
-
-We can consider a simplifying limit of Eq.~\eqref{eq:MeanValAtT}, where the
-initial condition $f_0$ and the data $Y$ are statistically independent from the
-respective evolution operators $U(t)$ and $V(t)$. Note that the first term on
-the right-hand side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of
-the correlations between $U(t)$ and $f_0$. In the absence of such correlations,
-the first term would be given by the product of the expectation values and
-therefore would vanish if $f_0$ is an ensemble of networks at initialisation.
-Under these assumptions, we have
-\begin{align}
-    \label{eq:MeanUt}
-    \bar{U}(t)
-        &= \mathbb{E}\left[U(t)\right]\, , \\
-    \label{eq:MeanVt}
-    \bar{V}(t)
-        &= \mathbb{E}\left[V(t)\right]\, ,
-\end{align}
-and
-\begin{equation}
-    \label{eq:MeanValAtTNoCorr}
-    \bar{f}_{t,\alpha} = \bar{U}(t)_{\alpha\alpha'} \bar{f}_{0,\alpha'}
-        + \bar{V}(t)_{\alpha I} Y_I = \bar{V}(t)_{\alpha I} Y_I \, .
-\end{equation}
-The second term in Eq.~\eqref{eq:MeanValAtT}, or equivalently
-Eq.~\eqref{eq:MeanValAtTNoCorr}, explicitly shows the contribution of each data
-point to the central value of the trained fields at each value of $x_{\alpha}$.
-It is worthwhile remarking that in this limit, the central value from the set of
-trained networks is a linear combination of the data points, with coefficients
-given by the evolution operator $V(t)_{\alpha I}$.
-
-In the absence of general theorems, we verify this assumption empirically. From
-the ensemble of replicas, we generate bootstrap samples and compute the
-following two estimators,
-\begin{align}
-    \label{eq:DeltaExpValUtF0}
-    \Delta[U(f)f_0] &= \mathbb{E}\left[U(t) f_{0}\right] 
-      - \mathbb{E}\left[U(t) \right] \mathbb{E}\left[f_{0}\right]\, , \\
-    \label{eq:DeltaExpValVtY}
-    \Delta[V(f)Y] &= \mathbb{E}\left[U(t) Y\right] 
-      - \mathbb{E}\left[V(t) \right] \mathbb{E}\left[Y\right]\, .
-\end{align}
-for different training times, using the same frozen NTK and L2 data. The results
-are shown in Fig.~\ref{fig:xT3_exp_val} for the $U$ (upper panel) and $V$ (lower
-panel) contributions. The error bands are computed using bootstrap error. By
-inspecting the figures, we see two distinct patterns emerging. For the operator
-$U$, $\Delta[U f_0]$ is different from zero for small training times, and thus
-the correlations between $U(t)$ and $f_0$ are non-negligible. However, as
-training proceeds, $\Delta[U f_0]$ becomes compatible with zero within the error
-bars, suggesting that the correlations are progressively suppressed. The case of
-the $V$ operator is even more striking, as $\Delta[V Y]$ is clearly
-non-negligible across all training times, although it also shows a decreasing
-trend as training proceeds. This suggests that the correlations between $V(t)$
-and $Y$ cannot be neglected. 
-
-Let us conclude this brief discussion by noting that Eq.~\eqref{eq:MeanValAtTNoCorr} 
-resembles the structure of a linear method, like Backus-Gilbert or 
-Gaussian Processes. We
-believe that this observation, as well as the results shown in
-Fig.~\ref{fig:xT3_exp_val}, deserve further investigations, which we leave for
-future work. Understanding the relation between different methods is important 
-in order to assess the robustness of the solution. 
-
-\paragraph{Error decomposition}
-% ===================================
-\begin{figure}[t!]
-  \centering
-  \includegraphics[width=0.9\textwidth]{section_4/error_buddget_L2.pdf}
-  \caption{Decomposition of the error budget of the trained fields into the two
-  components from the initial condition (blue) and from the data (orange), as
-  defined in Eqs.~\eqref{eq:C00term} and~\eqref{eq:CYYterm}. Each row
-  corresponds to a different frozen NTK, while the columns represent different
-  training epochs. L2 data is used. We see that if the NTK is taken at later
-  stages of training, the contribution from the initial condition is severely
-  suppressed towards the end of training. }
-  \label{fig:ErrorBudgetL2}
-\end{figure}
-% ===================================
-The analytical expression for the covariance matrix,
-Eq.~\eqref{eq:SumOfCovariances}, allows us to monitor the relative size of the
-three contributions as training proceeds. For a properly trained ensemble of
-networks, the covariance of the trained fields should be dominated by the
-statistical error on the data. We show the diagonal entries of the decomposition
-of the error budget in Fig.~\ref{fig:ErrorBudgetL2}, for different frozen NTKs
-(rows) and different training epochs (columns), using L2 data as before. In
-general, we observe that towards the end of the training process the
-contribution from the data $C_t^{(YY)}$ (orange band) becomes dominant with
-respect to the contribution coming from the initial condition $C_t^{(00)}$ (blue
-band). We also see that the suppression of the initial condition is more severe
-and happens earlier when the frozen NTK is taken at later stages of training.
-These findings ensure that the quoted error on the PDFs is actually dominated by
-the statistical error on the data, and not by the fluctuations of the initial
-fields. This is an important step in our study of the error estimates, since it 
-guarantees that the error bars computed from the ensemble of trained PDFs is not 
-biased by the choice of prior
-that is made by selecting a given architecture, activation function, and
-probability distribution for the biases and weights at initialisation.
-
-\paragraph{Bias-Variance Decomposition}
-Finally, we can use the analytical solution to compute the bias and variance of
-the trained ensemble of networks. Following the definition of
-Ref.~\cite{NNPDF:2021njg}, we define the bias as
-\begin{align}
-  \mathcal{B}_t 
-  &= \frac{1}{N_{\rm dat}} \left( \bar{T}[f_t] - Y_{\rm L0} \right)^T C_Y^{-1} \left( \bar{T}[f_t] - Y_{\rm L0} \right) \\
-  &= \frac{1}{N_{\rm dat}} \left( \bar{f_t} - \fin \right)^T M \left( \bar{f_t} - \fin \right)
-  \label{eq:BiasDef}
-\end{align}
-where $\bar{T}[f_t] = \FKtab \bar{f}_t$ is the theoretical prediction computed
-using the central value of the trained fields at time $t$,
-Eq.~\eqref{eq:MeanValAtT}, and $Y_{\rm L0}$ are the data points generated using
-the input function $\fin$, $Y_{\rm L0}= \FKtab \fin$ (see
-Appendix~\ref{app:dataset}). In going from the first to the second line, we use
-the definition of the matrix $M$ given in Eq.~\eqref{eq:MandBDef}, which encodes
-the physical information enclosed in the FK tables. The bias thus assumes a
-clear interpretation -- it measures the ability of the training process in
-inverting the forward map used to generate the data. In fact, we recall that the
-inversion is not exact even with level-0 data; the minimum of the loss is achieved for
-\begin{equation}
-  \fin_{M^{\perp}} = M^{+} (FK)^T C_Y^{-1} Y_{L0} = M^{+} M \fin \neq \fin \,,
-  \label{eq:NaiveInversion}
-\end{equation}
-where $M^{+}$ is the pseudo-inverse of $M$. As in the case of the NTK, there is
-a residual component of the input vector in the null eigenspace of $M$,
-$\fin_{M^{\parallel}}$, that is not constrained by the forward map, similarly to
-the residual noise introduced by the NTK when training the network,
-Sec.~\ref{sec:Lazy}. Given that this component is not constrained by
-the data, the parametrisation, together with the fitting methodology, has
-complete freedom to fix it. In our analytical solution,
-Eq.~\eqref{eq:AnalyticSol}, this freedom is brought in by the linear
-transformation of the fields $f_0$. On the other hand, $\fin_{M^{\perp}}$
-receives its contribution from the data and from the theoretical predictions,
-resembling the linear transformation of the input data in
-Eq.~\eqref{eq:AnalyticSol}. This is even more evident if one compares
-Eq.~\eqref{eq:NaiveInversion} with Eq.~\eqref{eq:VDef}
-\begin{equation}
-  \mathbb{E} \left[ V(t) Y \right] - \fin_{M^{\perp}}
-    = \mathbb{E} \left[ \mathcal{M}(t) \FKtabT C_Y^{-1} Y \right] 
-    - M^{+} \FKtabT C_Y^{-1} Y_{L0} \,,
-\end{equation}
-where we recall that $Y$ is different from $Y_{L0}$, in general. From this
-expression, it follows that $\mathcal{M}(t)$ can be seen as a regularised
-variant of $M^{+}$, with the training time $t$ being the regularisation
-parameter. This correspondence will become clearer later, when we discuss the
-limit of infinite training time.
-
-These arguments motivate us to reshape Eq.~\eqref{eq:BiasDef} as follows
-\begin{equation}
-  \mathcal{B}_t = \mathcal{B}_{t,U} + \mathcal{B}_{t,V} + \mathcal{B}_{t,UV} \,,
-  \label{eq:BiasDecomposition}
-\end{equation}
-where
-\begin{align}
-  \mathcal{B}_{t,U} &= \frac{1}{N_{\rm dat}} 
-  \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr)^T
-  M 
-  \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr) \,, \\
-  \mathcal{B}_{t,V} &= \frac{1}{N_{\rm dat}} 
-  \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr)^T
-  M
-  \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr) \,, \\
-  \mathcal{B}_{t,UV} &= \frac{2}{N_{\rm dat}} 
-  \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr)^T
-  M
-  \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr) \,.
-\end{align}
-
-Continuing in this vein and following Ref.~\cite{NNPDF:2021njg}, we define the
-variance as
-\begin{align}
-  \mathcal{V}_t 
-  &= \frac{1}{N_{\rm dat}} \mathbb{E} \biggl[\bigl( \bar{T}[f_t] - T[f_t] \bigr)^T C_Y^{-1}\bigl( \bar{T}[f_t] - T[f_t] \bigr)\biggr] \\
-  &= \frac{1}{N_{\rm dat}} \mathbb{E} \biggl[\bigl( \bar{f_t} - f_t \bigr)^T M \bigl( \bar{f_t} - f_t \bigr)\biggr] \,,
-\end{align}
-where in the second line we use the same reasoning as in Eq.~\eqref{eq:BiasDef}.
-This expression therefore serves as a measure of the spread of the trained
-fields in the space of data. Similarly to the bias, we can decompose the
-variance into three components
-\begin{equation}
-  \mathcal{V}_t = \mathcal{V}_{t,U} + \mathcal{V}_{t,V} + \mathcal{V}_{t,UV} \,,
-  \label{eq:VarianceDecomposition}
-\end{equation}
-where now the contributions are
-\begin{align}
-  \mathcal{V}_{t,U}
-    &= \frac{1}{\ndat} \mathbb{E} \biggl[
-      \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)^T M \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)
-    \biggr]\,, \\
-  \mathcal{V}_{t,V}
-    &= \frac{1}{\ndat} \mathbb{E} \biggl[
-      \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)^T M \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)
-  \biggr]\,, \\
-  \mathcal{V}_{t,UV}
-    &= \frac{2}{\ndat} \mathbb{E} \biggl[
-      \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)^T M \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)
-  \biggr]\,.
-\end{align}
-
-Bias and variance, together with their decompositions introduced above, are
-shown in Figs.~\ref{fig:BiasDecomposition} and~\ref{fig:VarianceDecomposition},
-respectively. We show these curves as functions of the training time for
-different frozen NTKs and for L0, L1 and L2 data. We now discuss these figures
-in turn.
-
-Starting from the bias, we see that $\mathcal{B}_{t,V}$ contributes the most to
-the total budget of the bias, in accordance with the observations made in
-Fig.~\ref{fig:FrefDecompositionL2}. Furthermore, the bias decreases more rapidly
-when the NTK is frozen at later stages of training, as the NTK has had more time
-to align with the data and therefore is more effective in reducing the bias. We
-also observe that the behaviour of the bias at larger epochs is different
-depending on the closure level. For L0 data, the bias decreases monotonically
-with training time, approaching zero asymptotically. This is expected, since L0
-data do not contain any noise and the bias can be reduced indefinitely by
-training longer. On the other hand, the bias for L1 and L2 data presents a
-minimum at large epochs, after which the bias increases again (see the
-inset in each figure). Here the dependence on the frozen NTK determines the
-location of the minimum -- the later the NTK is frozen, the earlier the bias
-reaches its minimum. That both L1 and L2 have a similar behaviour tells us that
-the central value of the analytical solution is mostly insensitive to the
-experimental uncertainty propagated through the Monte Carlo fluctuations of the
-data.
- 
-Turning now to the variance, we see again that the dominant contribution comes
-from $\mathcal{V}_{t,V}$, unless the NTK is frozen at very early stages of
-training. This agrees with Fig.~\ref{fig:ErrorBudgetL2}, where we observed that
-the contribution of the $U$ contribution is significant only at early epochs. In
-general, the variance exhibits a peak at intermediate epochs, after which it
-decreases. This stands out particularly for $T_{\rm ref} = 3000$ (second column
-in Fig.~\ref{fig:VarianceDecomposition}), where the height of the peak has its
-maximum for the case of L2 data. When the NTK is frozen at later stages of
-training, the peak is less pronounced and located at earlier epochs. Note that,
-contrary to the bias, the behaviour at large epochs of the variance differs
-between L1 and L2 data. In fact, while the variance for L0 and L1 data
-approaches zero asymptotically, for L2 data the variance converges to a residual
-value shifted from zero. Finally, a closer inspection of the figures reveals a
-strong correlation between the eigenvalues of $H^\perp$, introduced in
-Sec.~\ref{sec:Lazy}, and the transitions in the slope of the variance. Indeed,
-the components of the analytical solution contribute with different timescales,
-characterised by the inverse of the eigenvalues of $H^\perp$. This is
-particularly evident for the case at $T_{\rm ref}=5000$, where in correspondence
-of the timescale $1/h_i$, shown as vertical dashed lines in grey, the variance
-shows a change in slope. This remains true across all closure-test data,
-although slightly mitigated for L2 data.
-
-The interplay between bias and variance, as well as the presence of extrema in
-both curves, may have practical implications in the choice of the optimal
-stopping time. In Fig.~\ref{fig:BiasVarianceComparison} we compare the total
-contributions of bias and variance as functions of the training time, for
-different frozen NTKs, and for L0, L1 and L2 data. One major observation that
-emerges from these figures is that the intersection point between bias and
-variance -- which defines a bias-variance ratio equal to one -- is not
-sufficient to determine whether the fit has converged optimally. For instance,
-for L0 data with the NTK frozen at $T_{\rm ref}=3000$ (first row, third column),
-the two curves intersect at around $T \sim 1000$ and $T> 10000$. Clearly, only
-the latter represents a good fit. This becomes even more evident for L2 data
-(third row), in particular when the NTK is frozen at $T_{\rm ref}=10000$ (last
-column). Interestingly, there are no intersection points between bias and
-variance for L0 data and when the NTKs are frozen at $T_{\rm ref} > 3000$. This
-is a direct consequence of the observations made above, namely that the bias is
-insensitive to the noise in the data, while the variance is. Indeed, as is clear
-by comparing L1 and L2 data for $T_{\rm ref} = 10000$, adding the Monte Carlo
-fluctuations in the data leaves the bias almost unchanged but increases the
-variance, resulting in the intersection of the two curves.
-
-We conclude by remarking that bias and variance are computed using the
-analytical solution in Eq.~\eqref{eq:AnalyticSol}, hence from an ensemble of
-frozen NTKs. The results shown above provide evidence that the NTK is capable
-of encoding not only the physical features of the data, but also the statistical
-features of the methodology. Such a finding deserves further attention in
-future assessments of PDF determinations.
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L0.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L1.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L2.pdf}
-  \caption{Bias decomposition as in Eq.~\eqref{eq:BiasDecomposition} in function
-  of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
-  are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
-  column corresponds to a different frozen NTK.
-  \label{fig:BiasDecomposition}}
-\end{figure}
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L0.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L1.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L2.pdf}
-  \caption{Variance decomposition as in Eq.~\eqref{eq:VarianceDecomposition} in function
-  of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
-  are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
-  column corresponds to a different frozen NTK.
-  \label{fig:VarianceDecomposition}}
-\end{figure}
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L0.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L1.pdf}
-  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L2.pdf}
-  \caption{Comparison of the total contribution of bias and variance in the
-  space of the data as a function of the training time for L0 (top), L1 (middle)
-  and L2 (bottom) data. The curves are the same as in
-  Figs.~\ref{fig:BiasDecomposition} and~\ref{fig:VarianceDecomposition},
-  displayed here together. Each column corresponds to a different frozen NTK. In
-  first column, the bias is off-scale.
-  \label{fig:BiasVarianceComparison}}
-\end{figure}
-
-\FloatBarrier
 
 \subsubsection{Crosschecks using L0 data}
 \label{sec:AnalyticalChecks}
@@ -761,8 +324,8 @@ generate the data, but rather the difference between $\fin$ and the component of
 the initial function $f_0$ that lies in the subspace spanned by the kernel of
 the NTK, \ie, $f_0^\parallel$. In other words, the parallel component
 $f_0^\parallel$, which, we remind the reader, does not evolve during the analytic training,
-acts as a constant ``bias'' in the training process, shifting the effective
-input function that the neural network sees. Of course the actual magnitude of
+acts as a constant ``bias'' in the training process, effectively shifting the 
+input function seen by the neural network. Of course the actual magnitude of
 this irreducible noise depends both on how $f_0$ and the kernel of the NTK are
 distributed over the ensemble. 
 
@@ -873,3 +436,458 @@ detailed above.
 
 
 \FloatBarrier
+
+\subsection{Numerical Results}
+\label{sec:NTKKernelLearning}
+
+The results shown in Sec.~\ref{sec:Lazy} and Sec.~\ref{sec:NTKDuringTraining}
+support the idea that the NTK is capable to encode in its eigenvectors the
+physical features learned during training. We now probe this idea further by
+employing the analytical solution in Eq.~\eqref{eq:AnalyticSol} \textit{\`a la}
+kernel learning, \ie, by applying it to an initial condition drawn from the prior distribution. 
+In the following, we choose the initial condition to be an ensemble of
+networks at initialisation as in Fig.~\ref{fig:prior}, whose architecture is the
+same as the one used in the training. This represents our prior assumption on
+the space of functions, which is then updated using the data and the NTK frozen
+at $t_{\rm ref}$.
+
+\subsubsection{Central Value and Covariance of the Trained Fields}
+\label{sec:CentralAndCovariance}
+
+The analytical solution in Eq.~\eqref{eq:AnalyticSol} is inherently stochastic,
+since the frozen NTK at $t_{\rm ref}$ is actually obtained from an ensemble of
+networks. As a consequence, the operators $U(t)$ and $V(t)$ are both random
+variables. We can then characterize the distribution of the analytical solution
+using the mean and variance across the ensemble, as shown in
+Eq.~\eqref{eq:ReplicaEnsemble}. The central value of the analytical solution is thus
+defined as
+\begin{align}
+    \label{eq:MeanValAtT}
+    \bar{f}_{t,\alpha} = \mathbb{E}\left[f_{t,\alpha}\right]
+        = \mathbb{E}\left[U(t)_{\alpha\alpha'} f_{0,\alpha'}\right]
+            + \mathbb{E}\left[V(t)_{\alpha I} Y_I\right] \, .
+\end{align}
+More interestingly, we can also compute their covariance matrix at any time $t$,
+\begin{align}
+    \cov[f_t,f_t^T]
+        &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
+            - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[f_0^T U(t)^T\right]  \nonumber \\
+        &\quad + \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
+            - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[Y^T V(t)^T\right] \nonumber \\
+        &\quad + \mathbb{E}\left[V(t) Y f_0^T U(t)^T\right]
+            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[f_0^T U(t)^T\right] \nonumber \\
+    \label{eq:CovAtT}
+        &\quad + \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
+            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right] \, .
+\end{align}
+Note that the first and the fourth lines above yield symmetric matrices, while
+the third line is just the transpose of the second, thereby ensuring that the
+whole covariance matrix is the sum of three symmetric matrices and therefore is
+symmetric, 
+\begin{align}
+    \label{eq:SumOfCovariances}
+    \cov[f_t,f_t^T] = C_t^{(00)} + C_t^{(0Y)} + C_t^{(YY)}\, ,
+\end{align}
+where
+\begin{align}
+    \label{eq:C00term}
+    C_t^{(00)} 
+        &= \mathbb{E}\left[U(t) f_0 f_0^T U(t)^T\right] 
+        - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[f_0^T U(t)^T\right]\, ,\\
+    C_t^{(0Y)}
+        &= \mathbb{E}\left[U(t) f_0 Y^T V(t)^T\right] 
+        - \mathbb{E}\left[U(t) f_0\right] \mathbb{E}\left[Y^T V(t)^T\right] \nonumber \\
+        \label{eq:C0Yterm}
+        &\quad + \mathbb{E}\left[V(t) Y f_0^T U(t)^T\right]
+            - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[f_0^T U(t)^T\right] \, ,\\
+    C_t^{(YY)}
+        &= \mathbb{E}\left[V(t) Y Y^T V(t)^T\right]
+        - \mathbb{E}\left[V(t) Y\right] \mathbb{E}\left[Y^T V(t)^T\right]\, .
+        \label{eq:CYYterm}
+\end{align}
+Eq.~\eqref{eq:SumOfCovariances} shows explicitly the various contributions to 
+the covariance matrix. Indeed, $C_t^{(00)}$ quantifies the
+contribution to the covariance matrix that is purely due to the fluctuations of
+the initial condition, while $C_t^{(YY)}$ quantifies the contribution that is
+purely due to the statistical fluctuations of the data. The mixed term
+$C_t^{(0Y)}$ accounts for the correlations between the two sources of
+uncertainty.
+
+\subsubsection{Convergence of the Analytical Solution}
+We start by comparing the analytical solution (AS), obtained using an ensemble
+of networks at initialisation as the initial condition, with the trained
+solution (TS), obtained after training a neural network using GD and 
+starting from a different initial
+condition. 
+\ldd{obtained by training another ensemble of networks drawn from the same prior
+distribution using GD.}
+This comparison is shown in Fig.~\ref{fig:EvolutionGridF0L2} for L2
+data, where the rows in the grid correspond to different frozen NTKs, while the
+columns represent numerical and analytical evolution after $T=50, 500$ and 5000
+epochs. These results deserve a few comments.
+
+% Grid plot with L2 ================================
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\textwidth]{section_4/evolution_f0_vs_trained_grid_L2.pdf} 
+  \caption{Comparison of the trained (orange) and analytical (blue) evolution
+  starting from an ensemble of networks at initialisation as the initial
+  condition. Each row corresponds to a different frozen NTK, while the columns
+  represent different training times. The dashed line represents the input 
+  function used to generate the synthetic data, \ie, the {\em true}\ result. 
+  L2 data is used.}
+  \label{fig:EvolutionGridF0L2}
+\end{figure}
+% =================================================
+
+
+The first observation is that the NTK at early stages of training is not able to
+drive the prior towards the true function, as shown in the first and, though
+less dramatically, in the second row of Fig.~\ref{fig:EvolutionGridF0L2}. This
+is expected, as we extensively discussed in Sec.~\ref{sec:NTKDuringTraining},
+since at early stages of training by GD the NTK has not yet aligned its 
+internal representation with the data.
+
+More significantly, we observe a significant discrepancy between the AS and the
+TS even at $T=5000$. This can be explained as follows. At the beginning of
+training, there is clearly no difference between AS and TS since both represent
+the neural network output at initialisation (Sec.~\ref{sec:Init}), with
+variations due only to different initialisation seeds. During early training
+stages, AS and TS differ as expected. Indeed, the analytical solution is
+computed using the frozen NTK at $t_{\rm ref}$, while the trained solution
+evolves with an NTK that is still changing as shown in Sect.~\ref{sec:Training}.
+Crucially, if the NTK at $t_{\rm ref}$ has already learned from the data and
+aligned with the solution, the AS converges faster to the target, while the TS
+requires additional epochs before evolving in the correct direction.
+
+
+\subsubsection{Connection with Linear Methods}
+\label{sec:ConnectWithLinear}
+We can consider a simplifying limit of Eq.~\eqref{eq:MeanValAtT}, where the
+initial condition $f_0$ and the data $Y$ are statistically independent from the
+respective evolution operators $U(t)$ and $V(t)$. Note that the first term on
+the right-hand side of Eq.~\eqref{eq:MeanValAtT} can only be non-zero because of
+the correlations between $U(t)$ and $f_0$. In the absence of such correlations,
+the first term would be given by the product of the expectation values and
+therefore would vanish if $f_0$ is an ensemble of networks at initialisation.
+Under these assumptions, we have
+\begin{align}
+    \label{eq:MeanUt}
+    \bar{U}(t)
+        &= \mathbb{E}\left[U(t)\right]\, , \\
+    \label{eq:MeanVt}
+    \bar{V}(t)
+        &= \mathbb{E}\left[V(t)\right]\, ,
+\end{align}
+and
+\begin{equation}
+    \label{eq:MeanValAtTNoCorr}
+    \bar{f}_{t,\alpha} = \bar{U}(t)_{\alpha\alpha'} \bar{f}_{0,\alpha'}
+        + \bar{V}(t)_{\alpha I} Y_I = \bar{V}(t)_{\alpha I} Y_I \, .
+\end{equation}
+The second term in Eq.~\eqref{eq:MeanValAtT}, or equivalently
+Eq.~\eqref{eq:MeanValAtTNoCorr}, explicitly shows the contribution of each data
+point to the central value of the trained fields at each value of $x_{\alpha}$.
+It is worthwhile remarking that in this limit, the central value from the set of
+trained networks is a linear combination of the data points, with coefficients
+given by the evolution operator $V(t)_{\alpha I}$.
+
+In the absence of general theorems, we verify this assumption empirically. From
+the ensemble of replicas, we generate bootstrap samples and compute the
+following two estimators,
+\begin{align}
+    \label{eq:DeltaExpValUtF0}
+    \Delta[U(t)f_0] &= \mathbb{E}\left[U(t) f_{0}\right] 
+      - \mathbb{E}\left[U(t) \right] \mathbb{E}\left[f_{0}\right]\, , \\
+    \label{eq:DeltaExpValVtY}
+    \Delta[V(t)Y] &= \mathbb{E}\left[U(t) Y\right] 
+      - \mathbb{E}\left[V(t) \right] \mathbb{E}\left[Y\right]\, .
+\end{align}
+for different training times, using the same frozen NTK and L2 data. The results
+are shown in Fig.~\ref{fig:xT3_exp_val} for the $U$ (upper panel) and $V$ (lower
+panel) contributions. The error bands are computed using bootstrap error. By
+inspecting the figures, we see two distinct patterns emerging. For the operator
+$U$, $\Delta[U(t) f_0]$ is different from zero for small training times, and thus
+the correlations between $U(t)$ and $f_0$ are non-negligible. However, as
+training proceeds, $\Delta[U(t) f_0]$ becomes compatible with zero within the error
+bars, suggesting that the correlations are progressively suppressed. The case of
+the $V$ operator is even more striking, as $\Delta[V(t) Y]$ is clearly
+non-negligible across all training times, although it also shows a decreasing
+trend as training proceeds. This suggests that the correlations between $V(t)$
+and $Y$ cannot be neglected. 
+
+% ===================================
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.95\textwidth]{section_4/delta_bootstrap_L2_U.pdf}
+  \includegraphics[width=0.95\textwidth]{section_4/delta_bootstrap_L2_V.pdf}
+  \caption{Behaviour of $\Delta [U(t)f_0]$ and $\Delta [V(t)Y]$, as defined in
+  Eqs.~\eqref{eq:DeltaExpValUtF0} and~\eqref{eq:DeltaExpValVtY}, as functions of
+  the training time. The operators $U(T)$ and $V(T)$ are constructed by taking
+  the NTK at $T_{\rm ref} = 10000$, which is fixed across panels. The
+  uncertainties are extracted from the bootstrap ensemble as discussed in the
+  text.}
+    \label{fig:xT3_exp_val}
+\end{figure}
+% ===================================
+
+Let us conclude this brief discussion by noting that Eq.~\eqref{eq:MeanValAtTNoCorr} 
+resembles the structure of a linear method, like Backus-Gilbert or 
+Gaussian Processes. We
+believe that this observation, as well as the results shown in
+Fig.~\ref{fig:xT3_exp_val}, deserve further investigations, which we leave for
+future work. Understanding the relation between different methods is important 
+in order to assess the robustness of the solution. 
+
+\subsubsection{Error decomposition}
+\label{sec:ErrorDec}
+The analytical expression for the covariance matrix,
+Eq.~\eqref{eq:SumOfCovariances}, allows us to monitor the relative size of the
+three contributions as training proceeds. For a properly trained ensemble of
+networks, the covariance of the trained fields should be dominated by the
+statistical error on the data. We show the diagonal entries of the decomposition
+of the error budget in Fig.~\ref{fig:ErrorBudgetL2}, for different frozen NTKs
+(rows) and different training epochs (columns), using L2 data as before. In
+general, we observe that towards the end of the training process the
+contribution from the data $C_t^{(YY)}$ (orange band) becomes dominant with
+respect to the contribution coming from the initial condition $C_t^{(00)}$ (blue
+band). We also see that the suppression of the initial condition is more severe
+and happens earlier when the frozen NTK is taken at later stages of training.
+These findings ensure that the quoted error on the PDFs is actually dominated by
+the statistical error on the data, and not by the fluctuations of the initial
+fields. This is an important step in our study of the error estimates, since it 
+guarantees that the error bars computed from the ensemble of trained PDFs is not 
+biased by the choice of prior
+that is made by selecting a given architecture, activation function, and
+probability distribution for the biases and weights at initialisation.
+% ===================================
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.9\textwidth]{section_4/error_buddget_L2.pdf}
+  \caption{Decomposition of the error budget of the trained fields into the two
+  components from the initial condition (blue) and from the data (orange), as
+  defined in Eqs.~\eqref{eq:C00term} and~\eqref{eq:CYYterm}. Each row
+  corresponds to a different frozen NTK, while the columns represent different
+  training epochs. L2 data is used. We see that if the NTK is taken at later
+  stages of training, the contribution from the initial condition is severely
+  suppressed towards the end of training. }
+  \label{fig:ErrorBudgetL2}
+\end{figure}
+% ===================================
+
+\FloatBarrier
+
+\subsection{Bias-Variance Decomposition}
+\label{sec:BiasVarNumerical}
+Finally, we can use the analytical solution to compute the bias and variance of
+the trained ensemble of networks. Following the definition of
+Ref.~\cite{NNPDF:2021njg}, we define the bias as
+\begin{align}
+  \mathcal{B}_t 
+  &= \frac{1}{N_{\rm dat}} \left( \bar{T}[f_t] - Y_{\rm L0} \right)^T C_Y^{-1} \left( \bar{T}[f_t] - Y_{\rm L0} \right) \\
+  &= \frac{1}{N_{\rm dat}} \left( \bar{f_t} - \fin \right)^T M \left( \bar{f_t} - \fin \right)
+  \label{eq:BiasDef}
+\end{align}
+where $\bar{T}[f_t] = \FKtab \bar{f}_t$ is the theoretical prediction computed
+using the central value of the trained fields at time $t$,
+Eq.~\eqref{eq:MeanValAtT}, and $Y_{\rm L0}$ are the data points generated using
+the input function $\fin$, $Y_{\rm L0}= \FKtab \fin$ (see
+Appendix~\ref{app:dataset}). In going from the first to the second line, we use
+the definition of the matrix $M$ given in Eq.~\eqref{eq:MandBDef}, which includes
+the physical information encoded in the FK tables. The bias thus assumes a
+clear interpretation -- it measures the ability of the training process in
+inverting the forward map used to generate the data. In fact, we recall that the
+inversion is not exact even with level-0 data; the minimum of the loss is achieved for
+\begin{equation}
+  \fin_{M^{\perp}} = M^{+} (FK)^T C_Y^{-1} Y_{L0} = M^{+} M \fin \neq \fin \,,
+  \label{eq:NaiveInversion}
+\end{equation}
+where $M^{+}$ is the pseudo-inverse of $M$. As in the case of the NTK, there is
+a residual component of the input vector in the null eigenspace of $M$,
+$\fin_{M^{\parallel}}$, that is not constrained by the forward map, similarly to
+the residual noise introduced by the NTK when training the network,
+Sec.~\ref{sec:Lazy}. Given that this component is not constrained by
+the data, the parametrisation, together with the fitting methodology, has
+complete freedom to fix it. In our analytical solution,
+Eq.~\eqref{eq:AnalyticSol}, this freedom is brought in by the linear
+transformation of the fields $f_0$. On the other hand, $\fin_{M^{\perp}}$
+receives its contribution from the data and from the theoretical predictions,
+resembling the linear transformation of the input data in
+Eq.~\eqref{eq:AnalyticSol}. This is even more evident if one compares
+Eq.~\eqref{eq:NaiveInversion} with Eq.~\eqref{eq:VDef}
+\begin{equation}
+  \mathbb{E} \left[ V(t) Y \right] - \fin_{M^{\perp}}
+    = \mathbb{E} \left[ \mathcal{M}(t) \FKtabT C_Y^{-1} Y \right] 
+    - M^{+} \FKtabT C_Y^{-1} Y_{L0} \,,
+\end{equation}
+where we recall that $Y$ is different from $Y_{L0}$, in general. From this
+expression, it follows that $\mathcal{M}(t)$ can be seen as a regularised
+variant of $M^{+}$, with the training time $t$ being the regularisation
+parameter. This correspondence will become clearer later, when we discuss the
+limit of infinite training time.
+
+These arguments motivate us to reshape Eq.~\eqref{eq:BiasDef} as follows
+\begin{equation}
+  \mathcal{B}_t = \mathcal{B}_{t,U} + \mathcal{B}_{t,V} + \mathcal{B}_{t,UV} \,,
+  \label{eq:BiasDecomposition}
+\end{equation}
+where
+\begin{align}
+  \mathcal{B}_{t,U} &= \frac{1}{N_{\rm dat}} 
+  \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr)^T
+  M 
+  \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr) \,, \\
+  \mathcal{B}_{t,V} &= \frac{1}{N_{\rm dat}} 
+  \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr)^T
+  M
+  \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr) \,, \\
+  \mathcal{B}_{t,UV} &= \frac{2}{N_{\rm dat}} 
+  \bigl( \mathbb{E}\left[U(t)f_0\right] - \fin_{M^{\parallel}} \bigr)^T
+  M
+  \bigl( \mathbb{E}\left[V(t)Y\right] - \fin_{M^{\perp}} \bigr) \,.
+\end{align}
+
+Continuing in this vein and following Ref.~\cite{NNPDF:2021njg}, we define the
+variance as
+\begin{align}
+  \mathcal{V}_t 
+  &= \frac{1}{N_{\rm dat}} \mathbb{E} \biggl[\bigl( \bar{T}[f_t] - T[f_t] \bigr)^T C_Y^{-1}\bigl( \bar{T}[f_t] - T[f_t] \bigr)\biggr] \\
+  &= \frac{1}{N_{\rm dat}} \mathbb{E} \biggl[\bigl( \bar{f_t} - f_t \bigr)^T M \bigl( \bar{f_t} - f_t \bigr)\biggr] \,,
+\end{align}
+where in the second line we use the same reasoning as in Eq.~\eqref{eq:BiasDef}.
+This expression therefore serves as a measure of the spread of the trained
+fields in the space of data. Similarly to the bias, we can decompose the
+variance into three components
+\begin{equation}
+  \mathcal{V}_t = \mathcal{V}_{t,U} + \mathcal{V}_{t,V} + \mathcal{V}_{t,UV} \,,
+  \label{eq:VarianceDecomposition}
+\end{equation}
+where now the contributions are
+\begin{align}
+  \mathcal{V}_{t,U}
+    &= \frac{1}{\ndat} \mathbb{E} \biggl[
+      \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)^T M \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)
+    \biggr]\,, \\
+  \mathcal{V}_{t,V}
+    &= \frac{1}{\ndat} \mathbb{E} \biggl[
+      \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)^T M \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)
+  \biggr]\,, \\
+  \mathcal{V}_{t,UV}
+    &= \frac{2}{\ndat} \mathbb{E} \biggl[
+      \bigl( \mathbb{E} [U(t)f_0] - U(t)f_0 \bigr)^T M \bigl( \mathbb{E} [V(t)Y] - V(t)Y \bigr)
+  \biggr]\,.
+\end{align}
+
+Bias and variance, together with their decompositions introduced above, are
+shown in Figs.~\ref{fig:BiasDecomposition} and~\ref{fig:VarianceDecomposition},
+respectively. We show these curves as functions of the training time for
+different frozen NTKs and for L0, L1 and L2 data. We now discuss these figures
+in turn.
+
+Starting from the bias, we see that $\mathcal{B}_{t,V}$ contributes the most to
+the total budget of the bias, in accordance with the observations made in
+Fig.~\ref{fig:FrefDecompositionL2}. Furthermore, the bias decreases more rapidly
+when the NTK is frozen at later stages of training, as the NTK has had more time
+to align with the data and therefore is more effective in reducing the bias. We
+also observe that the behaviour of the bias at larger epochs is different
+depending on the closure level. For L0 data, the bias decreases monotonically
+with training time, approaching zero asymptotically. This is expected, since L0
+data do not contain any noise and the bias can be reduced indefinitely by
+training longer. On the other hand, the bias for L1 and L2 data presents a
+minimum at large epochs, after which the bias increases again (see the
+inset in each figure). Here the dependence on the frozen NTK determines the
+location of the minimum -- the later the NTK is frozen, the earlier the bias
+reaches its minimum. That both L1 and L2 have a similar behaviour tells us that
+the central value of the analytical solution is mostly insensitive to the
+experimental uncertainty propagated through the Monte Carlo fluctuations of the
+data.
+ 
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L0.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L1.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L2.pdf}
+  \caption{Bias decomposition as in Eq.~\eqref{eq:BiasDecomposition} in function
+  of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
+  are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
+  column corresponds to a different frozen NTK.
+  \label{fig:BiasDecomposition}}
+\end{figure}
+
+
+Turning now to the variance, we see again that the dominant contribution comes
+from $\mathcal{V}_{t,V}$, unless the NTK is frozen at very early stages of
+training. This agrees with Fig.~\ref{fig:ErrorBudgetL2}, where we observed that
+the $U$ contribution is significant only at early epochs. In
+general, the variance exhibits a peak at intermediate epochs, after which it
+decreases. This stands out particularly for $T_{\rm ref} = 3000$ (second column
+in Fig.~\ref{fig:VarianceDecomposition}), where the height of the peak has its
+maximum for the case of L2 data. When the NTK is frozen at later stages of
+training, the peak is less pronounced and located at earlier epochs. Note that,
+contrary to the bias, the behaviour at large epochs of the variance differs
+between L1 and L2 data. In fact, while the variance for L0 and L1 data
+approaches zero asymptotically, for L2 data the variance converges to a residual
+value shifted from zero. Finally, a closer inspection of the figures reveals a
+strong correlation between the eigenvalues of $H^\perp$, introduced in
+Sec.~\ref{sec:Lazy}, and the transitions in the slope of the variance. Indeed,
+the components of the analytical solution contribute with different timescales,
+characterised by the inverse of the eigenvalues of $H^\perp$. This is
+particularly evident for the case at $T_{\rm ref}=5000$, where in correspondence
+of the timescale $1/h^{(i)}$, shown as vertical dashed lines in grey, the variance
+shows a change in slope. This remains true across all closure-test data,
+although slightly mitigated for L2 data.
+
+The interplay between bias and variance, as well as the presence of extrema in
+both curves, has practical implications in the choice of the optimal
+stopping time. In Fig.~\ref{fig:BiasVarianceComparison} we compare the total
+contributions of bias and variance as functions of the training time, for
+different frozen NTKs, and for L0, L1 and L2 data. One major observation that
+emerges from these figures is that the intersection point between bias and
+variance -- which defines a bias-variance ratio equal to one -- is not
+sufficient to determine whether the fit has converged optimally. For instance,
+for L0 data with the NTK frozen at $T_{\rm ref}=3000$ (first row, third column),
+the two curves intersect at around $T \sim 1000$ and $T> 10000$. Clearly, only
+the latter represents a good fit. This becomes even more evident for L2 data
+(third row), in particular when the NTK is frozen at $T_{\rm ref}=10000$ (last
+column). Interestingly, there are no intersection points between bias and
+variance for L0 data and when the NTKs are frozen at $T_{\rm ref} > 3000$. This
+is a direct consequence of the observations made above, namely that the bias is
+insensitive to the noise in the data, while the variance is. Indeed, as is clear
+by comparing L1 and L2 data for $T_{\rm ref} = 10000$, adding the Monte Carlo
+fluctuations in the data leaves the bias almost unchanged but increases the
+variance, resulting in the intersection of the two curves.
+
+We conclude by remarking that bias and variance are computed using the
+analytical solution in Eq.~\eqref{eq:AnalyticSol}, hence from an ensemble of
+frozen NTKs. The results discussed above provide evidence that the NTK is capable
+of encoding not only the physical features of the data, but also the statistical
+features of the methodology. Such a finding deserves further attention in
+future assessments of PDF determinations.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L0.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L1.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L2.pdf}
+  \caption{Variance decomposition as in Eq.~\eqref{eq:VarianceDecomposition} in function
+  of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
+  are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
+  column corresponds to a different frozen NTK.
+  \label{fig:VarianceDecomposition}}
+\end{figure}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L0.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L1.pdf}
+  \includegraphics[width=0.90\textwidth]{section_4/bias_variance_L2.pdf}
+  \caption{Comparison of the total contribution of bias and variance in the
+  space of the data as a function of the training time for L0 (top), L1 (middle)
+  and L2 (bottom) data. The curves are the same as in
+  Figs.~\ref{fig:BiasDecomposition} and~\ref{fig:VarianceDecomposition},
+  displayed here together. Each column corresponds to a different frozen NTK. In
+  first column, the bias is off-scale.
+  \label{fig:BiasVarianceComparison}}
+\end{figure}
+
+\FloatBarrier
+

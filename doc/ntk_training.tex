@@ -433,7 +433,7 @@ training, as the NTK evolves and the model learns the target function. To
 quantify this alignment, we define the matrix $A$, 
 \begin{equation}
   \label{eq:MatrixA}
-  A_{kk'} = \left( \left< z^{(k)}, v^{(k')}\right> \right)^2 = \cos^2(\theta_{kk'}) \;,
+  A_{kk'} = \left( z^{(k)}, v^{(k')} \right)^2 = \cos^2(\theta_{kk'}) \;,
 \end{equation}
 where $z^{(k)}$ and $v^{(k')}$ are the $k$-th and $k'$-th eigenvectors of the
 NTK and $M$, respectively. The matrix $A$ is thus a measure of the alignment
