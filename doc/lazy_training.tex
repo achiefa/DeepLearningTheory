@@ -70,7 +70,7 @@ functional space.}
         \quad \Longrightarrow \quad f^\parallel_{t,k} = f^\parallel_{0,k}\, .
 \end{align}
 This means that the final solution is affected by an irreducible noise that
-is purely dictated by the initial condition. 
+is purely dictated by the initial condition.
 
 The flow equation for the orthogonal components can be written as
 \begin{align}
@@ -108,6 +108,29 @@ eigenvalues and eigenvectors satisfy
 \begin{align}
     H^\perp_{kk'} w^{(i)}_{k'} = h^{(i)} w^{(i)}_{k}\, .
 \end{align}
+In Fig.~\ref{fig:HPerpEigvalsTime} we show the evolution during training of the
+first five eigenvalues of $H^{\perp}$ for the three different closure datasets. It
+should not come as too much of a surprise that the eigenvalues of $H^{\perp}$
+have a similar behaviour to those of the NTK (see
+Fig.~\ref{fig:NTKEigvalsTime}), from which they are constructed. However, we see
+that $h^{(i)}$ are larger by around three orders of magnitude than the
+NTK eigenvalues.
+% ===================================
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.3\textwidth]{section_4/h_eigvals_single_plot_L0.pdf}
+  \includegraphics[width=0.3\textwidth]{section_4/h_eigvals_single_plot_L1.pdf}
+  \includegraphics[width=0.3\textwidth]{section_4/h_eigvals_single_plot_L2.pdf}
+  \caption{Evolution during training of the first five eigenvalues of
+  $H^{\perp}$ using L0 (left), L1 (center), and L2 (right) data. Solid lines
+  represent the median over the ensemble of networks, while solid bands
+  correspond to 68\% confidence level. Note that the subdominant eigenvalues
+  $\lambda^{(3)}$, $\lambda^{(4)}$ and $\lambda^{(5)}$ have increased by one or
+  two orders of magnitude by the end of the rich training phase.}
+  \label{fig:HPerpEigvalsTime}
+\end{figure}
+% ===================================
+
 The solution to Eq.~\eqref{eq:FlowPerp} can be written as the sum of the
 solution of the homogeneous equation, $\hat{f}^{\perp}_{t,k}$, and a particular
 solution of the full equation. The solution of the homogeneous equation is
@@ -516,15 +539,12 @@ uncertainty.
 \subsubsection{Convergence of the Analytical Solution}
 We start by comparing the analytical solution (AS), obtained using an ensemble
 of networks at initialisation as the initial condition, with the trained
-solution (TS), obtained after training a neural network using GD and 
-starting from a different initial
-condition. 
-\ldd{obtained by training another ensemble of networks drawn from the same prior
-distribution using GD.}
-This comparison is shown in Fig.~\ref{fig:EvolutionGridF0L2} for L2
-data, where the rows in the grid correspond to different frozen NTKs, while the
-columns represent numerical and analytical evolution after $T=50, 500$ and 5000
-epochs. These results deserve a few comments.
+solution (TS), obtained obtained by training another ensemble of networks drawn
+from the same prior distribution using GD. This comparison is shown in
+Fig.~\ref{fig:EvolutionGridF0L2} for L2 data, where the rows in the grid
+correspond to different frozen NTKs, while the columns represent numerical and
+analytical evolution after $T=50, 500$ and 5000 epochs. These results deserve a
+few comments.
 
 % Grid plot with L2 ================================
 \begin{figure}[t]
@@ -872,7 +892,8 @@ future assessments of PDF determinations.
   \caption{Variance decomposition as in Eq.~\eqref{eq:VarianceDecomposition} in function
   of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
   are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
-  column corresponds to a different frozen NTK.
+  column corresponds to a different frozen NTK. The vertical dashed lines in grey
+  indicate the inverse of the eigenvalues of $H^\perp$, $1/h^{(i)}$.
   \label{fig:VarianceDecomposition}}
 \end{figure}
 \begin{figure}[!h]
@@ -885,7 +906,9 @@ future assessments of PDF determinations.
   and L2 (bottom) data. The curves are the same as in
   Figs.~\ref{fig:BiasDecomposition} and~\ref{fig:VarianceDecomposition},
   displayed here together. Each column corresponds to a different frozen NTK. In
-  first column, the bias is off-scale.
+  first column, the bias is off-scale. As in
+  Fig.~\ref{fig:VarianceDecomposition}, the vertical dashed lines in grey
+  indicate the inverse of the eigenvalues of $H^\perp$, $1/h^{(i)}$.
   \label{fig:BiasVarianceComparison}}
 \end{figure}
 
