@@ -26,7 +26,7 @@ class InputScaling(tf.keras.layers.Layer):
     """
 
     def call(self, x):
-        return tf.concat([x, tf.math.log(x) / tf.math.log(10.0)], axis=-1)
+        return tf.concat([x, tf.math.log(x)], axis=-1)
 
 
 class Convolution(tf.keras.layers.Layer):
