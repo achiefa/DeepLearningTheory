@@ -673,17 +673,49 @@ contribution from the data $C_t^{(YY)}$ (orange band) becomes dominant with
 respect to the contribution coming from the initial condition $C_t^{(00)}$ (blue
 band). We also see that the suppression of the initial condition is more severe
 and happens earlier when the frozen NTK is taken at later stages of training.
-These findings ensure that the quoted error on the PDFs is actually dominated by
-the statistical error on the data, and not by the fluctuations of the initial
-fields. This is an important step in our study of the error estimates, since it 
-guarantees that the error bars computed from the ensemble of trained PDFs is not 
-biased by the choice of prior
-that is made by selecting a given architecture, activation function, and
-probability distribution for the biases and weights at initialisation.
+
+In order to study the dependence of the error decomposition on the initial
+condition, we repeat the same analysis for the case of scaled input $f(x, \log
+x)$, as described in Sec.~\ref{sec:Init}. Hence, the frozen NTK is taken from an
+ensemble of trained networks with input layer as in Eq.~\eqref{eq:InitLayerPhi}.
+The initial condition $f_0$ of the analytical solution is drawn from the same
+prior distribution as the trained solution, and corresponds to the orange curve
+in Fig.~\ref{fig:prior}. The resulting error decomposition is shown in
+Fig.~\ref{fig:ErrorBudgetL2Logx} for L2 data, where panels are ordered as in
+Fig.~\ref{fig:ErrorBudgetL2}. Inspecting the figures, we observe that now the
+contribution of the initial condition becomes dominant in the small-$x$ region,
+even for large training times and irrespective of the epoch at which the NTK is
+frozen. This result reflects the behaviour of the prior distribution at
+small-$x$, where indeed error bands are significantly enlarged with respect to
+the case of linear input. Interestingly, even the contribution from the data,
+$C^{(YY)}_t$, increases at small-$x$ towards larger training times. This can be
+explained by observing that, despite not being explicitly dependent on the
+initial condition $f_0$, the evolution operator $V(t)$ is constructed from a
+frozen NTK that has encoded the dependence on the architecture through the
+training process (see Eq.~\eqref{eq:VDef}). That the difference between
+Figs.~\ref{fig:ErrorBudgetL2} and \ref{fig:ErrorBudgetL2Logx} is primarily
+localised at small-$x$ showcases that, for the region left uncovered by the
+data, the methodology is not able to suppress the dependence on the initial
+condition. In fact, where the information from the data is available
+(corresponding roughly to $x \gtrsim 0.01$), the dependence on the initial
+condition lessens as the analytical solution evolves (left to right). This
+reduction occurs more rapidly for frozen NTKs taken at later stages of training
+(top to bottom), showing that there is a non-trivial interplay between the
+information provided by the data and that acquired by the NTK.
+
+These studies reveal the intricate connection between the prior distribution and
+the uncertainties of PDFs. In the region constrained by data, the error is
+dominated by the statistical error on the data, rather than by the fluctuations
+of the initial fields. This is an important step in our study of the error
+estimates. It guarantees that the error bars computed from the ensemble of
+trained PDFs is not biased by the choice of prior, which depends on the selected
+architecture, activation function, and probability distributions for the biases
+and weights at initialisation.
+
 % ===================================
 \begin{figure}[ht!]
   \centering
-  \includegraphics[width=0.9\textwidth]{section_4/error_buddget_L2.pdf}
+  \includegraphics[width=0.80\textwidth]{section_4/error_buddget_L2.pdf}
   \caption{Decomposition of the error budget of the trained fields into the two
   components from the initial condition (blue) and from the data (orange), as
   defined in Eqs.~\eqref{eq:C00term} and~\eqref{eq:CYYterm}. Each row
@@ -692,6 +724,14 @@ probability distribution for the biases and weights at initialisation.
   stages of training, the contribution from the initial condition is severely
   suppressed towards the end of training. }
   \label{fig:ErrorBudgetL2}
+\end{figure}
+% ===================================
+\begin{figure}[ht!]
+  \centering
+  \includegraphics[width=0.80\textwidth]{section_4/error_buddget_L2_logx.pdf}
+  \caption{Similar to Fig.~\ref{fig:ErrorBudgetL2}, but now for the case of scaled
+  input $f(x, \log x)$.}
+  \label{fig:ErrorBudgetL2Logx}
 \end{figure}
 % ===================================
 
