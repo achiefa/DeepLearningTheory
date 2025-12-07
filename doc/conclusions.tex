@@ -14,26 +14,31 @@ fitting by exploring the training dynamics in the functional space of the neural
 network. In fact, the NTK can be used to unravel complex dynamics obfuscated by
 the training algorithms commonly employed in PDF fits. We have shown that the
 properties of the NTK are highly entangled with the fitting results, and that a
-proper understanding of its structure can provide precious insights on the
-learning process. Notably, we have developed, under certain assumptions, an
+proper understanding of its structure and time dependence can provide precious 
+insights on the learning process. The identification of separate rich and lazy training 
+phases is potentially a general feature of MLP training, which is worthy of highlighting  
+beyond the specific application to PDF fits.
+In the context of PDF fits, we have developed, under certain assumptions, an
 analytical description of how the neural network evolves during training,
 enabling us to better understand the NNPDF methodology and its dependence on the
 underlying model architecture. To the best of our knowledge, such description
 has not yet been attempted in the context of ill-defined inverse problems.
 
 Yet, this work is far from being conclusive. As a pioneering study, we believe
-that the most important contribution of this work has been to open the
-discussion on the role of the NTK in PDF fits, identifying a set of relevant
-diagnostic metrics that can be explored in future works. Indeed, many aspects
-merit further investigations. First of all, we are unable to anticipate the
+that the most important contribution is the identification and initial
+discussion of the role of the NTK in PDF fits, leading to a set of relevant
+diagnostic metrics to be explored in future works. Indeed, many aspects
+merit further investigations. First of all, we need to study in detail the
 outcome of a similar analysis when applied to a more complex and realistic
-framework, including multiple fitted flavors and real data. Furthermore,
-further insights could be gained by exploring different architectures and,
-possibly, parametrisations beyond neural networks.
+framework, including multiple fitted flavors and real data. For data that depend
+linearly on the PDFs, the extension of the formalism is straightforward. 
+However, the agreement with the analytical predictions need to be tested by 
+performing the numerical simulations. Further insights could be gained by exploring different 
+parametrisations beyond neural networks.
 
 In spite of the simplified framework adopted in the present study, our findings
-highlight the complexity and richness of the learning process, confirming how
-little is understood regarding the origin of PDF uncertainties. This poses a
-significant challenge in light of the improved precision of forthcoming
+highlight the complexity and richness of the learning process; a quantitative
+description of the learning process is needed in order to pin down the origin of PDF uncertainties. 
+This poses a significant challenge in light of the improved precision of forthcoming
 measurements. We believe that the tools presented here can help address this
 gap. 

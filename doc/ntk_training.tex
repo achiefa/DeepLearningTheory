@@ -157,11 +157,13 @@ where
 Here $M$ is a positive-semidefinite matrix that depends only on the data covariance 
 and the FK tables that enter the theoretical predictions, 
 while $b$ is a vector that depends (amongst other quantities) on the central value 
-of the data.
+of the data. Note that any vector $f$ that is in the kernel of $\FKtab$ is necessarily
+in the kernel of $M$, $\ker M$. In turn, the vectors in $\ker M$ do not contribute 
+to the flow evolution, as seen explictly in Eq.~\eqref{eq:FlowEquationNoIndices}.
 
 Before moving to the next subsection, a few comments are in order.
 First, although derived in the context of neural networks, these equations do
-not refer to a specific parameterization. Indeed, these remain valid even when
+not refer to a specific parametrization. Indeed, these remain valid even when
 an explicit functional form is chosen to parametrize the PDFs, as in
 Refs.~\cite{Ablat:2024hbm,Bailey:2020ooq,Costantini:2025wxp}. Second, it is
 interesting to observe that the flow equation,
@@ -199,7 +201,7 @@ distribution, which we represent as usual as a set of replicas.
 
 It is argued in the literature that, in the large-width limit, the variance of
 the NTK over the set of replicas tends to zero with the width of the hidden
-layers (see, \eg, \cite{Roberts:2021fes}). In order to quantify the
+layers (see, \eg, \cite{Roberts:2021fes,Chiefa:2026TBA}). In order to quantify the
 variation of the NTK, we start by computing the Frobenius norm of the NTK over
 an ensemble of networks for different architectures. For each architecture, we
 consider the standard deviation of the norm as a statistical
@@ -218,7 +220,7 @@ bootstrap errors due to the finite size of the ensemble. Using an ensemble of
   \centering
   \includegraphics[width=0.90\textwidth]{figs/section_3/ntk_initialization_with_uncertainty.pdf}
   \caption{Frobenius norm of the NTK at initialisation, $\lVert \Theta_0
-  \rVert$, in function of the width of the network. On the left, the central
+  \rVert$, as a function of the width of the network. On the left, the central
   values and uncertainty bands are obtained as the mean and one-sigma deviation
   of the ensemble of networks. The plot on the right shows the relative
   uncertainty. It is interesting to note the decrease of the relative uncertainty as the 
@@ -241,6 +243,10 @@ only a small subset of active directions can inform the network during training,
 as it will be discussed later. Note that, at least at initialisation, these
 observations do not depend on the architecture: the eigenvalues in
 Fig.~\ref{fig:NTKSpectrum} are mostly independent of the size of the network.
+Even though the logarithmic scale on the vertical axis may hide some small variations, it 
+is clear that most eigenvalues remain constant within the error bars. On the other hand, 
+the logarithmic scale emphasises that there are several orders of magnitude between eigenvalues 
+for a given architecture; that hierarchical structure does not depend on the architecture. 
 There is a downward fluctuation of the third eigenvalue for the largest
 architecture that we considered, but we do not have any evidence that this drop
 is a physical feature of the system, rather than a fluctuation. Finally, the
@@ -499,7 +505,7 @@ the problem.
   \theta^{(k)} = (z^{(k)}, f^{\rm{(in)}})/ \Vert f^{\rm{(in)}}\Vert$. In the
   left panel, the first four eigenvectors of the NTK are shown, while the right
   panel shows the remaining eigenvectors up to $k=7$. Note that $f^{\mathrm{in}}$
-  lies entirely in the subspace spun by the first four eigenvectors of the NTK 
+  lies entirely in the subspace spanned by the first four eigenvectors of the NTK 
   by the onset of the lazy training regime. We see that the NTK has aligned its
   features with the physically relevant directions of the problem.}
   \label{fig:NTKAlignFin}

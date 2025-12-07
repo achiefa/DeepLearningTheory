@@ -136,7 +136,7 @@ solution of the homogeneous equation, $\hat{f}^{\perp}_{t,k}$, and a particular
 solution of the full equation. The solution of the homogeneous equation is
 \begin{align}
     \label{eq:HomoSoln}
-    \hat{f}^{\perp}_{t,k} = \sum_{i=1}^{d^\perp} f^{\perp}_{0,i} e^{-h^{(i)}t} w^{(i)}_k\, ,
+    \hat{f}^{\perp}_{t,k} = \sum_{i=1}^{d^\perp} f^{\perp (i)}_{0} e^{-h^{(i)}t} w^{(i)}_k\, ,
 \end{align}
 where
 % ~\footnote{ Note that here the scalar product is computed in the subspace
@@ -147,7 +147,7 @@ where
 % }
 \begin{align}
     \label{eq:InitialCi}
-    f^{\perp}_{0,i} = \sum_{k=1}^{d_\perp} w^{(i)}_k f^\perp_{0,k}\, ,
+    f^{\perp (i)}_{0} = \sum_{k=1}^{d_\perp} w^{(i)}_k f^\perp_{0,k}\, ,
         %= \left(w^{(i)}, f^\perp_0\right)\, ,
 \end{align}
 guarantees that the initial condition $\hat{f}^\perp_{t,k}=f^\perp_{0,k}$ is
@@ -259,9 +259,12 @@ transformation of the initial fields $f_{0,\alpha}$, and a linear transformation
 of the data $Y_I$. The two transformations depend on the flow time $t$ and are
 given by the evolution operators $U(t)$ and $V(t)$. Fig.~\ref{fig:OnsetLazyL2}
 compares the analytical solution with the trained function at the end of
-training, for different choices of the frozen NTK. The evolution time $t$ used
+training, for different choices of the frozen NTK. The NN is trained using the 
+numerical GD until $t_{\rm ref}$, at which point the NTK is frozen. The evolution time $t$ used
 in the analytical solution is the difference between the total training time and
-$t_{\rm ref}$. Central value and uncertainty bands are obtained by computing the
+$t_{\rm ref}$; the intial condition for the analytical solution is the 
+trained solution at $t_{\rm ref}$. Central value and uncertainty bands are obtained 
+by computing the
 analytical solution for each replica of the initial condition and frozen NTK.
 \footnote{ If not stated otherwise, in this section central values and
 uncertainties are always computed as ensemble averages across replicas. } The
@@ -304,19 +307,19 @@ the latter are typically large.
     \caption{Decomposition of the analytical solution into the two contributions
     from $U$ and $V$ at different training times. The frozen NTK is fixed across
     panels, and corresponds to the one at $T_{\rm ref} = 10000$. The initial
-    condition is always $f_{T_{\rm ref}}$. As in Fig.~\ref{fig:OnsetLazyL2}, L2
-    data is used.}
+    condition for the analytical solution is always $f_{T_{\rm ref}}$. 
+    As in Fig.~\ref{fig:OnsetLazyL2}, L2 data is used.}
     \label{fig:FrefDecompositionL2}
   \end{figure}
-  % =================================================
-  
+  % =================================================  
   
 The analytical solution in Eq.~\eqref{eq:AnalyticSol} sheds a new light onto the
 behaviour of the numerical training of a neural network. Given these results, it
 is natural to ask whether the information encoded in the NTK alone can drive
 training, independently of the initial condition, \ie, whether the analytical
-solution can be used to perform kernel learning. We address this question in the
-following section.
+solution can be used to perform kernel learning. We address this question in 
+Sect.~\ref{sec:NTKKernelLearning}, after deriving a few additional analytical results 
+in the subsections below. 
 
 \subsubsection{Crosschecks using L0 data}
 \label{sec:AnalyticalChecks}
@@ -332,7 +335,7 @@ determined by the input PDFs
 Note that using L0 data only affects the second term in
 Eq.~\eqref{eq:AnalyticSol}.\footnote{To be more precise, since the analytical
 solution requires the NTK to be frozen at a certain epoch $T_{\rm ref}$, the NTK
-depends on the data used in the training.} We can then rewrite the combined
+also depends on the data used in the training.} We can then rewrite the combined
 term in Eq.~\eqref{eq:DataCorrectedInference} as follows
 \begin{align}
   \label{eq:TrainingOnLevelZero}
@@ -395,7 +398,8 @@ is shown in Fig.~\ref{fig:AverageLevelZeroUcheck}.
   \includegraphics[width=0.95\textwidth]{section_4/Mcal_M_fpar_L2_linear.pdf} 
   \caption{Test of the average of the parallel contribution for different
   epochs. The reference epoch at which the frozen NTK is chosen is $T_{\rm ref}
-  = 10000$. L2 data is used in the plot.}
+  = 10000$. L2 data is used in the plot. Note that the scale on the vertical 
+  axis is three orders of magnitude smaller than in Fig.~\ref{fig:InfiniteTimeVterm}.}
   \label{fig:AverageLevelZeroUcheck}
 \end{figure}
 
@@ -539,7 +543,7 @@ uncertainty.
 \subsubsection{Convergence of the Analytical Solution}
 We start by comparing the analytical solution (AS), obtained using an ensemble
 of networks at initialisation as the initial condition, with the trained
-solution (TS), obtained obtained by training another ensemble of networks drawn
+solution (TS), obtained by training another ensemble of networks drawn
 from the same prior distribution using GD. This comparison is shown in
 Fig.~\ref{fig:EvolutionGridF0L2} for L2 data, where the rows in the grid
 correspond to different frozen NTKs, while the columns represent numerical and
@@ -867,7 +871,7 @@ data.
   \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L0.pdf}
   \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L1.pdf}
   \includegraphics[width=0.90\textwidth]{section_4/bias/bias_L2.pdf}
-  \caption{Bias decomposition as in Eq.~\eqref{eq:BiasDecomposition} in function
+  \caption{Bias decomposition as in Eq.~\eqref{eq:BiasDecomposition} as a function
   of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
   are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
   column corresponds to a different frozen NTK.
