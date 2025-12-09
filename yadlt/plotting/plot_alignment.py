@@ -124,9 +124,10 @@ def plot_theta_m_alignment(
     )
 
     if save_fig:
-        fig.savefig(plot_dir / filename, dpi=300)
+        fig.savefig(plot_dir / filename, dpi=300, bbox_inches="tight")
     else:
         plt.show()
+        return fig, axs, cbar
 
 
 def produce_alignment_plot(

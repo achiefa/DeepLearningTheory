@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 
 from yadlt.context import FitContext
-from yadlt.distribution import Distribution, combine_distributions
 from yadlt.plotting.plotting import produce_plot
+from yadlt.utils import compute_delta_ntk
 
 
 def plot_delta_ntk(
@@ -18,19 +18,8 @@ def plot_delta_ntk(
         context = FitContext(fitname)
 
         data_type = context.get_config("metadata", "arguments")["data"]
-        replicas = context.get_property("nreplicas")
 
-        ntk_by_time = context.NTK_time
-
-        delta_ntk_t = []
-        for i in range(len(ntk_by_time) - 1):
-            delta_ntk_dist = Distribution(f"Delta NTK {i}")
-            for rep in range(replicas):
-                delta_ntk = np.linalg.norm(
-                    ntk_by_time[i + 1][rep] - ntk_by_time[i][rep]
-                ) / np.linalg.norm(ntk_by_time[i][rep])
-                delta_ntk_dist.add(delta_ntk)
-            delta_ntk_t.append(delta_ntk_dist)
+        delta_ntk_distribution_by_epoch = compute_delta_ntk(context)
 
         if epochs is None:
             epochs = context.get_config("replicas", "common_epochs")
@@ -39,7 +28,6 @@ def plot_delta_ntk(
                 epochs, context.get_config("replicas", "common_epochs")
             ), "Epochs do not match across fits."
 
-        delta_ntk_distribution_by_epoch = combine_distributions(delta_ntk_t)
         if fitlabels is None:
             delta_ntk_distribution_by_epoch.set_name(rf"$\textrm{{{data_type}}}$")
         else:
@@ -50,7 +38,6 @@ def plot_delta_ntk(
     produce_plot(
         epochs[1::],
         distribution_grids,
-        scale="linear",
         xlabel=r"${\rm Epoch}$",
         ylabel=r"$\delta \Theta$",
         labels=fitlabels,

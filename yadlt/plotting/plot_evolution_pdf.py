@@ -1,6 +1,6 @@
 """Module to plot the complete evolution of PDFs."""
 
-from fileinput import filename
+import matplotlib.pyplot as plt
 
 from yadlt.context import FitContext
 from yadlt.evolution import EvolutionOperatorComputer, compute_evolution_operator_at_inf
@@ -311,7 +311,6 @@ def plot_Mcal_M_fpar(
     context: FitContext,
     ref_epoch: 0,
     epochs: list[int] = 0,
-    show_ratio: bool = False,
     seed: int = 0,
     **plot_kwargs,
 ):
@@ -355,25 +354,11 @@ def plot_Mcal_M_fpar(
         dist.set_name(rf"$T = {epoch}$")
         grids.append(dist)
 
-    if show_ratio:
-        ax_specs_ratio = {"set_ylim": (0.8, 1.2)}
-        if plot_kwargs.get("ax_specs", None) is not None:
-            plot_kwargs["ax_specs"][1] = plot_kwargs["ax_specs"][1] | ax_specs_ratio
-        else:
-            plot_kwargs["ax_specs"] = [None, ax_specs_ratio]
-
-        produce_pdf_plot(
-            fk_grid,
-            grids,
-            normalize_to=1,
-            **plot_kwargs,
-        )
-    else:
-        produce_plot(
-            fk_grid,
-            grids,
-            **plot_kwargs,
-        )
+    produce_plot(
+        fk_grid,
+        grids,
+        **plot_kwargs,
+    )
 
 
 def plot_f0_parallel(

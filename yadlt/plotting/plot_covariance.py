@@ -4,6 +4,7 @@ from typing import List
 
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
+import matplotlib.pyplot as plt
 import numpy as np
 
 from yadlt import evolution
@@ -157,22 +158,22 @@ def plot_diag_error_decomposition(
     if normalize:
         f = evaluate_from_initialisation(context, ref_epoch=ref_epoch, f0=f0)
         ft = f(evolution_time)
-        full_cov_diag = np.sqrt(C.diagonal()) / np.abs(ft.get_mean())
+        # full_cov_diag = np.sqrt(C.diagonal()) / np.abs(ft.get_mean())
         c00 = np.sqrt(C_00.diagonal()) / np.abs(ft.get_mean())
         cyy = np.sqrt(C_YY.diagonal()) / np.abs(ft.get_mean())
     else:
-        full_cov_diag = np.sqrt(C.diagonal())
+        # full_cov_diag = np.sqrt(C.diagonal())
         c00 = np.sqrt(C_00.diagonal())
         cyy = np.sqrt(C_YY.diagonal())
 
     # Loop over data points; create box from errors at each point
-    errorboxes = [
-        Rectangle((xp - x_size, yp - ye), x_size * 2, ye * 2)
-        for xp, yp, ye, x_size in zip(x, zeros, full_cov_diag, box_x_size)
-    ]
+    # errorboxes = [
+    #     Rectangle((xp - x_size, yp - ye), x_size * 2, ye * 2)
+    #     for xp, yp, ye, x_size in zip(x, zeros, full_cov_diag, box_x_size)
+    # ]
 
-    # Create patch collection with specified colour/alpha
-    pc = PatchCollection(errorboxes, facecolor="grey", alpha=0.2, edgecolor="none")
+    # # Create patch collection with specified colour/alpha
+    # pc = PatchCollection(errorboxes, facecolor="grey", alpha=0.2, edgecolor="none")
 
     # Add collection to Axes
     produce_errorbar_plot(
@@ -191,7 +192,7 @@ def plot_diag_error_decomposition(
                 "spec": common_plt_spec | {"color": "C2"},
             },
             # {"label": r"$C_t^{(0Y)}$", "mean": zeros, "std": np.sqrt(C_0Y.diagonal()), "spec": common_plt_spec | {"color": "C3"}},
-            {"label": r"$\rm{Cov}[f_t, f_t]$", "box": pc},
+            # {"label": r"$\rm{Cov}[f_t, f_t]$", "box": pc},
         ],
         **plot_kwargs,
     )
