@@ -90,6 +90,7 @@ def produce_model_at_initialisation(
     architecture_tuple,
     seed: int = 0,
     scaled_input: bool = False,
+    activation: str = "tanh",
 ):
     """Initialise a model at random initialisation."""
     xT3_0 = Distribution("xT3 at initialisation")
@@ -98,7 +99,7 @@ def produce_model_at_initialisation(
         model = generate_pdf_model(
             outputs=1,
             architecture=list(architecture_tuple),
-            activations=["tanh", "tanh"],
+            activations=[activation for _ in architecture_tuple],
             kernel_initializer="GlorotNormal",
             user_ki_args=None,
             seed=seed + rep,
