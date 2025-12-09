@@ -95,13 +95,27 @@ literature~\cite{DBLP:journals/corr/abs-1806-07572}, and it has important
 implications for the training dynamics. In this regime, we show that the
 training process can be described analytically, allowing us to obtain a single
 and clean closed-form expression for the output of the network at any point
-during training. Interestingly, this expression decomposes into two
+during training. The main result of this analysis is summarised in Eq.~\eqref{eq:AnalyticSol}
+which we report here:
+\[
+    f_{t}
+        = U(t) f_{0} + V(t) Y\, , 
+\]
+where $f_{t}$ is the network output at training time $t$, $f_{0}$
+is the initial output at $t=0$, $Y$ are the training data,
+and $U(t)$ and $V(t)$ are time-dependent matrices that depend
+on the NTK and are computed explicitly in Sect.~\ref{sec:LazyTraining}.
+It is interesting to remark that this expression decomposes into two
 contributions: one that depends on the initial condition and another that
 depends on the data, thus making explicit the role of prior information and of
-the experimental measurements in shaping the final result. Although applicable
-only when the NTK reaches stability, this analytical description serves as a
-promising tool to bridge the gap between the parametric regression approach
-adopted in NNPDF and the kernel regression methods that are receiving growing
+the experimental measurements in shaping the final result. This analytical expression
+also allows us to compute the evolution of the covariance of the network output
+during training, providing a quantitative description of how uncertainties
+are propagated from the data to the fitted function.
+Although applicable
+only when the NTK reaches stability, this analytical description serves is a
+powerful tool to bridge the gap between the parametric regression approach
+adopted in NNPDF and other methods for solving inverse problems that are receiving growing
 attention in the community.
 
 While derived in a simplified setting -- considering a single PDF flavor
@@ -123,7 +137,7 @@ some fundamental statistical aspects of the Neural Networks at initialisation,
 which will be relevant in the rest of the paper. The training dynamics is then
 discussed in Section~\ref{sec:Training}, where the learning process of the
 neural network is reformulated in functional space by means of the NTK. The
-implications of the \textit{lazy training} regime are employed in
+implications of the \textit{lazy training} regime are used in
 Section~\ref{sec:LazyTraining} to derive an analytical description of the
 training process. Finally, we present our conclusions and outlook in
 Section~\ref{sec:conclusions}.
