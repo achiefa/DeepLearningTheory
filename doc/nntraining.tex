@@ -39,15 +39,21 @@ Edinburgh 2025/x
 
 \begin{center}
   {\Large \bf On the Origin of PDF Uncertainties}
-  \vspace{1.1cm}
+%  {\Large \bf Diagnostic Tools for Parton Distribution Function Fits}
+%  {\Large \bf Towards a Quantitative Understanding of PDF Fits and their Uncertainties}
+  
+  \vspace{1.0cm}
+
+\vspace{1.1cm}
 
   Amedeo Chiefa, Luigi Del Debbio and Richard Kenway
 
   \vspace{0.2cm}
 
   {\it \small
-    The Higgs Centre for Theoretical Physics, University of Edinburgh,\\
-    JCMB, KB, Mayfield Rd, Edinburgh EH9 3JZ, Scotland\\[0.1cm]
+    The Higgs Centre for Theoretical Physics, \\ 
+    School of Physics and Astronomy, The University of Edinburgh,\\
+    Peter Guthrie Tait Road, Edinburgh EH9 3FD, United Kingdom\\[0.1cm]
   }
   \vspace{0.7cm}
 \end{center}
@@ -59,24 +65,34 @@ Edinburgh 2025/x
   PDF determination with a reliable uncertainty quantification has become
   mandatory in order to match the experimental precision. The NNPDF
   collaboration has pioneered the use of Machine Learning (ML) techniques for PDF
-  determinations. In this work, we develop a theoretical framework based on the
-  Neural Tangent Kernel (NTK) to analyse the training dynamics of Neural
-  Networks. This approach allows us to derive, under precise assumptions, an
-  analytical description of how neural networks evolve during training,
-  enabling a quantitative understanding of the NNPDF methodology and 
-  its dependence on
-  the underlying model architecture and training algorithm. Interestingly, 
-  the methodology developed in this work can be used to understand the 
+  determinations, using Neural Networks (NNs) to parametrise the unknown PDFs 
+  in a flexible and unbiased way. The NNs are then trained on experimental data
+  by means of stochastic gradient descent algorithms. The statistical robustness 
+  of the results is validated by extensive closure tests using synthetic data.
+  In this work, we develop a theoretical framework based on the
+  Neural Tangent Kernel (NTK) to analyse the training dynamics of neural
+  networks. This approach allows us to derive, under precise assumptions, an
+  analytical description of the neural networks evolution during training,
+  enabling a quantitative understanding of the training process. 
+  Having an analytical handle on the training dynamics allows us to clarify the
+  role of the NN architecture and the impact of the experimental data in a 
+  transparent way. Similarly, we are able to describe the evolution of the covariance of
+  the NN output during training, providing a quantitative description of how
+  uncertainties are propagated from the data to the fitted function.
+  Interestingly, the methodology developed in this work can be used to understand the 
   minimization of a loss function for any kind of parametrization, thereby 
   providing a unified framework to compare different PDF determinations, like,
-  \eg, fits based on a particular functional form. 
+  \eg, fits based on a particular functional form. While our results are {\em not}\ 
+  a substitute for PDF fitting, they do provide a powerful diagnostic tool to
+  assess the robustness of current fitting methodologies.
   Beyond its relevance for particle physics phenomenology, our analysis of 
   PDF determinations provides a testbed to apply theoretical ideas about the 
-  learning process developed in the 
-  ML community. As seen in applications from other domains, we demonstrate 
-  that our results deviate from the simple picture of the \textit{lazy training}
-  regime discussed in the ML literature.
+  learning process developed in the ML community. As seen in applications from 
+  other domains, we find that our results deviate from the simple picture 
+  of the \textit{lazy training} regime discussed in the ML literature.
 \end{abstract}
+
+\newpage
 
 \tableofcontents
 \clearpage
@@ -89,7 +105,7 @@ Edinburgh 2025/x
 \input{conclusions.tex}
 
 \section*{Acknowledgements}
-...
+LDD is suppoorted by an STFC Consolidated Grant (ST/T000600/1, ST/X000494/1). 
 
 \newpage
 

@@ -77,15 +77,20 @@ we can understand the learning process: only the directions that are orthogonal 
 the kernel of the NTK are actually learned in the training process. 
 At initialisation, the NTK is characterised
 by a wide spectrum of eigenvalues, with only a few large eigenvalues being
-significantly different from zero. During the training process, the hierarchy 
-in the NTK spectrum is
+significantly different from zero. Even though the NNs span a very broad functional
+space, the training explores a much smaller subspace. 
+During the training process, the hierarchy in the NTK spectrum is
 preserved, but eigenvalues that were initially subleading, or zero, grow in magnitude.
 Since the only directions that contribute to the learning process are those
 associated to the non-zero eigenvalues, with the actual value of the eigenvalue 
 setting the learning speed along the corresponding eigenvector direction, 
 the growth of some eigenvalues indicates that new features in the
 functional space emerge during training and that the network thus becomes capable of
-representing more complex functions.
+representing more complex functions. The space of functions explored in 
+the training process is therefore dynamically determined during the training
+itself, exploiting the flexibility of the parametrisation in order to 
+explore multiple functional forms and select the preferred one based on inference
+from data rather than a priori decisions.  
 
 Another key result of this work is that, after an initial transient phase where
 the NTK evolves significantly, the training process enters a second regime where
@@ -94,9 +99,9 @@ the NTK becomes approximately constant. This regime is often referred to as
 literature~\cite{DBLP:journals/corr/abs-1806-07572}, and it has important
 implications for the training dynamics. In this regime, we show that the
 training process can be described analytically, allowing us to obtain a single
-and clean closed-form expression for the output of the network at any point
-during training. The main result of this analysis is summarised in Eq.~\eqref{eq:AnalyticSol}
-which we report here:
+and clean closed-form expression for the output of the network at any training
+time $t$. The main result of this analysis is summarised in Eq.~\eqref{eq:AnalyticSol}
+which we report here,
 \[
     f_{t}
         = U(t) f_{0} + V(t) Y\, , 
@@ -108,7 +113,7 @@ on the NTK and are computed explicitly in Sect.~\ref{sec:LazyTraining}.
 It is interesting to remark that this expression decomposes into two
 contributions: one that depends on the initial condition and another that
 depends on the data, thus making explicit the role of prior information and of
-the experimental measurements in shaping the final result. This analytical expression
+experimental measurements in shaping the final result. This analytical expression
 also allows us to compute the evolution of the covariance of the network output
 during training, providing a quantitative description of how uncertainties
 are propagated from the data to the fitted function.
@@ -118,7 +123,7 @@ powerful tool to bridge the gap between the parametric regression approach
 adopted in NNPDF and other methods for solving inverse problems that are receiving growing
 attention in the community.
 
-While derived in a simplified setting -- considering a single PDF flavor
+Being derived in a simplified setting -- considering a single PDF flavor
 combination with DIS data and vanilla gradient descent optimization -- we
 present this study as an exploration of foundational aspects, with the
 understanding that further investigations will be needed to extend these ideas
