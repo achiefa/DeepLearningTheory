@@ -625,7 +625,7 @@ following two estimators,
     \Delta[U(t)f_0] &= \mathbb{E}\left[U(t) f_{0}\right] 
       - \mathbb{E}\left[U(t) \right] \mathbb{E}\left[f_{0}\right]\, , \\
     \label{eq:DeltaExpValVtY}
-    \Delta[V(t)Y] &= \mathbb{E}\left[U(t) Y\right] 
+    \Delta[V(t)Y] &= \mathbb{E}\left[V(t) Y\right] 
       - \mathbb{E}\left[V(t) \right] \mathbb{E}\left[Y\right]\, .
 \end{align}
 for different training times, using the same frozen NTK and L2 data. The results
@@ -772,7 +772,7 @@ a residual component of the input vector in the null eigenspace of $M$,
 $\fin_{M^{\parallel}}$, that is not constrained by the forward map, similarly to
 the residual noise introduced by the NTK when training the network,
 Sec.~\ref{sec:Lazy}. Given that this component is not constrained by
-the data, the parametrisation, together with the fitting methodology, has
+the data, the parametrization, together with the fitting methodology, has
 complete freedom to fix it. In our analytical solution,
 Eq.~\eqref{eq:AnalyticSol}, this freedom is brought in by the linear
 transformation of the fields $f_0$. On the other hand, $\fin_{M^{\perp}}$
@@ -788,8 +788,7 @@ Eq.~\eqref{eq:NaiveInversion} with Eq.~\eqref{eq:VDef}
 where we recall that $Y$ is different from $Y_{L0}$, in general. From this
 expression, it follows that $\mathcal{M}(t)$ can be seen as a regularised
 variant of $M^{+}$, with the training time $t$ being the regularisation
-parameter. This correspondence will become clearer later, when we discuss the
-limit of infinite training time.
+parameter.
 
 These arguments motivate us to reshape Eq.~\eqref{eq:BiasDef} as follows
 \begin{equation}
@@ -934,7 +933,7 @@ future assessments of PDF determinations.
   \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L0.pdf}
   \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L1.pdf}
   \includegraphics[width=0.90\textwidth]{section_4/variance/variance_L2.pdf}
-  \caption{Variance decomposition as in Eq.~\eqref{eq:VarianceDecomposition} in function
+  \caption{Variance decomposition as in Eq.~\eqref{eq:VarianceDecomposition} as a function
   of the training time for L0 (top), L1 (middle) and L2 (bottom) data. The curves
   are computed using the analytical result in Eq.~\eqref{eq:AnalyticSol}. Each
   column corresponds to a different frozen NTK. The vertical dashed lines in grey

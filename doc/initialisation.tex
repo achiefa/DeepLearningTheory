@@ -76,7 +76,7 @@ initialisation is discussed below in Sec.~\ref{sec:NNinit}.
 
 In order to account for the experimental uncertainties and propagate them to the
 fitted PDFs, the NNPDF collaboration uses Monte Carlo replicas. For each
-replica, labeled by the index $k$, a new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional
+replica, labelled by the index $k$, a new set of data $Y^{(k)}$ is generated from an $\ndat$ dimensional
 Gaussian distribution centred at the experimental central value $Y$, with the
 covariance given by the experimental covariance matrix $C_Y$,
 \begin{equation}
@@ -147,7 +147,7 @@ completeness, we list the values of $x_\alpha$ in Tab.~\ref{tab:Xvals}.
     \label{tab:Xvals}}
 \end{table}
 
-The output of the neuron identified by the pair $(\ell,i)$ is
+The output of the neuron is identified by the pair $(\ell,i)$ is
 $\rho^{(\ell)}_{i\alpha} = \tanh\left(\phi^{(\ell)}_{i\alpha}\right)$.
 The parameters of the NN are the weights $w^{(\ell)}_{ij}$ and the biases $b^{(\ell)}_i$, which are
 collectively denoted as $\theta_\mu$, where $\mu = 1, \ldots, P$, and the total number of parameters
@@ -317,12 +317,12 @@ powers of $1/n_{\ell}$. At leading order,
 \begin{align}
     K^{(\ell+1)}_{\alpha_1\alpha_2} &=
       \left.
-      C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{1}{n_\ell}
+      C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{n_\ell}{n_\ell+n_{\ell-1}}\frac{1}{n_\ell}
       \langle \vec{\rho}^{\,(\ell)}_{\alpha_1} \cdot
       \vec{\rho}^{\,(\ell)}_{\alpha_2} \rangle
       \right|_{O(1)} \\
       \label{eq:RecursionForK}
-      &= C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{1}{n_\ell}
+      &= C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{n_\ell}{n_\ell+n_{\ell-1}}\frac{1}{n_\ell}
       \langle \vec{\rho}^{\,(\ell)}_{\alpha_1} \cdot
       \vec{\rho}^{\,(\ell)}_{\alpha_2} \rangle_{K^{(\ell)}}\, ,
 \end{align}
