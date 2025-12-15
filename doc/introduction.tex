@@ -118,15 +118,16 @@ also allows us to compute the evolution of the covariance of the network output
 during training, providing a quantitative description of how uncertainties
 are propagated from the data to the fitted function.
 Although applicable
-only when the NTK reaches stability, this analytical description serves is a
+only when the NTK reaches stability, this analytical description is a
 powerful tool to bridge the gap between the parametric regression approach
 adopted in NNPDF and other methods for solving inverse problems that are receiving growing
 attention in the community.
 
 Being derived in a simplified setting -- considering a single PDF flavor
 combination with DIS data and vanilla gradient descent optimization -- we
-present this study as an exploration of foundational aspects, with the
-understanding that further investigations will be needed to extend these ideas
+present this study as an exploration of foundational aspects, primarily 
+focussed on the theoretical issues; 
+further investigations are in progress in order to extend these ideas
 to the full complexity of modern global PDF fits. We particularly emphasise that
 the present analysis is not limited to neural networks, but can be extended to
 any functional parameterisation that undergoes a gradient-based training
