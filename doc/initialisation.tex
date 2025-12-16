@@ -20,8 +20,8 @@ review.
 
 The extraction of PDFs from experimental data is a classic example of an inverse
 problem, namely the reconstruction of a function $f(x)$ from a finite set of
-data points $Y_I$, where the index $I=1, \ldots, \ndat$.\footnote{When omitting
-the data index $I$, we will always assume $Y \in \mathbb{R}^{\ndat}$.} In
+data points $Y_I$, where the index $I=1, \ldots, \ndat$\footnote{When omitting
+the data index $I$, we will always assume $Y \in \mathbb{R}^{\ndat}$.}. In
 particular, for this study, we will focus on DIS data, which depend linearly on
 the function $f(x)$. The theoretical prediction for the data point $Y_I$ is
 given by
@@ -84,7 +84,7 @@ covariance given by the experimental covariance matrix $C_Y$,
     Y^{(k)} \sim \mathcal{N}\left(Y, C_Y\right)\, .
 \end{equation}
 Each replica $f^{(k)}$ is trained on its corresponding data set $Y^{(k)}$. We
-denote the replicas at training time $t$, $f^{(k)}_{t} \in
+denote the replicas at training time $t$ as $f^{(k)}_{t} \in
 \mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $T$, the
 posterior probability distribution is represented by the set of 
 {\em trained}\ replicas
