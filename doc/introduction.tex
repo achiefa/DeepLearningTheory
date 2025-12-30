@@ -67,30 +67,29 @@ transparent the assumptions that are often implicitly embedded in the fitting
 procedure.
 
 We demonstrate that the training dynamics of a neural network can be fully
-reformulated in functional space, leading to an interpretable
-description of the learning process. We show that the training dynamics is
-dictated by the Neural Tangent Kernel
-(NTK)~\cite{DBLP:journals/corr/abs-1806-07572}, which encodes and factorises the
-dependence on the architecture and the parameters of the neural network. In
-fact, the spectral properties of the NTK provide a powerful lens through which
-we can understand the learning process: only the directions that are orthogonal to 
-the kernel of the NTK are actually learned in the training process. 
-At initialisation, the NTK is characterised
-by a wide spectrum of eigenvalues, with only a few large eigenvalues being
-significantly different from zero. Even though the NNs span a very broad functional
-space, the training explores a much smaller subspace. 
-During the training process, the hierarchy in the NTK spectrum is
-preserved, but eigenvalues that were initially subleading, or zero, grow in magnitude.
-Since the only directions that contribute to the learning process are those
-associated to the non-zero eigenvalues, with the actual value of the eigenvalue 
-setting the learning speed along the corresponding eigenvector direction, 
-the growth of some eigenvalues indicates that new features in the
-functional space emerge during training and that the network thus becomes capable of
-representing more complex functions. The space of functions explored in 
-the training process is therefore dynamically determined during the training
-itself, exploiting the flexibility of the parametrization in order to 
-explore multiple functional forms and select the preferred one based on inference
-from data rather than a priori decisions.  
+reformulated in functional space, leading to an interpretable description of the
+learning process. We show that the training dynamics is dictated by the Neural
+Tangent Kernel (NTK)~\cite{DBLP:journals/corr/abs-1806-07572}, which encodes and
+factorises the dependence on the architecture and the parameters of the neural
+network. Similar approaches leveraging NTK properties have been explored in
+other contexts~\cite{tovey2025collective}. In fact, the spectral properties of
+the NTK provide a powerful lens through which we can understand the learning
+process: only the directions that are orthogonal to the kernel of the NTK are
+actually learned in the training process. At initialisation, the NTK is
+characterised by a wide spectrum of eigenvalues, with only a few large
+eigenvalues being significantly different from zero. Even though the NNs span a
+very broad functional space, the training explores a much smaller subspace.
+During the training process, the hierarchy in the NTK spectrum is preserved, but
+eigenvalues that were initially subleading, or zero, grow in magnitude. Since
+the only directions that contribute to the learning process are those associated
+to the non-zero eigenvalues, with the actual value of the eigenvalue setting the
+learning speed along the corresponding eigenvector direction, the growth of some
+eigenvalues indicates that new features in the functional space emerge during
+training and that the network thus becomes capable of representing more complex
+functions. The space of functions explored in the training process is therefore
+dynamically determined during the training itself, exploiting the flexibility of
+the parametrization in order to explore multiple functional forms and select the
+preferred one based on inference from data rather than a priori decisions.
 
 Another key result of this work is that, after an initial transient phase where
 the NTK evolves significantly, the training process enters a second regime where
