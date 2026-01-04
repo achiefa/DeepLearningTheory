@@ -20,8 +20,8 @@ review.
 
 The extraction of PDFs from experimental data is a classic example of an inverse
 problem, namely the reconstruction of a function $f(x)$ from a finite set of
-data points $Y_I$, where the index $I=1, \ldots, \ndat$.\footnote{When omitting
-the data index $I$, we will always assume $Y \in \mathbb{R}^{\ndat}$.} In
+data points $Y_I$, where the index $I=1, \ldots, \ndat$\footnote{When omitting
+the data index $I$, we will always assume $Y \in \mathbb{R}^{\ndat}$.}. In
 particular, for this study, we will focus on DIS data, which depend linearly on
 the function $f(x)$. The theoretical prediction for the data point $Y_I$ is
 given by
@@ -84,7 +84,7 @@ covariance given by the experimental covariance matrix $C_Y$,
     Y^{(k)} \sim \mathcal{N}\left(Y, C_Y\right)\, .
 \end{equation}
 Each replica $f^{(k)}$ is trained on its corresponding data set $Y^{(k)}$. We
-denote the replicas at training time $t$, $f^{(k)}_{t} \in
+denote the replicas at training time $t$ as $f^{(k)}_{t} \in
 \mathbb{R}^{\nflav\times\ngrid}$. Stopping the training at time $T$, the
 posterior probability distribution is represented by the set of 
 {\em trained}\ replicas
@@ -162,15 +162,14 @@ the previous layer, namely
     \label{eq:RecursionNN}
     \phi^{(\ell+1)}_{i\alpha} = \sum_{j=1}^{n_\ell} w^{(\ell+1)}_{ij} \rho^{(\ell)}_{j\alpha} + b^{(\ell+1)}_{i}\, .
 \end{align}
-The PDFs in the
-so-called evolution basis are parametrized by the preactivation functions of the output layer $L$,
-$x_\alpha f_i(x_\alpha)=A_i \phi^{(L)}_{i,\alpha}$, where the neuron index on the last layer,
-$i=1, \ldots, 8$, labels the 
-flavors.\footnote{For simplicity, we ignore the preprocessing function $x^{-\alpha_i} (1-x)^{\beta_i}$ that
-is currently used in the NNPDF fits. While the preprocessing may be useful in speeding the training
-it does not affect the current discussion.}
-The input layer is identified by $\ell=0$ and the activation
-function for that specific layer is the identity, so that
+The PDFs in the so-called evolution basis are parametrized by the preactivation
+functions of the output layer $L$, $x_\alpha f_i(x_\alpha)=
+\phi^{(L)}_{i,\alpha}$, where the neuron index on the last layer, $i=1, \ldots,
+8$, labels the flavors\footnote{For simplicity, we ignore the preprocessing
+function $x^{-\alpha_i} (1-x)^{\beta_i}$ that is currently used in the NNPDF
+fits. While the preprocessing may be useful in speeding the training it does not
+affect the current discussion.}. The input layer is identified by $\ell=0$ and
+the activation function for that specific layer is the identity, so that
 \begin{equation}
     \label{eq:InitLayerPhi}
     \rho^{(0)}_{i,\alpha} = \phi^{(0)}_{i,\alpha} = x_{i,\alpha} =
@@ -253,7 +252,7 @@ that the probability distribution in Eq.~\eqref{eq:PreactAtInit} is also invaria
 and therefore it can only be a function of $\text{SO}(n_{\ell})$ invariants. Therefore
 \begin{align}
     \label{eq:PriorAction}
-    p\left(\phi^{(n_\ell)}\right) =
+    p\left(\phi^{(\ell)}\right) =
         \frac{1}{Z^{(\ell)}} \exp\left(-S\left[\phi^{(\ell)}_{\alpha_1}
             \cdot \phi^{(\ell)}_{\alpha_2}\right]\right)\, ,
 \end{align}
@@ -282,7 +281,7 @@ $\gamma^{(\ell)}$.\footnote{ We have denoted {\em all}\ couplings by
   $\gamma^{(\ell)}_{\alpha_1\alpha_2,\alpha_3\alpha_4}$ is a four-point coupling,
   etc. } 
 In Eq.~\eqref{eq:ExpandAction}, we have factored out inverse powers of
-$n_\ell$ for each coupling. With this convention, and with the scaling of the
+$n_{\ell-1}$ for each coupling. With this convention, and with the scaling of the
 parameters variances in Eq.~\eqref{eq:RescaledGlorotVariances}, the couplings in
 the action are all $O(1)$ in the limit where $n_\ell\to\infty$. As a
 consequence, the probability distribution at initialisation is a
@@ -317,12 +316,12 @@ powers of $1/n_{\ell}$. At leading order,
 \begin{align}
     K^{(\ell+1)}_{\alpha_1\alpha_2} &=
       \left.
-      C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{n_\ell}{n_\ell+n_{\ell-1}}\frac{1}{n_\ell}
+      C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{n_\ell}{n_\ell+n_{\ell+1}}\frac{1}{n_\ell}
       \langle \vec{\rho}^{\,(\ell)}_{\alpha_1} \cdot
       \vec{\rho}^{\,(\ell)}_{\alpha_2} \rangle
       \right|_{O(1)} \\
       \label{eq:RecursionForK}
-      &= C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{n_\ell}{n_\ell+n_{\ell-1}}\frac{1}{n_\ell}
+      &= C_b^{(\ell+1)} + C_w^{(\ell+1)} \frac{n_\ell}{n_\ell+n_{\ell+1}}\frac{1}{n_\ell}
       \langle \vec{\rho}^{\,(\ell)}_{\alpha_1} \cdot
       \vec{\rho}^{\,(\ell)}_{\alpha_2} \rangle_{K^{(\ell)}}\, ,
 \end{align}

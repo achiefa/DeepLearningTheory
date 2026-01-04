@@ -13,22 +13,6 @@
     year = "2015"
 }
 
-@article{DBLP:journals/corr/abs-1806-07572,
-  author       = {Arthur Jacot and
-                  Franck Gabriel and
-                  Cl{\'{e}}ment Hongler},
-  title        = {Neural Tangent Kernel: Convergence and Generalization in Neural Networks},
-  journal      = {CoRR},
-  volume       = {abs/1806.07572},
-  year         = {2018},
-  url          = {http://arxiv.org/abs/1806.07572},
-  eprinttype    = {arXiv},
-  eprint       = {1806.07572},
-  timestamp    = {Mon, 13 Aug 2018 16:46:13 +0200},
-  biburl       = {https://dblp.org/rec/journals/corr/abs-1806-07572.bib},
-  bibsource    = {dblp computer science bibliography, https://dblp.org}
-}
-
 @article{Candido:2024hjt,
     author = "Candido, Alessandro and Del Debbio, Luigi and Giani, Tommaso and Petrillo, Giacomo",
     title = "{Bayesian inference with Gaussian processes for the determination of parton distribution functions}",
@@ -136,29 +120,37 @@
     year = "2021"
 }
 
-@inproceedings{jacot2018neural,
-  title={Neural tangent kernel: Convergence and generalization in neural networks},
-  author={Jacot, Arthur and Gabriel, Franck and Hongler, Cl{\'e}ment},
-  booktitle={Advances in neural information processing systems},
-  volume={31},
-  year={2018}
+@article{jacot2018neural,
+  author        = "Jacot, Arthur and Gabriel, Franck and Hongler, Cl{\'e}ment",
+  title         = "{Neural Tangent Kernel: Convergence and Generalization in Neural Networks}",
+  year          = "2018",
+  journal     = {Advances in neural information processing systems},
+  volume        = {31},
+  eprint        = "1806.07572",
+  archivePrefix = "arXiv",
+  primaryClass  = "cs.LG",
 }
 
-@inproceedings{arora2019exact,
+@article{arora2019exact,
   title={On exact computation with an infinitely wide neural net},
   author={Arora, Sanjeev and Du, Simon S and Hu, Wei and Li, Zhiyuan and Salakhutdinov, Russ R and Wang, Ruosong},
   booktitle={Advances in neural information processing systems},
   volume={32},
-  year={2019}
+  year={2019},
+  eprint={1904.11955},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/1904.11955}, 
 }
 
-@inproceedings{alemohammad2021recurrent,
+@article{alemohammad2021recurrent,
   title={Recurrent neural tangent kernels: Adding memory to neural tangent kernels},
-  author={Alemohammad, Sina and Wang, Zichao and Balestriero, Randall and Baraniuk, Richard},
-  booktitle={International Conference on Machine Learning},
-  pages={204--215},
+  author={Sina Alemohammad and Zichao Wang and Randall Balestriero and Richard Baraniuk},
   year={2021},
-  organization={PMLR}
+  eprint={2006.10246},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/2006.10246}, 
 }
 
 @article{Ablat:2024hbm,
@@ -279,7 +271,7 @@
     year = "2025"
 }
 
-@misc{barrett2022igr,
+@article{barrett2022igr,
       title={Implicit Gradient Regularization},
       author={David G. T. Barrett and Benoit Dherin},
       year={2022},
@@ -301,7 +293,7 @@
     year = "1989"
 }
 
-@misc{fort2020dlvk,
+@article{fort2020dlvk,
       title={Deep learning versus kernel learning: an empirical study of loss landscape geometry and the time evolution of the Neural Tangent Kernel}, 
       author={Stanislav Fort and Gintare Karolina Dziugaite and Mansheej Paul and Sepideh Kharaghani and Daniel M. Roy and Surya Ganguli},
       year={2020},
@@ -309,14 +301,27 @@
       archivePrefix={arXiv},
       primaryClass={cs.LG},
       url={https://arxiv.org/abs/2010.15110}, 
+      journal={Advances in Neural Information Processing Systems},
+      volume={33},
+      pages={5850--5861},
 }
 
 @article{lee2019wide,
   title={Wide neural networks of any depth evolve as linear models under gradient descent},
   author={Lee, Jaehoon and Xiao, Lechao and Schoenholz, Samuel and Bahri, Yasaman and Novak, Roman and Sohl-Dickstein, Jascha and Pennington, Jeffrey},
-  journal={Advances in neural information processing systems},
-  volume={32},
-  year={2019}
+  volume={2020},
+  ISSN={1742-5468},
+  url={http://dx.doi.org/10.1088/1742-5468/abc62b},
+  DOI={10.1088/1742-5468/abc62b},
+  number={12},
+  journal={Journal of Statistical Mechanics: Theory and Experiment},
+  publisher={IOP Publishing},
+  year={2020},
+  pages={124002},
+  eprint={1902.06720},
+  archivePrefix={arXiv},
+  primaryClass={stat.ML},
+  url={https://arxiv.org/abs/1902.06720}, 
 }
 @misc{huang2019ddnn,
       title={Dynamics of Deep Neural Networks and Neural Tangent Hierarchy}, 
@@ -440,10 +445,13 @@
 }
 
 @article{kingma2014adam,
-  title={Adam: A method for stochastic optimization},
-  author={Kingma, Diederik P},
-  journal={arXiv preprint arXiv:1412.6980},
-  year={2014}
+  title={Adam: A Method for Stochastic Optimization}, 
+  author={Diederik P. Kingma and Jimmy Ba},
+  year={2017},
+  eprint={1412.6980},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/1412.6980}, 
 }
 
 @inproceedings{Nadam2016,
@@ -451,7 +459,7 @@
 	author       = {Dozat, Timothy},
 	booktitle    = {Proceedings of the 4th International Conference on Learning Representations},
 	pages        = {1--4},
-	date         = 2016
+	year         = 2016
 }
 
 @article{amary1993sdg,
@@ -467,12 +475,27 @@ url = {https://www.sciencedirect.com/science/article/pii/092523129390006O},
 author = {Shun-ichi Amari},
 }
 
-@misc{hwang2024fadamadamnaturalgradient,
-      title={FAdam: Adam is a natural gradient optimizer using diagonal empirical Fisher information}, 
-      author={Dongseong Hwang},
-      year={2024},
-      eprint={2405.12807},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2405.12807}, 
+@article{Costantini:2025agd,
+    author = "Costantini, Mark N. and Mantani, Luca and Moore, James M. and Sanchez, Valentina Schutze and Ubiali, Maria",
+    title = "{Colibri: A new tool for fast-flying PDF fits}",
+    eprint = "2510.03391",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    month = "10",
+    year = "2025"
+}
+
+@article{tovey2025collective,
+  title={Collective variables of neural networks: empirical time evolution and scaling laws},
+  author={Tovey, Samuel and Krippendorf, Sven and Spannowsky, Michael and Nikolaou, Konstantin and Holm, Christian},
+  journal={Machine Learning: Science and Technology},
+  volume={6},
+  number={3},
+  pages={035021},
+  year={2025},
+  publisher={IOP Publishing},
+  eprint={2410.07451},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/2410.07451}, 
 }
