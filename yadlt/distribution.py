@@ -229,6 +229,12 @@ class Distribution:
             f"{self.name} + {other.name}", shape=self.shape, size=self.size
         )
         if isinstance(other, Distribution):
+            # Check that sizes match
+            if self.size != other.size:
+                raise ValueError(
+                    "Number of replicas does not match."
+                    f"{self.name} is {self.size} and {other.name} is {other.size}"
+                )
             for rep in range(self.size):
                 res.add(self._data[rep] + other._data[rep])
         elif isinstance(other, np.ndarray):

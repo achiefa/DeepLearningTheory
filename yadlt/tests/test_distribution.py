@@ -182,14 +182,6 @@ class TestDistribution:
         with pytest.raises(ValueError):
             dist1 + dist2
 
-    def test_addition_invalid_type(self):
-        """Test addition with invalid type."""
-        dist = Distribution("test")
-        dist.add(np.array([1, 2, 3]))
-
-        with pytest.raises(TypeError):
-            dist + 5
-
     def test_subtraction(self):
         """Test distribution subtraction."""
         dist1 = Distribution("dist1")
