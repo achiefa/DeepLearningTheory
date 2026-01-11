@@ -468,6 +468,17 @@ class Distribution:
 
         return bootstrap_means
 
+    def sum(self, axis=0):
+        """Sum the distribution along a given axis."""
+        new_shape_mask = np.array(
+            [True if i != axis else False for i in range(len(self.shape))]
+        )
+        new_shape = np.array(self.shape)[new_shape_mask]
+        res = Distribution(f"{self.name} sum", shape=new_shape, size=self.size)
+        summed_data = np.sum(self._data, axis=axis + 1).reshape([self.size, *new_shape])
+        res.set_data(summed_data)
+        return res
+
     def __str__(self):
         return f"{self.name}:\n{self._data}"
 
