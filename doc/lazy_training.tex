@@ -108,13 +108,6 @@ eigenvalues and eigenvectors satisfy
 \begin{align}
     H^\perp_{kk'} w^{(i)}_{k'} = h^{(i)} w^{(i)}_{k}\, .
 \end{align}
-In Fig.~\ref{fig:HPerpEigvalsTime} we show the evolution during training of the
-first five eigenvalues of $H^{\perp}$ for the three different closure datasets. It
-should not come as too much of a surprise that the eigenvalues of $H^{\perp}$
-have a similar behaviour to those of the NTK (see
-Fig.~\ref{fig:NTKEigvalsTime}), from which they are constructed. However, we see
-that $h^{(i)}$ are larger by around three orders of magnitude than the
-NTK eigenvalues.
 % ===================================
 \begin{figure}[h!]
   \centering
@@ -130,6 +123,26 @@ NTK eigenvalues.
   \label{fig:HPerpEigvalsTime}
 \end{figure}
 % ===================================
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.90\textwidth]{section_3/q_directions_sign.pdf}
+  \caption{First five eigenvectors of the combined matrix $H=\Theta M$, as in
+  Eq.~\eqref{eq:FlowEquationNoIndices}, at different training times and as
+  function of the input $x$-grid. We also show the output of the network at the
+  same training time, which is displayed in gray. L1 data is used.}
+  \label{fig:HEigVecs}
+\end{figure}
+% ===================================
+
+In Fig.~\ref{fig:HPerpEigvalsTime} we show the evolution during training of the
+first five eigenvalues of $H^{\perp}$ for the three different closure datasets.
+In Fig.~\ref{fig:HEigVecs} we show the first five eigenvectors of $H$, denoted
+as $q^{(i)}$, at different training times as functions of the $x$-grid. It
+should not come as too much of a surprise that the eigenvalues and eigenvectors
+of $H^{\perp}$ have a similar behaviour to those of the NTK (see
+Figs.~\ref{fig:NTKEigvalsTime} and \ref{fig:NTKEigVecs}), from which they are constructed.
+However, we see that $h^{(i)}$ are larger by around three orders of magnitude
+than the NTK eigenvalues.
 
 The solution to Eq.~\eqref{eq:FlowPerp} can be written as the sum of the
 solution of the homogeneous equation, $\hat{f}^{\perp}_{t,k}$, and a particular

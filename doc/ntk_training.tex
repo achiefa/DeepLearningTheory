@@ -472,71 +472,80 @@ largest eigenvalues of the NTK correspond to the directions that are orthogonal
 to $\ker\Theta$, \ie, the directions that are learnable during the training
 process. In order to have a robust training process, we expect these learnable
 directions to align with the directions that actually contribute to the loss
-functions, \ie, the ones corresponding to the largest eigenvalues of $M$.
+functions, which are the ones corresponding to the largest eigenvalues of $M$.
 Consistently with this intuition, we see that the size of this blue rectangle
 increases with training time. In particular, it is clear from our plot that it
 becomes deeper by the onset of the lazy training regime: more of the learnable
 directions -- the {\it features}\ that the network can learn -- are aligned with
 the directions that contribute most to the observables.
 
-A similar analysis can also be performed by studying the alignment of the
-eigenvectors of the NTK with the input function used to generate the data. In
-Fig.~\ref{fig:NTKAlignFin}, we show the cosine of the angle between the eigenvectors
-$z^{(k)}$ and the input $f^{\mathrm{in}}$ for two subsets of eigenvectors, 
-in the right and left panel
-respectively. In these two panels, different patterns can be observed. Firstly,
-the first four angles vary considerably during training, consistent with the
-observations made in the figures before. Furthermore, we see that other than
-changing the dominant eigenvectors, the NTK is also activating the other
-directions that were subdominant in the first stage of training, in agreement 
-with the observations coming from Figs.~\ref{fig:EigvalsComparison}-\ref{fig:NtkMAlign}.
-By the onset of the lazy training regime, the input function lies entirely in
-the subspace spanned by the first four eigenvectors of the NTK. This confirms
-that the NTK has aligned its features with the physically relevant directions of
-the problem.
-
 % ===================================
 \begin{figure}[ht!]
   \centering
-  \includegraphics[width=0.45\textwidth]{section_3/ntk_alignment_fin_L2_1}
-  \includegraphics[width=0.45\textwidth]{section_3/ntk_alignment_fin_L2_2}
-  \caption{Alignment of the eigenvectors of the NTK with the input function
-  $\fin$ used to generate the L2 data, measured in terms of $\cos
-  \theta^{(k)} = (z^{(k)}, \fin)/ \Vert \fin \Vert$. In the
-  left panel, the first four eigenvectors of the NTK are shown, while the right
-  panel shows the remaining eigenvectors up to $k=7$. Note that $f^{\mathrm{in}}$
-  lies entirely in the subspace spanned by the first four eigenvectors of the NTK 
-  by the onset of the lazy training regime. We see that the NTK has aligned its
-  features with the physically relevant directions of the problem.}
+  \includegraphics[width=0.60\textwidth]{section_3/coverage_ntk_basis_L2.pdf}
+  \caption{Reconstruction error $C_t(r)$ as defined in Eq.~\eqref{eq:NTKCoverage}
+  as a function of the training time and for different numbers of eigenvectors
+  $r$. Note that $\fin$ lies entirely in the subspace spanned by the first four
+  eigenvectors of the NTK by the onset of the lazy training regime. We see that
+  the NTK has aligned its features with the physically relevant directions of
+  the problem.}
   \label{fig:NTKAlignFin}
 \end{figure}
 % ===================================
-
-
-A complementary picture is displayed in Fig.~\ref{fig:NTKMEigVecs}. Here, we
-show the eigenvectors of the product of matrices $\Theta_t M$, labelled with
-$q^{(i)}$, at different training times and as functions of the $x$-grid. The
-product of these two matrices will become relevant in
-Sec.~\ref{sec:LazyTraining}, where the solution of the lazy training equations
-is expressed as a linear combination of these eigenvectors. 
-Together with the eigenvectors, we also show the
-output of the trained neural network at the corresponding training time. From
-these plots, we see that as the training progresses, the shape of the eigenvectors
-becomes more structured in order to reproduce the output function. Again, this
-conclusion supports the observations made previously in various occasions, that
-during training the neural network is changing its internal representation and
-the NTK encodes this information.
+We remark that the eigenvectors of the NTK form an orthonormal basis in
+$\mathbb{R}^{\ngrid}$ at any epoch of the training process. We have also shown
+that only a subset of these eigenvectors contribute to the training dynamics, as
+they correspond to the non-zero eigenvalues of the NTK. We may thus wonder how
+expressive the vectors belonging to this subspace are, \ie, how well the
+internal representation of the neural network can reconstruct the input function
+$\fin$ used to generate the data. In order to quantify this aspect, we define a
+new figure of merit
+\begin{equation}
+  C_t(r) = 1 - \sum_{k=1}^{r} \frac{(z^{(k)}, \fin)^2}{\Vert \fin \Vert^2} \,,
+  \label{eq:NTKCoverage}
+\end{equation}
+which measures the reconstruction error of the input function $\fin$ when
+projected onto the subspace spanned by the first $r$ eigenvectors of the NTK at
+training time $t$. We show $C_t(r)$ as a function of the training time and for
+different choices of $r$ in Fig.~\ref{fig:NTKAlignFin}. Inspecting the figure,
+we see that in the early stages of training the reconstruction error does not
+change significantly with time. This behaviour is shared across all displayed
+values of $r$, consistent with the observations made so far. In fact, in this
+first phase the NTK has not yet found a suitable internal representation and the
+addition of more eigenvectors corresponding to yet undiscovered directions --
+those associated with a small eigenvalue as in Fig.~\ref{fig:NTKEigvalsTime} --
+does not result in an improvement of the reconstruction of $\fin$. Conversely,
+once the onset of lazy training is approached, we identify two distinct
+behaviours depending on the number of used eigenvectors. If we include enough
+eigenvectors (\eg, $r=6$ and $r=7$ in the figure), the reconstruction error
+drops significantly and remains almost constant throughout the rest of the
+training. On the other hand, if we consider fewer eigenvectors (\eg, $r=4$ and
+$r=5$ in the figure), the reconstruction error becomes larger and growts
+indefinitely with training time. This results show us that the subset of
+eigenvectors orthogonal to $\ker \Theta$ is capable of providing an effective
+lower dimensional basis, provided that the new modes discovered by the NTK
+during training are included. Note that the reconstruction of the input function
+improves as long as the included eigenvectors do not belong to $\ker \Theta$ --
+being noise, they do not bring any physical information.
 
 % ===================================
 \begin{figure}[ht!]
   \centering
-  \includegraphics[width=0.90\textwidth]{section_3/q_directions_sign.pdf}
-  \caption{First five eigenvectors of the combined matrix $H=\Theta M$, as in
-  Eq.~\eqref{eq:FlowEquationNoIndices}, at different training times and as
+  \includegraphics[width=0.90\textwidth]{section_3/ntk_directions_L1.pdf}
+  \caption{First five eigenvectors of the NTK at different training times and as
   function of the input $x$-grid. We also show the output of the network at the
   same training time, which is displayed in gray. L1 data is used.}
-  \label{fig:NTKMEigVecs}
+  \label{fig:NTKEigVecs}
 \end{figure}
 % ===================================
+A complementary picture is displayed in Fig.~\ref{fig:NTKEigVecs}. Here, we
+show the eigenvectors of the NTK at different training times as functions of the
+$x$-grid, denoted by $z^{(i)}$. Together with the eigenvectors, we also show
+the output of the trained neural network at the corresponding training time.
+From these plots, we see that as the training progresses, the shape of the
+eigenvectors becomes more structured in order to reproduce the output function.
+Again, this conclusion supports the observations made previously on various
+occasions, that during training the neural network is changing its internal
+representation and the NTK encodes this information.
 
 \FloatBarrier
