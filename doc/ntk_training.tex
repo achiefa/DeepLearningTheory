@@ -65,7 +65,7 @@ where $\theta_{t,\mu}$ and $\mathcal{L}_t$ identify respectively the parameters
 and the loss function at training time $t$. We distinguish between the
 continuous training time $t$ and the discrete epochs of GD, the latter denoted
 using the capital letter $T$. The two are related through the learning rate, $t
-= \eta T$, and in the following we will use them interchangeably.
+= \eta T$ with $\eta = 10^{-5}$, and in the following we will use them interchangeably.
 
 We focus here on quadratic loss functions that are obtained as the negative
 logarithm of Gaussian data distributions around their theoretical predictions,
@@ -509,7 +509,7 @@ projected onto the subspace spanned by the first $r$ eigenvectors of the NTK at
 training time $t$. We show $C_t(r)$ as a function of the training time and for
 different choices of $r$ in Fig.~\ref{fig:NTKAlignFin}. Inspecting the figure,
 we see that in the early stages of training the reconstruction error does not
-change significantly with time. This behaviour is shared across all displayed
+change significantly with time. This behaviour is shared across all
 values of $r$, consistent with the observations made so far. In fact, in this
 first phase the NTK has not yet found a suitable internal representation and the
 addition of more eigenvectors corresponding to yet undiscovered directions --
@@ -526,7 +526,7 @@ eigenvectors orthogonal to $\ker \Theta$ is capable of providing an effective
 lower dimensional basis, provided that the new modes discovered by the NTK
 during training are included. Note that the reconstruction of the input function
 improves as long as the included eigenvectors do not belong to $\ker \Theta$ --
-being noise, they do not bring any physical information.
+being noise, they would not bring any physical information.
 
 % ===================================
 \begin{figure}[ht!]

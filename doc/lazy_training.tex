@@ -683,14 +683,17 @@ The analytical expression for the covariance matrix,
 Eq.~\eqref{eq:SumOfCovariances}, allows us to monitor the relative size of the
 three contributions as training proceeds. For a properly trained ensemble of
 networks, the covariance of the trained fields should be dominated by the
-statistical error on the data. We show the diagonal entries of the decomposition
-of the error budget in Fig.~\ref{fig:ErrorBudgetL2}, for different frozen NTKs
-(rows) and different training epochs (columns), using L2 data as before. In
-general, we observe that towards the end of the training process the
-contribution from the data $C_t^{(YY)}$ (orange band) becomes dominant with
-respect to the contribution coming from the initial condition $C_t^{(00)}$ (blue
-band). We also see that the suppression of the initial condition is more severe
-and happens earlier when the frozen NTK is taken at later stages of training.
+statistical error on the data. We show the diagonal entries of the two
+contributions $C_t^{(00)}$ (blue band) and $C_t^{(YY)}$ (orange band) to the
+error budget in Fig.~\ref{fig:ErrorBudgetL2}, for different frozen NTKs (rows)
+and different training epochs (columns), using L2 data as before. We
+do not show the mixed term $C_t^{(0Y)}$ since it is negligible with respect to
+the other two contributions -- the two sources of uncertainty are largely
+uncorrelated. In general, we observe that towards the end of the training
+process the contribution from the data $C_t^{(YY)}$ becomes dominant with
+respect to the contribution coming from the initial condition $C_t^{(00)}$. We
+also see that the suppression of the initial condition is more severe and
+happens earlier when the frozen NTK is taken at later stages of training.
 
 In order to study the dependence of the error decomposition on the initial
 condition, we repeat the same analysis for the case of scaled input $f(x, \log
