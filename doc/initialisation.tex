@@ -20,8 +20,8 @@ review.
 
 The extraction of PDFs from experimental data is a classic example of an inverse
 problem, namely the reconstruction of a function $f(x)$ from a finite set of
-data points $Y_I$, where the index $I=1, \ldots, \ndat$\footnote{When omitting
-the data index $I$, we will always assume $Y \in \mathbb{R}^{\ndat}$.}. In
+data points $Y_I$, where the index $I=1, \ldots, \ndat$.\footnote{When omitting
+the data index $I$, we will always assume $Y \in \mathbb{R}^{\ndat}$.} In
 particular, for this study, we will focus on DIS data, which depend linearly on
 the function $f(x)$. The theoretical prediction for the data point $Y_I$ is
 given by
@@ -51,9 +51,9 @@ problem is conveniently phrased in a Bayesian framework. The functions $f_i$ are
 promoted to stochastic processes; for any grid of points $x_{\alpha}$,
 $\alpha=1, \ldots, \ngrid$, the vector $f_{i\alpha}=f_{i}(x_{\alpha})$ is a
 vector of $\nflav\times\ngrid$ stochastic variables, for which we introduce a
-{\em prior}\ distribution $p(f)$~\footnote{Following the same convention used for the
+{\em prior}\ distribution $p(f)$.\footnote{Following the same convention used for the
 data, when omitting the grid index $\alpha$, and/or the flavor index $i$, we
-will always refer to a vector $f \in \mathbb{R}^{\nflav\times\ngrid}$.}. In this
+will always refer to a vector $f \in \mathbb{R}^{\nflav\times\ngrid}$.} In this
 perspective, any fitting procedure is interpreted as a recipe that yields the
 {\em posterior}\ distribution $\tilde{p}(f) = p(f | Y)$.
 In this study, following the NNPDF methodology, probability distributions are represented by
@@ -130,8 +130,8 @@ a Glorot normal distribution~\cite{glorot2010understanding}. The preactivation
 function of a neuron is denoted as $\phi^{(\ell)}_{i,\alpha} =
 \phi^{(\ell)}_i(x_\alpha)$, where $\ell = 0, \ldots, L$, denotes the layer of the neuron, 
 and, for each $\ell$, $i=1, \ldots, n_{\ell}$
-identifies the neuron within the layer\footnote{We refer to $i$ as the {\em
-neuron}\ index.}. Furthermore, $x_{\alpha}$ is the input to the NN, \ie, a point in the 
+identifies the neuron within the layer.\footnote{We refer to $i$ as the {\em
+neuron}\ index.} Furthermore, $x_{\alpha}$ is the input to the NN, \ie, a point in the 
 interval $[0,1]$. A grid of
 $\ngrid=50$ points in $x$ is used to compute observables in the NNPDF formalism and in
 this work we focus on the values of $f$ at those values of $x_\alpha$, where 
@@ -165,10 +165,10 @@ the previous layer, namely
 The PDFs in the so-called evolution basis are parametrized by the preactivation
 functions of the output layer $L$, $x_\alpha f_i(x_\alpha)=
 \phi^{(L)}_{i,\alpha}$, where the neuron index on the last layer, $i=1, \ldots,
-8$, labels the flavors\footnote{For simplicity, we ignore the preprocessing
+8$, labels the flavors.\footnote{For simplicity, we ignore the preprocessing
 function $x^{-\alpha_i} (1-x)^{\beta_i}$ that is currently used in the NNPDF
 fits. While the preprocessing may be useful in speeding the training it does not
-affect the current discussion.}. The input layer is identified by $\ell=0$ and
+affect the current discussion.} The input layer is identified by $\ell=0$ and
 the activation function for that specific layer is the identity, so that
 \begin{equation}
     \label{eq:InitLayerPhi}

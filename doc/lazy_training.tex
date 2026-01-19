@@ -127,7 +127,7 @@ eigenvalues and eigenvectors satisfy
   \centering
   \includegraphics[width=0.90\textwidth]{section_3/q_directions_sign.pdf}
   \caption{First five eigenvectors of the combined matrix $H=\Theta M$, as in
-  Eq.~\eqref{eq:FlowEquationNoIndices}, at different training times and as
+  Eq.~\eqref{eq:FlowEquationNoIndices}, at different training times and as a
   function of the input $x$-grid. We also show the output of the network at the
   same training time, which is displayed in gray. L1 data is used.}
   \label{fig:HEigVecs}
@@ -273,18 +273,17 @@ transformation of the initial fields $f_{0,\alpha}$, and a linear transformation
 of the data $Y_I$. The two transformations depend on the flow time $t$ and are
 given by the evolution operators $U(t)$ and $V(t)$. Fig.~\ref{fig:OnsetLazyL2}
 compares the analytical solution with the trained function at the end of
-training, for different choices of the frozen NTK. The NN is trained using the 
-numerical GD until $t_{\rm ref}$, at which point the NTK is frozen. The evolution time $t$ used
-in the analytical solution is the difference between the total training time and
-$t_{\rm ref}$; the intial condition for the analytical solution is the 
-trained solution at $t_{\rm ref}$. Central value and uncertainty bands are obtained 
-by computing the
-analytical solution for each replica of the initial condition and frozen NTK.
-\footnote{ If not stated otherwise, in this section central values and
-uncertainties are always computed as ensemble averages across replicas. } The
-figures agree with the expectation; the closer $t_{\rm ref}$ is to the onset of
-the lazy regime, the better the agreement between the analytical solution and
-the trained function.
+training, for different choices of the frozen NTK. The NN is trained using the
+numerical GD until $t_{\rm ref}$, at which point the NTK is frozen. The
+evolution time $t$ used in the analytical solution is the difference between the
+total training time and $t_{\rm ref}$; the intial condition for the analytical
+solution is the trained solution at $t_{\rm ref}$. Central value and uncertainty
+bands are obtained by computing the analytical solution for each replica of the
+initial condition and frozen NTK.\footnote{Unless stated otherwise, in this
+section central values and uncertainties are always computed as ensemble
+averages across replicas.} The figures agree with the expectation; the closer
+$t_{\rm ref}$ is to the onset of the lazy regime, the better the agreement
+between the analytical solution and the trained function.
 % Onset Lazy L2 ===================================
 \begin{figure}[ht!]
   \centering
@@ -686,14 +685,14 @@ networks, the covariance of the trained fields should be dominated by the
 statistical error on the data. We show the diagonal entries of the two
 contributions $C_t^{(00)}$ (blue band) and $C_t^{(YY)}$ (orange band) to the
 error budget in Fig.~\ref{fig:ErrorBudgetL2}, for different frozen NTKs (rows)
-and different training epochs (columns), using L2 data as before. We
-do not show the mixed term $C_t^{(0Y)}$ since it is negligible with respect to
-the other two contributions -- the two sources of uncertainty are largely
-uncorrelated. In general, we observe that towards the end of the training
-process the contribution from the data $C_t^{(YY)}$ becomes dominant with
-respect to the contribution coming from the initial condition $C_t^{(00)}$. We
-also see that the suppression of the initial condition is more severe and
-happens earlier when the frozen NTK is taken at later stages of training.
+and different training epochs (columns), using L2 data as before. We do not show
+the mixed term $C_t^{(0Y)}$ since it is negligible with respect to the other two
+contributions -- the two sources of uncertainty are largely uncorrelated. In
+general, we observe that towards the end of the training process the
+contribution from the data $C_t^{(YY)}$ becomes dominant with respect to the
+contribution coming from the initial condition $C_t^{(00)}$. We also see that
+the suppression of the initial condition is more severe and happens earlier when
+the frozen NTK is taken at later stages of training.
 
 In order to study the dependence of the error decomposition on the initial
 condition, we repeat the same analysis for the case of scaled input $f(x, \log

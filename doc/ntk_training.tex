@@ -210,10 +210,10 @@ Fig.~\ref{fig:NTKInit}. Even though the Frobenius norm is a coarse indicator of
 the variations of the NTK, the figure shows clearly that the variance of the
 norm becomes smaller with the size of the network, which is consistent with the
 theoretical expectation that the NTK should not fluctuate for infinite-width
-networks\footnote{Note that, in addition to the scaling $\mathcal{O}(1/n)$
+networks.\footnote{Note that, in addition to the scaling $\mathcal{O}(1/n)$
 theoretically predicted for large networks, the uncertainty bands include
 bootstrap errors due to the finite size of the ensemble. Using an ensemble of
-100 replicas, the bootstrap error on the standard deviation is $\sim 10\%$.}.
+100 replicas, the bootstrap error on the standard deviation is $\sim 10\%$.}
 
 % ===================================
 \begin{figure}[ht!]
@@ -234,10 +234,10 @@ A more quantitative description of the NTK at initialisation is provided by its
 spectrum, which is shown in Fig.~\ref{fig:NTKSpectrum} for four different
 architectures. Inspecting the figure, we see that the spectrum of the NTK is
 heavily hierarchical, and only few eigenvalues are actually
-non-zero\footnote{Note that, due to the large difference in magnitude of the
+non-zero.\footnote{Note that, due to the large difference in magnitude of the
 eigenvalues, the finite precision used in our codes introduces noise in the
 decomposition, so that small eigenvalues should be effectively considered zero.
-We discuss the cut-off tolerance in Appendix~\ref{sec:cutoff}.}. Such a hierarchy 
+We discuss the cut-off tolerance in Appendix~\ref{sec:cutoff}.} Such a hierarchy 
 in the eigenvalues means that
 only a small subset of active directions can inform the network during training,
 as it will be discussed later. Note that, at least at initialisation, these
@@ -494,12 +494,11 @@ the directions that contribute most to the observables.
 % ===================================
 We remark that the eigenvectors of the NTK form an orthonormal basis in
 $\mathbb{R}^{\ngrid}$ at any epoch of the training process. We have also shown
-that only a subset of these eigenvectors contribute to the training dynamics, as
-they correspond to the non-zero eigenvalues of the NTK. We may thus wonder how
-expressive the vectors belonging to this subspace are, \ie, how well the
-internal representation of the neural network can reconstruct the input function
-$\fin$ used to generate the data. In order to quantify this aspect, we define a
-new figure of merit
+that only a subset of these eigenvectors contribute to the training dynamics. We
+may thus wonder how expressive the vectors belonging to the subspace orthogonal
+to the kernel are, \ie, how well the internal representation of the neural
+network can reconstruct the input function $\fin$ used to generate the data. In
+order to quantify this aspect, we define a new figure of merit
 \begin{equation}
   C_t(r) = 1 - \sum_{k=1}^{r} \frac{(z^{(k)}, \fin)^2}{\Vert \fin \Vert^2} \,,
   \label{eq:NTKCoverage}
@@ -509,18 +508,18 @@ projected onto the subspace spanned by the first $r$ eigenvectors of the NTK at
 training time $t$. We show $C_t(r)$ as a function of the training time and for
 different choices of $r$ in Fig.~\ref{fig:NTKAlignFin}. Inspecting the figure,
 we see that in the early stages of training the reconstruction error does not
-change significantly with time. This behaviour is shared across all
-values of $r$, consistent with the observations made so far. In fact, in this
-first phase the NTK has not yet found a suitable internal representation and the
-addition of more eigenvectors corresponding to yet undiscovered directions --
-those associated with a small eigenvalue as in Fig.~\ref{fig:NTKEigvalsTime} --
-does not result in an improvement of the reconstruction of $\fin$. Conversely,
-once the onset of lazy training is approached, we identify two distinct
-behaviours depending on the number of used eigenvectors. If we include enough
-eigenvectors (\eg, $r=6$ and $r=7$ in the figure), the reconstruction error
-drops significantly and remains almost constant throughout the rest of the
-training. On the other hand, if we consider fewer eigenvectors (\eg, $r=4$ and
-$r=5$ in the figure), the reconstruction error becomes larger and growts
+change significantly with time. This behaviour is shared across all values of
+$r$. In fact, in this first phase the NTK has not yet found a suitable internal
+representation and the inclusion of more eigenvectors corresponding to yet
+undiscovered directions -- those associated with a small eigenvalue as in
+Fig.~\ref{fig:NTKEigvalsTime} -- does not result in an improvement of the
+reconstruction of $\fin$. Conversely, once the onset of lazy training is
+approached, we identify two distinct behaviours depending on the number of used
+eigenvectors. If we include the eigenvectors up to the modes discovered during
+training (\eg, $r=6$ and $r=7$ in the figure), the reconstruction error drops
+significantly and remains almost constant throughout the rest of the learning
+process. On the other hand, if we consider fewer eigenvectors (\eg, $r=4$ and
+$r=5$ in the figure), the reconstruction error becomes larger and grows
 indefinitely with training time. This results show us that the subset of
 eigenvectors orthogonal to $\ker \Theta$ is capable of providing an effective
 lower dimensional basis, provided that the new modes discovered by the NTK
