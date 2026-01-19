@@ -26,6 +26,7 @@ from yadlt.load_data import (
     load_bcdms_grid,
     load_bcdms_pdf,
 )
+from yadlt.loader import RemoteLoader
 from yadlt.model import load_trained_model, load_weights
 
 logger = logging.getLogger(__name__)
@@ -281,7 +282,11 @@ class FitContext(Context):
 
         self.fit_folder = fit_folder or (FIT_FOLDER / self.fit_name)
         if not self.fit_folder.exists():
-            raise ValueError(f"Fit folder {self.fit_folder} does not exist.")
+            logger.info(
+                f"Fit folder {self.fit_folder} does not exist. Attempting to download..."
+            )
+            rm_loader = RemoteLoader()
+            rm_loader.download_remote_fit(fit_name)
 
         logger.info(f"FitContext initialized for fit: {self.fit_name}")
 
